@@ -1,7 +1,9 @@
-package edu.byui.team06.proxialert;
+package edu.byui.team06.proxialert.view;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+
+import edu.byui.team06.proxialert.R;
 
 import static java.lang.Math.sqrt;
 

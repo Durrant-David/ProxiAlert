@@ -2,7 +2,8 @@ package edu.byui.team06.proxialert;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
-import java.util.regex.Pattern;
+
+import edu.byui.team06.proxialert.view.MainActivity;
 
 /**
  * Example local unit test, which will execute on the development machine (host).
