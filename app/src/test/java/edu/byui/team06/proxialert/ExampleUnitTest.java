@@ -1,8 +1,8 @@
 package edu.byui.team06.proxialert;
 
 import org.junit.Test;
-
 import static org.junit.Assert.*;
+import java.util.regex.Pattern;
 
 /**
  * Example local unit test, which will execute on the development machine (host).
@@ -11,7 +11,18 @@ import static org.junit.Assert.*;
  */
 public class ExampleUnitTest {
     @Test
-    public void addition_isCorrect() {
-        assertEquals(4, 2 + 2);
-    }
+    public void addition_isCorrect() {assertEquals(4, 2 + 2);}
+
+    @Test
+    public void multiplication_isCorrect() {assertEquals(100, 2 * 2 * 5); }
+
+    @Test
+    //0.5 represents miles.
+    public void getDist_isCorrect() { assertTrue(MainActivity.getDistance(0,0, 3, 4, 5.0f));}
+
+    //@Test
+   // public void latAndLongFormatting() { assertThat(4.2f, );}
+
+
+
 }
