@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">ProxiAlert</string>
+    <string name="action_settings">Settings</string>
+    <string name="activity_title_home">Tasks</string>
+    <string name="msg_no_tasks">No tasks found!</string>
+    <string name="lbl_new_task_title">New Task</string>
+    <string name="lbl_edit_task_title">Edit Task</string>
+    <string name="hint_enter_task">Enter your task!</string>
+    <string name="hint_enter_address">Enter location of task.</string>
+    <string name="hint_enter_due_date">Enter Due Date of task.</string>
+    <string name="hint_enter_radius">Enter proximity to be notified.</string>
 </resources>

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +18,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
 
     // Database Name
-    private static final String DATABASE_NAME = "notes_db";
+    private static final String DATABASE_NAME = "ProxiDB";
 
 
     public DatabaseHelper(Context context) {
@@ -42,14 +43,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public long insertNote(String note) {
+    public long insertTask(String task, String address, String dueDate, String radius) {
         // get writable database as we want to write data
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        // `id` and `timestamp` will be inserted automatically.
-        // no need to add them
-        values.put(ProxiDB.COLUMN_TASK, note);
+        values.put(ProxiDB.COLUMN_TASK, task);
+        values.put(ProxiDB.COLUMN_ADDRESS, address);
+        values.put(ProxiDB.COLUMN_DUEDATE, dueDate);
+        values.put(ProxiDB.COLUMN_RADIUS, radius);
 
         // insert row
         long id = db.insert(ProxiDB.TABLE_NAME, null, values);
@@ -66,20 +68,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
 
         Cursor cursor = db.query(ProxiDB.TABLE_NAME,
-                new String[]{ProxiDB.COLUMN_ID, ProxiDB.COLUMN_TASK, ProxiDB.COLUMN_ADDRESS},
+                new String[]{ProxiDB.COLUMN_ID,
+                        ProxiDB.COLUMN_TASK,
+                        ProxiDB.COLUMN_ADDRESS,
+                        ProxiDB.COLUMN_DUEDATE,
+                        ProxiDB.COLUMN_RADIUS},
                 ProxiDB.COLUMN_ID + "=?",
                 new String[]{String.valueOf(id)}, null, null, null, null);
 
         if (cursor != null)
             cursor.moveToFirst();
 
-        // prepare note object
+        Log.v("test", "-" + cursor.getInt(cursor.getColumnIndex(ProxiDB.COLUMN_ID)));
         ProxiDB proxiDB = new ProxiDB(
                 cursor.getInt(cursor.getColumnIndex(ProxiDB.COLUMN_ID)),
                 cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_TASK)),
                 cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_ADDRESS)),
                 cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_DUEDATE)),
-                cursor.getInt(cursor.getColumnIndex(ProxiDB.COLUMN_RADIUS)));
+                cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_RADIUS)));
 
         // close the db connection
         cursor.close();
@@ -87,8 +93,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return proxiDB;
     }
 
-    public List<ProxiDB> getAllNotes() {
-        List<ProxiDB> notes = new ArrayList<>();
+    public List<ProxiDB> getAllTasks() {
+        List<ProxiDB> tasks = new ArrayList<>();
 
         // Select All Query
         String selectQuery = "SELECT  * FROM " + ProxiDB.TABLE_NAME + " ORDER BY " +
@@ -104,19 +110,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 proxiDB.setId(cursor.getInt(cursor.getColumnIndex(ProxiDB.COLUMN_ID)));
                 proxiDB.setTask(cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_TASK)));
                 proxiDB.setAddress(cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_ADDRESS)));
+                proxiDB.setDueDate(cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_DUEDATE)));
+                proxiDB.setRadius(cursor.getString(cursor.getColumnIndex(proxiDB.COLUMN_RADIUS)));
 
-                notes.add(proxiDB);
+                tasks.add(proxiDB);
             } while (cursor.moveToNext());
         }
 
         // close db connection
         db.close();
-
-        // return notes list
-        return notes;
+        cursor.close();
+        
+        // return tasks list
+        return tasks;
     }
 
-    public int getNotesCount() {
+    public int getTaskCount() {
         String countQuery = "SELECT  * FROM " + ProxiDB.TABLE_NAME;
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(countQuery, null);
@@ -129,21 +138,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return count;
     }
 
-    public int updateNote(ProxiDB note) {
+    public int updateTask(ProxiDB proxiDB) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(ProxiDB.COLUMN_TASK, note.getTask());
+        values.put(ProxiDB.COLUMN_TASK, proxiDB.getTask());
+        values.put(ProxiDB.COLUMN_ADDRESS, proxiDB.getAddress());
+        values.put(ProxiDB.COLUMN_DUEDATE, proxiDB.getDueDate());
+        values.put(ProxiDB.COLUMN_RADIUS, proxiDB.getRadius());
 
         // updating row
         return db.update(ProxiDB.TABLE_NAME, values, ProxiDB.COLUMN_ID + " = ?",
-                new String[]{String.valueOf(note.getId())});
+                new String[]{String.valueOf(proxiDB.getId())});
     }
 
-    public void deleteNote(ProxiDB note) {
+    public void deleteTask(ProxiDB task) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(ProxiDB.TABLE_NAME, ProxiDB.COLUMN_ID + " = ?",
-                new String[]{String.valueOf(note.getId())});
+                new String[]{String.valueOf(task.getId())});
         db.close();
     }
 }
