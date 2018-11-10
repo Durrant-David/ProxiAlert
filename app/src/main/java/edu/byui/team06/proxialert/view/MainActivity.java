@@ -56,11 +56,9 @@ public class MainActivity extends AppCompatActivity {
 
     private DatabaseHelper db;
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
 
 
         //This is temporary. We can send a lot more notifications later, but for now

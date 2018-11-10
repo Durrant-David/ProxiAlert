@@ -17,23 +17,24 @@ public class Notification {
     private int notificationId;
     private NotificationCompat.Builder nb;
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     public Notification(String title, String content, String longText, Context c ) {
         notificationCounter++;
         notificationId = notificationCounter;
         notifManager = getSystemService(c, NotificationManager.class);
 
-        /* create a Notification channel */
-        String channelId = "myNotification";
-        CharSequence channelName = "Some Channel";
-        int importance = NotificationManager.IMPORTANCE_HIGH;
-        NotificationChannel notificationChannel = new NotificationChannel(channelId, channelName, importance);
-        notificationChannel.enableLights(true);
-        notificationChannel.setLightColor(Color.BLUE);
-        notificationChannel.enableVibration(true);
-        notificationChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
-        notifManager.createNotificationChannel(notificationChannel);
 
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            /* create a Notification channel */
+            String channelId = "myNotification";
+            CharSequence channelName = "Some Channel";
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel notificationChannel = new NotificationChannel(channelId, channelName, importance);
+            notificationChannel.enableLights(true);
+            notificationChannel.setLightColor(Color.BLUE);
+            notificationChannel.enableVibration(true);
+            notificationChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
+            notifManager.createNotificationChannel(notificationChannel);
+        }
 
         //build the notification
         nb = new NotificationCompat.Builder(c, "myNotification")
