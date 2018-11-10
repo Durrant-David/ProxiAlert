@@ -23,40 +23,17 @@ import static java.lang.Math.sqrt;
 public class MainActivity extends AppCompatActivity {
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        NotificationManager notificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-        //create a Notification channel
-        String channelId = "myNotification";
-        CharSequence channelName = "Some Channel";
-        int importance = NotificationManager.IMPORTANCE_HIGH;
-        NotificationChannel notificationChannel = new NotificationChannel(channelId, channelName, importance);
-        notificationChannel.enableLights(true);
-        notificationChannel.setLightColor(Color.BLUE);
-        notificationChannel.enableVibration(true);
-        notificationChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
-        notificationManager.createNotificationChannel(notificationChannel);
 
 
-        //build the notification
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, "myNotification")
-                //.setLargeIcon(BitmapFactory.decodeFile(Context.getFilesDir().getPath("/data/data/edu.byui.team06.proxialert/IMG_2149.JPG"))
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
-                .setContentTitle("ProxiAlert!")
-                .setContentText("John is within 1 mile of your current location! Have time to visit?")
-                //.setStyle(new NotificationCompat.BigTextStyle()
-                  //      .bigText("John is within 1 mile of your current location! Have time to visit?"))
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
-
-
-            //finally notify the user.
-// notificationId is a unique int for each notification that you must define
-            notificationManager.notify(100, mBuilder.build());
+        Notification n = new Notification("Test", "This is working",
+                "I'm working and this is longer " +
+                        "text that can be read if the notification is expanded.",
+                this.getApplicationContext());
+        n.send();
 
 
     }
