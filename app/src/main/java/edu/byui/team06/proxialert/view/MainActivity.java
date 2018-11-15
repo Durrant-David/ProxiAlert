@@ -5,6 +5,7 @@ package edu.byui.team06.proxialert.view;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.RingtoneManager;
@@ -28,8 +29,10 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -39,6 +42,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.byui.team06.proxialert.R;
+import edu.byui.team06.proxialert.SettingsActivity;
 import edu.byui.team06.proxialert.database.DatabaseHelper;
 import edu.byui.team06.proxialert.database.model.ProxiDB;
 import edu.byui.team06.proxialert.utils.MyDividerItemDecoration;
@@ -62,6 +66,12 @@ public class MainActivity extends AppCompatActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
+    }
+
+
+    public void startSettings(MenuItem item) {
+        Intent intent = new Intent(this, SettingsActivity.class);
+        startActivity(intent);
     }
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -279,4 +289,6 @@ public class MainActivity extends AppCompatActivity {
     static public Boolean getDistance(float x1, float y1, float x2, float y2, float distance) {
         return distance <= sqrt(Math.pow(x2 - x1, 2) + Math.pow((y2-y1), 2));
     }
+
+
 }

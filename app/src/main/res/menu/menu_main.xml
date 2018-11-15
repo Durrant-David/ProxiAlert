@@ -10,5 +10,6 @@
         android:id="@+id/settings"
         android:icon="@android:drawable/btn_plus"
         android:title="@string/settings"
+        android:onClick="startSettings"
         app:showAsAction="withText" />
 </menu>
