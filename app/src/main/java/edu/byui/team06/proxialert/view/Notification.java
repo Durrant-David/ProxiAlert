@@ -54,7 +54,9 @@ public class Notification {
     }
 
 
-
+    public int getId() {
+        return notificationCounter;
+    }
 
     //finally notify the user.
 // notificationId is a unique int for each notification that you must define
