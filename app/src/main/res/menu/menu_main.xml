@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="view.MainActivity"
+    android:layout_height="50dp"
+    android:layout_width="50dp">
+
+    <item
+        android:id="@+id/settings"
+        android:icon="@android:drawable/btn_plus"
+        android:title="@string/settings"
+        app:showAsAction="withText" />
+</menu>
