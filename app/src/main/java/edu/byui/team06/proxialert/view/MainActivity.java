@@ -6,6 +6,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.RingtoneManager;
@@ -75,6 +76,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     protected void onCreate(Bundle savedInstanceState) {
+        SharedPreferences pref = PreferenceManager
+                .getDefaultSharedPreferences(this);
+        String themeName = pref.getString("theme", "Theme1");
+        if (themeName.equals("Theme1")) {
+            setTheme(R.style.Theme1);
+        } else if (themeName.equals("Theme2")) {
+            Toast.makeText(this, "set theme", Toast.LENGTH_SHORT).show();
+            setTheme(R.style.Theme2);
+        }
+        Toast.makeText(this, "Theme has been reset to " + themeName,
+                Toast.LENGTH_SHORT).show();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
