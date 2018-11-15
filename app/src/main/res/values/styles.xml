@@ -12,16 +12,5 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
     </style>
-    <style name="Theme1">
-        <item name="textColor">@color/task_list_text</item>
-        <item name="background">#F4F0CB</item>
-        <item name="textSize">15sp</item>
-    </style>
-
-    <style name="Theme2">
-        <item name="textColor">@color/msg_no_tasks</item>
-        <item name="background">#ffffff</item>
-        <item name="textSize">35sp</item>
-    </style>
 
 </resources>
