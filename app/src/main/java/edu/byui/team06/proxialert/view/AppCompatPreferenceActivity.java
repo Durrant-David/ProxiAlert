@@ -1,4 +1,4 @@
-package edu.byui.team06.proxialert;
+package edu.byui.team06.proxialert.view;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
