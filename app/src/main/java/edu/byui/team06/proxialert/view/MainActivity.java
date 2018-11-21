@@ -2,6 +2,7 @@ package edu.byui.team06.proxialert.view;
 
 //notification imports (many could probably be removed
 //since it was moved to its own class
+import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 
@@ -199,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
         alertDialogBuilderUserInput.setView(view);
 
         final EditText inputTask = view.findViewById(R.id.task);
-        final EditText inputAddress = view.findViewById(R.id.address);
+        final TextView inputAddress = view.findViewById(R.id.address);
         final EditText inputDueDate = view.findViewById(R.id.dueDate);
         final EditText inputRadius = view.findViewById(R.id.radius);
         TextView dialogTitle = view.findViewById(R.id.dialog_title);
@@ -273,6 +274,4 @@ public class MainActivity extends AppCompatActivity {
     static public Boolean getDistance(float x1, float y1, float x2, float y2, float distance) {
         return distance <= sqrt(Math.pow(x2 - x1, 2) + Math.pow((y2-y1), 2));
     }
-
-
 }
