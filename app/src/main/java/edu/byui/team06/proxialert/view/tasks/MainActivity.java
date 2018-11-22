@@ -36,13 +36,15 @@ import static java.lang.Math.sqrt;
 
 
 public class MainActivity extends AppCompatActivity {
-    private TaskAdapter mAdapter;
+    protected TaskAdapter mAdapter;
     private List<ProxiDB> taskList = new ArrayList<>();
     private CoordinatorLayout coordinatorLayout;
     private RecyclerView recyclerView;
     private TextView noTaskView;
     public static final String UPDATE = "UPDATE";
     public static final String POSITION = "POSITION";
+    int taskCount;
+    private static final int TASK_ACTIVITY_CODE = 0;
 
     private DatabaseHelper db;
 
@@ -54,10 +56,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+
     public void startSettings(MenuItem item) {
         Intent intent = new Intent(this, SettingsActivity.class);
         startActivity(intent);
     }
+
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
         db = new DatabaseHelper(this);
 
         taskList.addAll(db.getAllTasks());
-
+        taskCount = db.getTaskCount();
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -87,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
                 Intent taskIntent = new Intent(MainActivity.this, TaskActivity.class);
                 taskIntent.putExtra(UPDATE, false);
                 taskIntent.putExtra(POSITION, -1);
-                startActivity(taskIntent);
+                startActivityForResult(taskIntent, TASK_ACTIVITY_CODE);
                 //showTaskDialog(false, null, -1);
             }
         });
@@ -119,6 +123,7 @@ public class MainActivity extends AppCompatActivity {
         }));
     }
 
+
     /**
      * Deleting note from SQLite and removing the
      * item from the list by its position
@@ -148,6 +153,17 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if (which == 0) {
+                    ProxiDB element = taskList.get(position);
+
+                    Intent taskIntent = new Intent(MainActivity.this, TaskActivity.class);
+                    taskIntent.putExtra(UPDATE, true);
+                    taskIntent.putExtra(POSITION, position);
+                    taskIntent.putExtra("ADDRESS", element.getAddress());
+                    taskIntent.putExtra("RADIUS", element.getRadius());
+                    taskIntent.putExtra("ID", element.getId());
+                    taskIntent.putExtra("TASK", element.getTask());
+                    taskIntent.putExtra("DUE", element.getDueDate());
+                    startActivityForResult(taskIntent, TASK_ACTIVITY_CODE);
                     //showTaskDialog(true, taskList.get(position), position);
                 } else {
                     deleteTask(position);
@@ -157,12 +173,36 @@ public class MainActivity extends AppCompatActivity {
         builder.show();
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        // Check that it is the SecondActivity with an OK result
+        if (requestCode == TASK_ACTIVITY_CODE) {
+            if (resultCode == RESULT_OK) {
+
+                boolean isUpdate = data.getBooleanExtra("UPDATE", false);
+                long id = data.getLongExtra("id", 0);
+                ProxiDB element = db.getProxiDB(id);
+                if(isUpdate) {
+                    taskList.set(data.getIntExtra("POSITION", 0), element);
+
+                } else {
+
+                    taskList.add(0, element);
+                }
+                mAdapter.notifyDataSetChanged();
+                toggleEmptyTasks();
+                // Set text view with string
+            }
+        }
+    }
 
 
     /**
      * Toggling list and empty notes view
      */
-    private void toggleEmptyTasks() {
+    public void toggleEmptyTasks() {
         // you can check notesList.size() > 0
 
         if (db.getTaskCount() > 0) {

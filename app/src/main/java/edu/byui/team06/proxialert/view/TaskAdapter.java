@@ -74,14 +74,16 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder>{
         holder.dot.setText(Html.fromHtml("&#8226;"));
 
         holder.address.setText(proxiDB.getAddress());
+        return;
+        /*
         holder.setLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Toast.makeText(_context, "click", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(_context , MapsActivity.class);
                 _context.startActivity(intent);
-            }
-        });
+
+        } );*/
 
     }
 

@@ -1,6 +1,7 @@
 package edu.byui.team06.proxialert.view.tasks;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -21,12 +22,75 @@ import edu.byui.team06.proxialert.database.model.ProxiDB;
 public class TaskActivity extends AppCompatActivity {
     private List<ProxiDB> taskList = new ArrayList<>();
     private DatabaseHelper db;
-
+    private boolean isUpdate;
+    private int position;
+    private EditText inputTask;
+    private TextView inputAddress;
+    private EditText inputDueDate;
+    private EditText inputRadius;
+    private long id;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task);
+        db = new DatabaseHelper(this);
+
+        Intent intent = getIntent();
+        isUpdate = intent.getBooleanExtra("UPDATE", false);
+        position = intent.getIntExtra("POSITION", -1);
+
+        inputTask = findViewById(R.id.task);
+        inputAddress = findViewById(R.id.address);
+        inputDueDate = findViewById(R.id.dueDate);
+        inputRadius = findViewById(R.id.radius);
+
+        if(isUpdate)
+        {
+            inputTask.setText(intent.getStringExtra("TASK"));
+            inputAddress.setText(intent.getStringExtra("ADDRESS"));
+            inputDueDate.setText(intent.getStringExtra("DUE"));
+            inputRadius.setText(intent.getStringExtra("RADIUS"));
+            id = intent.getIntExtra("ID", -1);
+
+        }
     }
+
+
+    protected void onCancelButton(View view) {
+        setResult(RESULT_CANCELED);
+        finish();
+    }
+
+    protected void onSaveButton(View view) {
+
+
+        Intent intent = new Intent();
+        intent.putExtra("UPDATE", isUpdate);
+        intent.putExtra("POSITION", position);
+        String task = inputTask.getText().toString();
+        String address = inputAddress.getText().toString();
+        String dueDate = inputDueDate.getText().toString();
+        String radius = inputRadius.getText().toString();
+
+
+        if(isUpdate) {
+            ProxiDB element = db.getProxiDB(id);
+            element.setAddress(address);
+            element.setDueDate(dueDate);
+            element.setRadius(radius);
+            element.setTask(task);
+            db.updateTask(element);
+        } else {
+            id = db.insertTask(task, address, dueDate, radius);
+        }
+
+            intent.putExtra("id", id);
+            setResult(RESULT_OK, intent);
+            finish();
+
+    }
+}
+    /*
     private void showTaskDialog(final boolean shouldUpdate, final ProxiDB proxiDB, final int position) {
         LayoutInflater layoutInflaterAndroid = LayoutInflater.from(getApplicationContext());
         View view = layoutInflaterAndroid.inflate(R.layout.task_dialog, null);
@@ -95,21 +159,21 @@ public class TaskActivity extends AppCompatActivity {
     private void createTask(String task, String address, String dueDate, String radius) {
         // inserting task in db and getting
         // newly inserted task id
-        long id = db.insertTask(task, address, dueDate, radius);
-        Toast toast = Toast.makeText(this, "test"+ id, Toast.LENGTH_SHORT);
-        toast.show();
-        // get the newly inserted task from db
-        ProxiDB n = db.getProxiDB(id);
 
-        if (n != null) {
+        //Toast toast = Toast.makeText(this, "test"+ id, Toast.LENGTH_SHORT);
+       // toast.show();
+        // get the newly inserted task from db
+        //ProxiDB n = db.getProxiDB(id);
+
+        //if (n != null) {
             // adding new task to array list at 0 position
-            taskList.add(0, n);
+            //taskList.add(0, n);
 
             // refreshing the list
             //mAdapter.notifyDataSetChanged();
 
             //toggleEmptyTasks();
-        }
+       // }
     }
 
     private void updateTask(String task, String address, String dueDate, String radius, int position) {
@@ -130,3 +194,4 @@ public class TaskActivity extends AppCompatActivity {
         //toggleEmptyTasks();
     }
 }
+*/
