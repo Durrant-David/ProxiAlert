@@ -15,6 +15,7 @@ import java.util.List;
 
 import edu.byui.team06.proxialert.R;
 import edu.byui.team06.proxialert.database.model.ProxiDB;
+import edu.byui.team06.proxialert.view.maps.MapsActivity;
 
 public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder>{
 

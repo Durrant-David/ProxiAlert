@@ -20,7 +20,7 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
-        <activity android:name=".view.MainActivity">
+        <activity android:name=".view.tasks.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -28,11 +28,12 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".view.SettingsActivity"
+            android:name=".view.settings.SettingsActivity"
             android:label="@string/title_activity_settings" />
         <activity
-            android:name=".view.MapsActivity"
-            android:label="@string/title_activity_maps"></activity>
+            android:name=".view.maps.MapsActivity"
+            android:label="@string/title_activity_maps" />
+        <activity android:name=".view.tasks.taskActivity"></activity>
     </application>
 
 </manifest>
