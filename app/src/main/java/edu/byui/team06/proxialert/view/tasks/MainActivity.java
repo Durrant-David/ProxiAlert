@@ -14,14 +14,10 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,8 +28,8 @@ import edu.byui.team06.proxialert.database.model.ProxiDB;
 import edu.byui.team06.proxialert.utils.MyDividerItemDecoration;
 import edu.byui.team06.proxialert.utils.RecyclerTouchListener;
 import edu.byui.team06.proxialert.utils.Notification;
-import edu.byui.team06.proxialert.view.settings.SettingsActivity;
 import edu.byui.team06.proxialert.view.TaskAdapter;
+import edu.byui.team06.proxialert.view.settings.SettingsActivity;
 
 
 import static java.lang.Math.sqrt;
