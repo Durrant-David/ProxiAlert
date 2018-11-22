@@ -1,4 +1,4 @@
-package edu.byui.team06.proxialert.view;
+package edu.byui.team06.proxialert.utils;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;

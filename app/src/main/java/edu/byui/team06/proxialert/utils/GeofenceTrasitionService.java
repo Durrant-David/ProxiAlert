@@ -19,7 +19,7 @@ import com.google.android.gms.location.GeofencingEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.byui.team06.proxialert.view.MainActivity;
+import edu.byui.team06.proxialert.view.tasks.MainActivity;
 
 
 public class GeofenceTrasitionService extends IntentService {

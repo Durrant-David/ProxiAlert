@@ -1,4 +1,4 @@
-package edu.byui.team06.proxialert.view;
+package edu.byui.team06.proxialert.view.maps;
 
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;

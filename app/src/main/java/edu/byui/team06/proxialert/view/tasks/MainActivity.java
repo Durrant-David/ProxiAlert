@@ -1,8 +1,7 @@
-package edu.byui.team06.proxialert.view;
+package edu.byui.team06.proxialert.view.tasks;
 
 //notification imports (many could probably be removed
 //since it was moved to its own class
-import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 
@@ -32,6 +31,9 @@ import edu.byui.team06.proxialert.database.DatabaseHelper;
 import edu.byui.team06.proxialert.database.model.ProxiDB;
 import edu.byui.team06.proxialert.utils.MyDividerItemDecoration;
 import edu.byui.team06.proxialert.utils.RecyclerTouchListener;
+import edu.byui.team06.proxialert.utils.Notification;
+import edu.byui.team06.proxialert.view.settings.SettingsActivity;
+import edu.byui.team06.proxialert.view.TaskAdapter;
 
 
 import static java.lang.Math.sqrt;
