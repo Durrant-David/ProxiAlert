@@ -39,6 +39,7 @@ public class TaskActivity extends AppCompatActivity {
         isUpdate = intent.getBooleanExtra("UPDATE", false);
         position = intent.getIntExtra("POSITION", -1);
 
+
         inputTask = findViewById(R.id.task);
         inputAddress = findViewById(R.id.address);
         inputDueDate = findViewById(R.id.dueDate);
@@ -46,6 +47,8 @@ public class TaskActivity extends AppCompatActivity {
 
         if(isUpdate)
         {
+            TextView title = findViewById(R.id.dialog_title);
+            title.setText("Update Task");
             inputTask.setText(intent.getStringExtra("TASK"));
             inputAddress.setText(intent.getStringExtra("ADDRESS"));
             inputDueDate.setText(intent.getStringExtra("DUE"));
