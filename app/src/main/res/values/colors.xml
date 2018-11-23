@@ -7,4 +7,5 @@
     <color name="hint_enter">#89c3c3c3</color>
     <color name="address">#858585</color>
     <color name="task_list_text">#232323</color>
+    <color name="white">#FFFFFF</color>
 </resources>

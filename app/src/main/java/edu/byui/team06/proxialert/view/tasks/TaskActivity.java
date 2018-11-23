@@ -30,6 +30,7 @@ import java.util.Locale;
 import edu.byui.team06.proxialert.R;
 import edu.byui.team06.proxialert.database.DatabaseHelper;
 import edu.byui.team06.proxialert.database.model.ProxiDB;
+import edu.byui.team06.proxialert.view.maps.MapsActivity;
 
 public class TaskActivity extends AppCompatActivity {
     private List<ProxiDB> taskList = new ArrayList<>();
@@ -129,7 +130,6 @@ public class TaskActivity extends AppCompatActivity {
         if (isUpdate) {
             TextView title = findViewById(R.id.dialog_title);
             title.setText("Update Task");
-
             inputTask.setText(intent.getStringExtra("TASK"));
             inputAddress.setText(intent.getStringExtra("ADDRESS"));
             inputDueDate.setText(intent.getStringExtra("DUE"));
@@ -149,6 +149,14 @@ public class TaskActivity extends AppCompatActivity {
 
         }
     }
+
+    // Geofence
+    // button to open MapsActivity
+    public void onOpenMaps(View view) {
+        Intent mapsIntent = new  Intent(this, MapsActivity.class);
+        startActivity(mapsIntent);
+    }
+
 
     protected void onCancelButton(View view) {
         setResult(RESULT_CANCELED);
