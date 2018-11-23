@@ -33,7 +33,9 @@
         <activity
             android:name=".view.maps.MapsActivity"
             android:label="@string/title_activity_maps" />
+        <uses-library android:name="org.apache.http.legacy" android:required="false"/>
         <activity android:name=".view.tasks.TaskActivity"></activity>
+
     </application>
 
 </manifest>
