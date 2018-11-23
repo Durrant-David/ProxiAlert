@@ -72,6 +72,7 @@
         android:layout_marginRight="8dp"
         android:onClick="onOpenMaps"
         android:text="@string/setLocation"
+        android:onClick="startMapActivity"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/task" />
 
