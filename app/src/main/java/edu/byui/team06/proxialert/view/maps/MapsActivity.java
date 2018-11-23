@@ -1,22 +1,14 @@
 package edu.byui.team06.proxialert.view.maps;
 
-//    @Override
-//    protected void onCreate(Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_maps);
-//        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-//        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-//                .findFragmentById(R.id.map);
-//        mapFragment.getMapAsync(this);
-//    }
-
-import android.Manifest;
+        import android.Manifest;
         import android.app.PendingIntent;
         import android.content.Context;
         import android.content.Intent;
         import android.content.SharedPreferences;
         import android.content.pm.PackageManager;
         import android.graphics.Color;
+        import android.location.Address;
+        import android.location.Geocoder;
         import android.location.Location;
         import android.support.annotation.NonNull;
         import android.support.annotation.Nullable;
@@ -28,9 +20,12 @@ import android.Manifest;
         import android.view.Menu;
         import android.view.MenuInflater;
         import android.view.MenuItem;
+        import android.view.View;
+        import android.widget.EditText;
         import android.widget.TextView;
 
 
+        import android.support.v4.app.FragmentActivity;
         import com.google.android.gms.common.ConnectionResult;
         import com.google.android.gms.common.api.GoogleApiClient;
         import com.google.android.gms.common.api.ResultCallback;
@@ -45,18 +40,21 @@ import android.Manifest;
         import com.google.android.gms.maps.GoogleMap;
         import com.google.android.gms.maps.MapFragment;
         import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+        import com.google.android.gms.maps.SupportMapFragment;
+        import com.google.android.gms.maps.model.BitmapDescriptorFactory;
         import com.google.android.gms.maps.model.Circle;
         import com.google.android.gms.maps.model.CircleOptions;
         import com.google.android.gms.maps.model.LatLng;
         import com.google.android.gms.maps.model.Marker;
         import com.google.android.gms.maps.model.MarkerOptions;
 
-import edu.byui.team06.proxialert.R;
+        import java.io.IOException;
+        import java.util.List;
+
+        import edu.byui.team06.proxialert.R;
 import edu.byui.team06.proxialert.utils.GeofenceTrasitionService;
 
-public class MapsActivity extends AppCompatActivity
+public class MapsActivity extends FragmentActivity
         implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
@@ -87,12 +85,16 @@ public class MapsActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_maps);
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
         textLat = (TextView) findViewById(R.id.lat);
         textLong = (TextView) findViewById(R.id.lon);
 
         // initialize GoogleMaps
-        initGMaps();
+//        initGMaps();
 
         // create GoogleApiClient
         createGoogleApi();
@@ -197,13 +199,8 @@ public class MapsActivity extends AppCompatActivity
 
     // Initialize GoogleMaps
     private void initGMaps(){
-        setContentView(R.layout.activity_maps);
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
+        mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-//        mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
-//        mapFragment.getMapAsync(this);
     }
 
     // Callback called when Map is ready
@@ -477,6 +474,26 @@ public class MapsActivity extends AppCompatActivity
             geoFenceMarker.remove();
         if ( geoFenceLimits != null )
             geoFenceLimits.remove();
+    }
+
+    public void onMapSearch(View view) {
+        EditText locationSearch = (EditText) findViewById(R.id.editText);
+        String location = locationSearch.getText().toString();
+        List<Address> addressList = null;
+
+        if (location != null || !location.equals("")) {
+            Geocoder geocoder = new Geocoder(this);
+            try {
+                addressList = geocoder.getFromLocationName(location, 1);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            Address address = addressList.get(0);
+            LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
+            map.addMarker(new MarkerOptions().position(latLng).title("Marker"));
+            map.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+        }
     }
 
 }

@@ -145,14 +145,6 @@ public class TaskActivity extends AppCompatActivity {
         }
     }
 
-    // Geofence
-    // button to open MapsActivity
-    public void onOpenMaps(View view) {
-        Intent mapsIntent = new  Intent(this, MapsActivity.class);
-        startActivity(mapsIntent);
-    }
-
-
     protected void onCancelButton(View view) {
         setResult(RESULT_CANCELED);
         finish();
@@ -225,6 +217,8 @@ public class TaskActivity extends AppCompatActivity {
 
     }
 
+    // Geofence
+    // button to open MapsActivity
     protected void startMapActivity(View view) {
         Intent mapIntent = new Intent(TaskActivity.this, MapsActivity.class);
         startActivity(mapIntent);
