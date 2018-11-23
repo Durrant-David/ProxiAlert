@@ -1,5 +1,6 @@
 package edu.byui.team06.proxialert.view.tasks;
 
+import android.app.DatePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v7.app.AlertDialog;
@@ -8,12 +9,18 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import edu.byui.team06.proxialert.R;
 import edu.byui.team06.proxialert.database.DatabaseHelper;
@@ -29,6 +36,12 @@ public class TaskActivity extends AppCompatActivity {
     private EditText inputDueDate;
     private EditText inputRadius;
     private long id;
+    private int mDay;
+    private int mMonth;
+    private int mYear;
+    private long dueTimeStamp;
+    final private String myDateFormat = "MM/dd/yyyy";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,15 +51,43 @@ public class TaskActivity extends AppCompatActivity {
         Intent intent = getIntent();
         isUpdate = intent.getBooleanExtra("UPDATE", false);
         position = intent.getIntExtra("POSITION", -1);
-
+        dueTimeStamp = intent.getLongExtra("TIMESTAME", -1);
 
         inputTask = findViewById(R.id.task);
         inputAddress = findViewById(R.id.address);
         inputDueDate = findViewById(R.id.dueDate);
         inputRadius = findViewById(R.id.radius);
+        inputDueDate.setOnClickListener(new View.OnClickListener() {
 
-        if(isUpdate)
-        {
+            @Override
+            public void onClick(View v) {
+                // TODO Auto-generated method stub
+                //To show current date in the datepicker
+                Calendar myCalendar = Calendar.getInstance();
+                mYear = myCalendar.get(Calendar.YEAR);
+                mMonth = myCalendar.get(Calendar.MONTH);
+                mDay = myCalendar.get(Calendar.DAY_OF_MONTH);
+
+                DatePickerDialog mDatePicker = new DatePickerDialog(TaskActivity.this, new DatePickerDialog.OnDateSetListener() {
+                    public void onDateSet(DatePicker datepicker, int selectedyear, int selectedmonth, int selectedday) {
+                        Calendar myCalendar = Calendar.getInstance();
+                        myCalendar.set(Calendar.YEAR, selectedyear);
+                        myCalendar.set(Calendar.MONTH, selectedmonth);
+                        myCalendar.set(Calendar.DAY_OF_MONTH, selectedday);
+                        //Change as you need
+                        SimpleDateFormat sdf = new SimpleDateFormat(myDateFormat, Locale.ENGLISH);
+                        inputDueDate.setText(sdf.format(myCalendar.getTime()));
+                        mDay = selectedday;
+                        mMonth = selectedmonth;
+                        mYear = selectedyear;
+                    }
+                }, mYear, mMonth, mDay);
+                //mDatePicker.setTitle("Select date");
+                mDatePicker.show();
+            }
+        });
+
+        if (isUpdate) {
             TextView title = findViewById(R.id.dialog_title);
             title.setText("Update Task");
             inputTask.setText(intent.getStringExtra("TASK"));
@@ -57,7 +98,6 @@ public class TaskActivity extends AppCompatActivity {
 
         }
     }
-
 
     protected void onCancelButton(View view) {
         setResult(RESULT_CANCELED);
@@ -74,22 +114,38 @@ public class TaskActivity extends AppCompatActivity {
         String address = inputAddress.getText().toString();
         String dueDate = inputDueDate.getText().toString();
         String radius = inputRadius.getText().toString();
+        SimpleDateFormat sdf = new SimpleDateFormat(myDateFormat, Locale.ENGLISH);
+        Date date;
+        long timeStamp;
+        try {
+            date = sdf.parse(inputDueDate.getText().toString());
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return;
+        }
+        timeStamp = date.getTime();
 
-
-        if(isUpdate) {
+        if (isUpdate) {
             ProxiDB element = db.getProxiDB(id);
             element.setAddress(address);
             element.setDueDate(dueDate);
             element.setRadius(radius);
             element.setTask(task);
+            element.setTimeStamp(timeStamp);
             db.updateTask(element);
         } else {
-            id = db.insertTask(task, address, dueDate, radius);
+            id = db.insertTask(task, address, dueDate, radius, timeStamp);
         }
 
-            intent.putExtra("id", id);
-            setResult(RESULT_OK, intent);
-            finish();
+        intent.putExtra("id", id);
+        setResult(RESULT_OK, intent);
+        finish();
+
+    }
+
+    protected void setDate(View view) {
+        // TODO Auto-generated method stub
+        // To show current date in the datepicker
 
     }
 }

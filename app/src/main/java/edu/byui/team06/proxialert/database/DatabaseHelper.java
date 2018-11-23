@@ -43,7 +43,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public long insertTask(String task, String address, String dueDate, String radius) {
+    public long insertTask(String task, String address, String dueDate, String radius, long timeStamp) {
         // get writable database as we want to write data
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -52,6 +52,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(ProxiDB.COLUMN_ADDRESS, address);
         values.put(ProxiDB.COLUMN_DUEDATE, dueDate);
         values.put(ProxiDB.COLUMN_RADIUS, radius);
+        values.put(ProxiDB.COLUMN_TS, (int)timeStamp);
 
         // insert row
         long id = db.insert(ProxiDB.TABLE_NAME, null, values);
@@ -85,7 +86,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_TASK)),
                 cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_ADDRESS)),
                 cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_DUEDATE)),
-                cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_RADIUS)));
+                cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_RADIUS)),
+                cursor.getLong(cursor.getColumnIndex(ProxiDB.COLUMN_TS)));
 
         // close the db connection
         cursor.close();
@@ -112,7 +114,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 proxiDB.setAddress(cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_ADDRESS)));
                 proxiDB.setDueDate(cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_DUEDATE)));
                 proxiDB.setRadius(cursor.getString(cursor.getColumnIndex(proxiDB.COLUMN_RADIUS)));
-
+                proxiDB.setTimeStamp(cursor.getLong(cursor.getColumnIndex(proxiDB.COLUMN_TS)));
                 tasks.add(proxiDB);
             } while (cursor.moveToNext());
         }
@@ -146,6 +148,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(ProxiDB.COLUMN_ADDRESS, proxiDB.getAddress());
         values.put(ProxiDB.COLUMN_DUEDATE, proxiDB.getDueDate());
         values.put(ProxiDB.COLUMN_RADIUS, proxiDB.getRadius());
+        values.put(ProxiDB.COLUMN_TS, proxiDB.getTimeStamp());
 
         // updating row
         return db.update(ProxiDB.TABLE_NAME, values, ProxiDB.COLUMN_ID + " = ?",

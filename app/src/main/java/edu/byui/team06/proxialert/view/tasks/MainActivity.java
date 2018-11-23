@@ -36,6 +36,8 @@ import static java.lang.Math.sqrt;
 
 
 public class MainActivity extends AppCompatActivity {
+
+    //VARIABLES
     protected TaskAdapter mAdapter;
     private List<ProxiDB> taskList = new ArrayList<>();
     private CoordinatorLayout coordinatorLayout;
@@ -48,20 +50,6 @@ public class MainActivity extends AppCompatActivity {
 
     private DatabaseHelper db;
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-
-
-    public void startSettings(MenuItem item) {
-        Intent intent = new Intent(this, SettingsActivity.class);
-        startActivity(intent);
-    }
-
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,12 +58,13 @@ public class MainActivity extends AppCompatActivity {
 
         //This is temporary. We can send a lot more notifications later, but for now
         //it just sends immediately.
+        /*
         Notification n = new Notification("Test", "This is working",
                 "I'm working and this is longer " +
                         "text that can be read if the notification is expanded.",
                 this.getApplicationContext());
         n.send();
-      
+        */
         coordinatorLayout = findViewById(R.id.coordinator_layout);
         recyclerView = findViewById(R.id.recycler_view);
         noTaskView = findViewById(R.id.empty_tasks_view);
@@ -96,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        mAdapter = new TaskAdapter(this, taskList);
+        mAdapter = new TaskAdapter(taskList);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -114,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
                 recyclerView, new RecyclerTouchListener.ClickListener() {
             @Override
             public void onClick(View view, final int position) {
+                //Maybe we can start navigation to the location.
             }
 
             @Override
@@ -124,10 +114,33 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    /**
-     * Deleting note from SQLite and removing the
-     * item from the list by its position
-     */
+    /****************************************************
+     * onCreateOptionsMenu
+     * displays the drop down list when dots in the corner
+     * are clicked on.
+     *****************************************************/
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    /****************************************************
+     * startSettings
+     * start the settings Activity
+     *****************************************************/
+    public void startSettings(MenuItem item) {
+        Intent intent = new Intent(this, SettingsActivity.class);
+        startActivity(intent);
+    }
+
+
+    /****************************************************
+     * deleteTasks
+     * Deletes note from SQLite and removing the
+     * item from the ListView by its position
+     *****************************************************/
     private void deleteTask(int position) {
         // deleting the note from db
         db.deleteTask(taskList.get(position));
@@ -139,11 +152,12 @@ public class MainActivity extends AppCompatActivity {
         toggleEmptyTasks();
     }
 
-    /**
+    /***************************************************
+     * showActionsDialog
      * Opens dialog with Edit - Delete options
-     * Edit - 0
-     * Delete - 0
-     */
+     * Edit - Starts the TaskActivity
+     * Delete - Calls deleteTask
+     ****************************************************/
     private void showActionsDialog(final int position) {
         CharSequence colors[] = new CharSequence[]{"Edit", "Delete"};
 
@@ -154,7 +168,6 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 if (which == 0) {
                     ProxiDB element = taskList.get(position);
-
                     Intent taskIntent = new Intent(MainActivity.this, TaskActivity.class);
                     taskIntent.putExtra(UPDATE, true);
                     taskIntent.putExtra(POSITION, position);
@@ -163,8 +176,8 @@ public class MainActivity extends AppCompatActivity {
                     taskIntent.putExtra("ID", element.getId());
                     taskIntent.putExtra("TASK", element.getTask());
                     taskIntent.putExtra("DUE", element.getDueDate());
+                    taskIntent.putExtra("TimeStamp", element.getTimeStamp());
                     startActivityForResult(taskIntent, TASK_ACTIVITY_CODE);
-                    //showTaskDialog(true, taskList.get(position), position);
                 } else {
                     deleteTask(position);
                 }
@@ -173,35 +186,49 @@ public class MainActivity extends AppCompatActivity {
         builder.show();
     }
 
+    /*******************************************************
+     * onActivityResult
+     * Handles any intents that are returned to main via
+     * StartActivityForResult
+     *******************************************************/
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        // Check that it is the SecondActivity with an OK result
+        // TASK_ACTIVITY_CODE represents results with the Task Activity.
         if (requestCode == TASK_ACTIVITY_CODE) {
+
+            //If the result was set to Ok, then we will update the Views.
             if (resultCode == RESULT_OK) {
 
+                //get whether or not is(an)Update and the id of the task concerned.
+                //then select the correct element.
                 boolean isUpdate = data.getBooleanExtra("UPDATE", false);
                 long id = data.getLongExtra("id", 0);
                 ProxiDB element = db.getProxiDB(id);
-                if(isUpdate) {
+
+                //IF it's an update, change the element
+                //If it's NOT an update, add it to the end.
+                if (isUpdate) {
                     taskList.set(data.getIntExtra("POSITION", 0), element);
-
                 } else {
-
-                    taskList.add(0, element);
+                    taskList.add(db.getTaskCount() - 1, element);
                 }
+
+                //Update the view.
                 mAdapter.notifyDataSetChanged();
                 toggleEmptyTasks();
-                // Set text view with string
             }
         }
     }
 
 
-    /**
-     * Toggling list and empty notes view
-     */
+    /*******************************************************
+     * toggleEmptyTasks
+     * toggleEmptyTasks will toggle the Empty task
+     * visibility on or off depending on the amount
+     * of tasks saved in the database.
+     *******************************************************/
     public void toggleEmptyTasks() {
         // you can check notesList.size() > 0
 
@@ -210,10 +237,5 @@ public class MainActivity extends AppCompatActivity {
         } else {
             noTaskView.setVisibility(View.VISIBLE);
         }
-    }
-
-
-    static public Boolean getDistance(float x1, float y1, float x2, float y2, float distance) {
-        return distance <= sqrt(Math.pow(x2 - x1, 2) + Math.pow((y2-y1), 2));
     }
 }
