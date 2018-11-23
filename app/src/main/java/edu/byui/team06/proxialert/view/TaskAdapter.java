@@ -14,12 +14,14 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import edu.byui.team06.proxialert.R;
 import edu.byui.team06.proxialert.database.model.ProxiDB;
@@ -28,7 +30,6 @@ import edu.byui.team06.proxialert.view.maps.MapsActivity;
 public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder>{
 
     private List<ProxiDB> _taskList;
-
     //
     public class MyViewHolder extends RecyclerView.ViewHolder {
         public TextView task;
@@ -36,6 +37,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder>{
         public TextView address;
         public TextView dueDate;
         final Button setLocation;
+
 
         //
         public MyViewHolder(View view) {
@@ -45,6 +47,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder>{
             address = view.findViewById(R.id.address);
             setLocation = view.findViewById(R.id.setLocation);
             dueDate = view.findViewById(R.id.dueDate);
+
         }
     }
 
@@ -79,9 +82,11 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder>{
         //SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yyyy");
         //String formattedDate = df.format(d);
         // Displaying dot from HTML character code
-        //if(d (the current time) is beyond the due date) {
-        // holder.dot.setTextColor(Color.parseColor("#ff0000"));
-        //}
+
+        long timeStamp = Long.parseLong(proxiDB.getTimeStamp());
+         if(timeStamp +86400000 <= System.currentTimeMillis()) {
+             holder.dot.setTextColor(Color.parseColor("#ff0000"));
+         }
 
         holder.dot.setText(Html.fromHtml("&#8226;"));
         holder.dueDate.setText(proxiDB.getDueDate());

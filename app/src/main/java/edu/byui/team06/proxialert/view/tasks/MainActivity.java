@@ -176,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
                     taskIntent.putExtra("ID", element.getId());
                     taskIntent.putExtra("TASK", element.getTask());
                     taskIntent.putExtra("DUE", element.getDueDate());
-                    taskIntent.putExtra("TimeStamp", element.getTimeStamp());
+                    taskIntent.putExtra("TIMESTAMP", element.getTimeStamp());
                     startActivityForResult(taskIntent, TASK_ACTIVITY_CODE);
                 } else {
                     deleteTask(position);

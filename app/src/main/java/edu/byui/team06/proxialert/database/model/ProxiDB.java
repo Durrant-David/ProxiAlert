@@ -15,7 +15,7 @@ public class ProxiDB {
     private String _address;
     private String _dueDate;
     private String _radius;
-    private long _timeStamp;
+    private String _timeStamp;
 
 
     // Create table SQL query
@@ -25,13 +25,14 @@ public class ProxiDB {
                     + COLUMN_TASK + " TEXT,"
                     + COLUMN_ADDRESS + " TEXT,"
                     + COLUMN_DUEDATE + " TEXT,"
-                    + COLUMN_RADIUS + " INTEGER,"
-                    + COLUMN_TS + " INTEGER" +")";
+                    + COLUMN_RADIUS + " TEXT,"
+                    + COLUMN_TS + " TEXT"
+                    +")";
 
     public ProxiDB() {
     }
 
-    public ProxiDB(int id, String task, String address, String dueDate, String radius, long timeStamp) {
+    public ProxiDB(int id, String task, String address, String dueDate, String radius, String timeStamp) {
         _id = id;
         _task = task;
         _address = address;
@@ -56,9 +57,9 @@ public class ProxiDB {
         _task = task;
     }
 
-    public void setTimeStamp(long timeStamp) { _timeStamp = timeStamp; }
+    public void setTimeStamp(String timeStamp) { _timeStamp = timeStamp; }
 
-    public long getTimeStamp() { return _timeStamp; }
+    public String getTimeStamp() { return _timeStamp; }
 
     public String getAddress() {
         return _address;

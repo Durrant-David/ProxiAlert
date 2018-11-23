@@ -3,14 +3,19 @@ package edu.byui.team06.proxialert.view.tasks;
 import android.app.DatePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,15 +37,19 @@ public class TaskActivity extends AppCompatActivity {
     private boolean isUpdate;
     private int position;
     private EditText inputTask;
+    private EditText inputRadius;
     private TextView inputAddress;
     private EditText inputDueDate;
-    private EditText inputRadius;
+    Spinner radiusUnits;
     private long id;
     private int mDay;
     private int mMonth;
     private int mYear;
-    private long dueTimeStamp;
     final private String myDateFormat = "MM/dd/yyyy";
+    final private String [] items = {
+            "Units...",
+            "miles",
+            "km"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,12 +60,42 @@ public class TaskActivity extends AppCompatActivity {
         Intent intent = getIntent();
         isUpdate = intent.getBooleanExtra("UPDATE", false);
         position = intent.getIntExtra("POSITION", -1);
-        dueTimeStamp = intent.getLongExtra("TIMESTAME", -1);
-
         inputTask = findViewById(R.id.task);
         inputAddress = findViewById(R.id.address);
         inputDueDate = findViewById(R.id.dueDate);
+        radiusUnits = findViewById(R.id.radiusUnits);
         inputRadius = findViewById(R.id.radius);
+
+
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, items) {
+            @Override
+        public boolean isEnabled(int position) {
+                if (position == 0) {
+                    // Disable the first item from Spinner
+                    // First item will be use for hint
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+        @Override
+        public View getDropDownView(int position, View convertView,
+                ViewGroup parent) {
+            View view = super.getDropDownView(position, convertView, parent);
+            TextView tv = (TextView) view;
+            if(position == 0){
+                // Set the hint text color gray
+                tv.setTextColor(Color.GRAY);
+            }
+            else {
+                tv.setTextColor(Color.BLACK);
+            }
+            return view;
+        }
+    };
+        radiusUnits.setAdapter(adapter);
+
         inputDueDate.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -90,10 +129,22 @@ public class TaskActivity extends AppCompatActivity {
         if (isUpdate) {
             TextView title = findViewById(R.id.dialog_title);
             title.setText("Update Task");
+
             inputTask.setText(intent.getStringExtra("TASK"));
             inputAddress.setText(intent.getStringExtra("ADDRESS"));
             inputDueDate.setText(intent.getStringExtra("DUE"));
-            inputRadius.setText(intent.getStringExtra("RADIUS"));
+            String radiusString = intent.getStringExtra("RADIUS");
+            int count = 0;
+            for(String s: items) {
+                if (radiusString.contains(s))
+                    break;
+                count++;
+            }
+
+            radiusUnits.setSelection(count);
+            radiusString = radiusString.replace(' ' + radiusUnits.getSelectedItem().toString(), "");
+            inputRadius.setText(radiusString);
+            //radius.setSelection(intent.getStringExtra("RADIUS"));
             id = intent.getIntExtra("ID", -1);
 
         }
@@ -113,28 +164,56 @@ public class TaskActivity extends AppCompatActivity {
         String task = inputTask.getText().toString();
         String address = inputAddress.getText().toString();
         String dueDate = inputDueDate.getText().toString();
-        String radius = inputRadius.getText().toString();
+        String unitsString = radiusUnits.getSelectedItem().toString();
+        String radiusString = inputRadius.getText().toString();
         SimpleDateFormat sdf = new SimpleDateFormat(myDateFormat, Locale.ENGLISH);
         Date date;
         long timeStamp;
+
+
+
+        if(task.length() == 0) {
+            Toast.makeText(TaskActivity.this, "Please enter a task name.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (address.length() == 0) {
+            Toast.makeText(TaskActivity.this, "Please set an address or location.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (unitsString.equals(items[0])) {
+            Toast.makeText(TaskActivity.this, "Please select the proximity units.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if(radiusString.length() == 0) {
+            Toast.makeText(TaskActivity.this, "Please enter the proximity value.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        //One more to see if the radius value is empty.
+
         try {
             date = sdf.parse(inputDueDate.getText().toString());
         } catch (ParseException e) {
             e.printStackTrace();
+            Toast.makeText(TaskActivity.this, "Please enter a due date.", Toast.LENGTH_SHORT).show();
             return;
         }
         timeStamp = date.getTime();
+        Long t = timeStamp;
+
 
         if (isUpdate) {
             ProxiDB element = db.getProxiDB(id);
             element.setAddress(address);
             element.setDueDate(dueDate);
-            element.setRadius(radius);
+            element.setRadius(radiusString + ' ' + unitsString);
             element.setTask(task);
-            element.setTimeStamp(timeStamp);
+            element.setTimeStamp(t.toString());
             db.updateTask(element);
         } else {
-            id = db.insertTask(task, address, dueDate, radius, timeStamp);
+            id = db.insertTask(task, address, dueDate, radiusString + ' ' + unitsString, t.toString());
         }
 
         intent.putExtra("id", id);
