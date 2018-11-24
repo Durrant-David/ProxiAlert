@@ -47,6 +47,7 @@ public class TaskActivity extends AppCompatActivity {
             "miles",
             "km"};
 
+    final private int MAP_ACTIVITY_CODE = 1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -221,7 +222,28 @@ public class TaskActivity extends AppCompatActivity {
     // button to open MapsActivity
     protected void startMapActivity(View view) {
         Intent mapIntent = new Intent(TaskActivity.this, MapsActivity.class);
-        startActivity(mapIntent);
+        startActivityForResult(mapIntent, MAP_ACTIVITY_CODE);
+    }
+
+    /*******************************************************
+     * onActivityResult
+     * Handles any intents that are returned to main via
+     * StartActivityForResult
+     *******************************************************/
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        // TASK_ACTIVITY_CODE represents results with the Task Activity.
+        if (requestCode == MAP_ACTIVITY_CODE) {
+
+            //If the result was set to Ok, then we will update the Views.
+            if (resultCode == RESULT_OK) {
+
+               inputAddress.setText(data.getStringExtra("ADDRESS"));
+               //will also need to fetch the coordinates.
+            }
+        }
     }
 }
     /*

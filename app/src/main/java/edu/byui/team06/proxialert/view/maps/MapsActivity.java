@@ -1,57 +1,55 @@
 package edu.byui.team06.proxialert.view.maps;
 
         import android.Manifest;
-        import android.app.PendingIntent;
-        import android.content.Context;
-        import android.content.Intent;
-        import android.content.SharedPreferences;
-        import android.content.pm.PackageManager;
-        import android.graphics.Color;
-        import android.location.Address;
-        import android.location.Geocoder;
-        import android.location.Location;
-        import android.support.annotation.NonNull;
-        import android.support.annotation.Nullable;
-        import android.support.v4.app.ActivityCompat;
-        import android.support.v4.content.ContextCompat;
-        import android.support.v7.app.AppCompatActivity;
-        import android.os.Bundle;
-        import android.util.Log;
-        import android.view.Menu;
-        import android.view.MenuInflater;
-        import android.view.MenuItem;
-        import android.view.View;
-        import android.widget.EditText;
-        import android.widget.TextView;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.ContextCompat;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.GeofencingRequest;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
-        import android.support.v4.app.FragmentActivity;
-        import com.google.android.gms.common.ConnectionResult;
-        import com.google.android.gms.common.api.GoogleApiClient;
-        import com.google.android.gms.common.api.ResultCallback;
-        import com.google.android.gms.common.api.Status;
-        import com.google.android.gms.location.Geofence;
-        import com.google.android.gms.location.GeofencingRequest;
-        import com.google.android.gms.location.LocationListener;
-        import com.google.android.gms.location.LocationRequest;
-        import com.google.android.gms.location.LocationServices;
-        import com.google.android.gms.maps.CameraUpdate;
-        import com.google.android.gms.maps.CameraUpdateFactory;
-        import com.google.android.gms.maps.GoogleMap;
-        import com.google.android.gms.maps.MapFragment;
-        import com.google.android.gms.maps.OnMapReadyCallback;
-        import com.google.android.gms.maps.SupportMapFragment;
-        import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-        import com.google.android.gms.maps.model.Circle;
-        import com.google.android.gms.maps.model.CircleOptions;
-        import com.google.android.gms.maps.model.LatLng;
-        import com.google.android.gms.maps.model.Marker;
-        import com.google.android.gms.maps.model.MarkerOptions;
+import java.io.IOException;
+import java.util.List;
 
-        import java.io.IOException;
-        import java.util.List;
-
-        import edu.byui.team06.proxialert.R;
+import edu.byui.team06.proxialert.R;
 import edu.byui.team06.proxialert.utils.GeofenceTrasitionService;
 
 public class MapsActivity extends FragmentActivity
@@ -69,8 +67,9 @@ public class MapsActivity extends FragmentActivity
     private GoogleMap map;
     private GoogleApiClient googleApiClient;
     private Location lastLocation;
-
-    private TextView textLat, textLong;
+    private String location;
+    private LatLng latlng;
+    //private TextView textLat, textLong;
 
     private MapFragment mapFragment;
 
@@ -90,8 +89,8 @@ public class MapsActivity extends FragmentActivity
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        textLat = (TextView) findViewById(R.id.lat);
-        textLong = (TextView) findViewById(R.id.lon);
+        //textLat = (TextView) findViewById(R.id.lat);
+        //textLong = (TextView) findViewById(R.id.lon);
 
         // initialize GoogleMaps
 //        initGMaps();
@@ -289,8 +288,8 @@ public class MapsActivity extends FragmentActivity
     }
 
     private void writeActualLocation(Location location) {
-        textLat.setText( "Lat: " + location.getLatitude() );
-        textLong.setText( "Long: " + location.getLongitude() );
+       // textLat.setText( "Lat: " + location.getLatitude() );
+       // textLong.setText( "Long: " + location.getLongitude() );
 
         markerLocation(new LatLng(location.getLatitude(), location.getLongitude()));
     }
@@ -320,6 +319,7 @@ public class MapsActivity extends FragmentActivity
     private Marker geoFenceMarker;
     private void markerForGeofence(LatLng latLng) {
         Log.i(TAG, "markerForGeofence("+latLng+")");
+        latlng = latLng;
         String title = latLng.latitude + ", " + latLng.longitude;
         // Define marker options
         MarkerOptions markerOptions = new MarkerOptions()
@@ -478,7 +478,7 @@ public class MapsActivity extends FragmentActivity
 
     public void onMapSearch(View view) {
         EditText locationSearch = (EditText) findViewById(R.id.editText);
-        String location = locationSearch.getText().toString();
+        location = locationSearch.getText().toString();
         List<Address> addressList = null;
 
         if (location != null || !location.equals("")) {
@@ -488,12 +488,32 @@ public class MapsActivity extends FragmentActivity
 
             } catch (IOException e) {
                 e.printStackTrace();
+                Toast.makeText(MapsActivity.this, "Invalid Location/Address. Please Try Again.", Toast.LENGTH_SHORT).show();
             }
             Address address = addressList.get(0);
-            LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
-            map.addMarker(new MarkerOptions().position(latLng).title("Marker"));
-            map.animateCamera(CameraUpdateFactory.newLatLng(latLng));
+            latlng = new LatLng(address.getLatitude(), address.getLongitude());
+            map.addMarker(new MarkerOptions().position(latlng).title("Marker"));
+            map.animateCamera(CameraUpdateFactory.newLatLng(latlng));
+
         }
+    }
+
+    public void onMapSubmit(View view) {
+        Intent intent = new Intent();
+        if(location != null && location.length() > 0) {
+            intent.putExtra("ADDRESS", location);
+        }
+        else {
+            intent.putExtra("ADDRESS", latlng.toString());
+        }
+        intent.putExtra("COORDINATES", latlng.toString());
+        setResult(RESULT_OK, intent);
+        finish();
+    }
+
+    public void onMapCancel(View view) {
+        setResult(RESULT_CANCELED);
+        finish();
     }
 
 }
