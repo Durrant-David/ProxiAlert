@@ -111,6 +111,12 @@ public class MapsActivity extends FragmentActivity
             } catch (IOException e) {
                 e.printStackTrace();
                 Toast.makeText(MapsActivity.this, "Invalid Location/Address. Please Try Again.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if(addressList.size() == 0)
+            {
+                Toast.makeText(MapsActivity.this, "Invalid Location/Address. Please Try Again.", Toast.LENGTH_SHORT).show();
+                return;
             }
             Address address = addressList.get(0);
             latlng = new LatLng(address.getLatitude(), address.getLongitude());
@@ -122,14 +128,18 @@ public class MapsActivity extends FragmentActivity
     }
 
     public void onMapSubmit(View view) {
-        Intent intent = new Intent();
-        if(location != null && location.length() > 0) {
-            intent.putExtra("ADDRESS", location);
-        }
-        else {
-            intent.putExtra("ADDRESS", latlng.toString());
 
+
+        if(location == null || location.length() == 0) {
+            Toast.makeText(MapsActivity.this, "No location entered. Please Try Again.", Toast.LENGTH_SHORT).show();
+            return;
         }
+        if(latlng == null) {
+            Toast.makeText(MapsActivity.this, "ERROR: No Coordinates Available.", Toast.LENGTH_SHORT).show();
+        }
+
+        Intent intent = new Intent();
+        intent.putExtra("ADDRESS", location);
         intent.putExtra("COORDINATES", latlng.toString());
         setResult(RESULT_OK, intent);
         finish();
