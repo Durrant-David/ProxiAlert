@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="edu.byui.team06.proxialert">
 
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -9,7 +11,16 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".view.MainActivity">
+        <service android:name=".utils.GeofenceTrasitionService" />
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyC6krpwrmY6wvLgx31BeleuAChSKA8Oc8k" />
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
+        <activity android:name=".view.tasks.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -17,8 +28,14 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".view.SettingsActivity"
-            android:label="@string/title_activity_settings"></activity>
+            android:name=".view.settings.SettingsActivity"
+            android:label="@string/title_activity_settings" />
+        <activity
+            android:name=".view.maps.MapsActivity"
+            android:label="@string/title_activity_maps" />
+        <uses-library android:name="org.apache.http.legacy" android:required="false"/>
+        <activity android:name=".view.tasks.TaskActivity"></activity>
+
     </application>
 
 </manifest>

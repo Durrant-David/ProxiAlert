@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?android:attr/selectableItemBackground"
     android:orientation="vertical"
     android:paddingLeft="@dimen/activity_margin"
     android:paddingRight="@dimen/activity_margin"
@@ -30,17 +31,21 @@
         android:textColorHint="@color/hint_enter"
         android:textSize="@dimen/input_new" />
 
-    <EditText
+    <TextView
         android:id="@+id/address"
         android:layout_width="match_parent"
         android:layout_height="38dp"
         android:background="@android:color/transparent"
         android:gravity="top"
-        android:hint="@string/hint_enter_address"
-        android:inputType="textCapSentences|textMultiLine"
-        android:lines="4"
+        android:text="@string/hint_enter_address"
         android:textColorHint="@color/hint_enter"
         android:textSize="@dimen/input_new" />
+
+    <Button
+        android:id="@+id/setLocation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/setLocation" />
 
     <EditText
         android:id="@+id/dueDate"
@@ -65,5 +70,7 @@
         android:lines="4"
         android:textColorHint="@color/hint_enter"
         android:textSize="@dimen/input_new" />
+
+
 
 </LinearLayout>
