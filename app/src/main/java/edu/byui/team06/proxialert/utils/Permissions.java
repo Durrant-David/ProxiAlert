@@ -9,7 +9,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
-import edu.byui.team06.proxialert.view.tasks.MainActivity;
 
 public class Permissions implements  ActivityCompat.OnRequestPermissionsResultCallback {
 
@@ -25,7 +24,7 @@ public class Permissions implements  ActivityCompat.OnRequestPermissionsResultCa
     }
 
     // Asks for permission
-    private void askPermission(Activity activity) {
+    public void askMapsPermission(Activity activity) {
         Log.d(TAG, "askPermission()");
         ActivityCompat.requestPermissions(
                 activity,

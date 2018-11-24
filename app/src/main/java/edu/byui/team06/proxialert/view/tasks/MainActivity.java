@@ -26,6 +26,7 @@ import edu.byui.team06.proxialert.R;
 import edu.byui.team06.proxialert.database.DatabaseHelper;
 import edu.byui.team06.proxialert.database.model.ProxiDB;
 import edu.byui.team06.proxialert.utils.MyDividerItemDecoration;
+import edu.byui.team06.proxialert.utils.Permissions;
 import edu.byui.team06.proxialert.utils.RecyclerTouchListener;
 import edu.byui.team06.proxialert.utils.Notification;
 import edu.byui.team06.proxialert.view.TaskAdapter;
@@ -46,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
     int taskCount;
     private static final int TASK_ACTIVITY_CODE = 0;
     private int SETTINGS_ACTION = 1;
+    private Permissions permissions;
 
     private DatabaseHelper db;
     @Override
@@ -64,7 +66,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Location permissions
+        permissions = new Permissions();
+        if ( permissions.checkMapsPermission(this)){
 
+        } else {
+            permissions.askMapsPermission(this);
+        }
         //This is temporary. We can send a lot more notifications later, but for now
         //it just sends immediately.
         /*
