@@ -1,7 +1,10 @@
 package edu.byui.team06.proxialert.view.settings;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.Preference;
+import android.preference.PreferenceManager;
+import android.widget.Toast;
 
 import edu.byui.team06.proxialert.R;
 
@@ -12,6 +15,18 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     private boolean UNITS_IS_UPDATED = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        SharedPreferences pref = PreferenceManager
+                .getDefaultSharedPreferences(this);
+        boolean themeName = pref.getBoolean("themes", false);
+        if (themeName) {
+            setTheme(R.style.ThemeOverlay_MaterialComponents_Dark);
+        } else {
+            Toast.makeText(this, "set theme", Toast.LENGTH_SHORT).show();
+            setTheme(R.style.AppTheme);
+        }
+        Toast.makeText(this, "Theme has been reset to " + themeName,
+                Toast.LENGTH_SHORT).show();
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.preferences);
         findPreference("themes").setOnPreferenceChangeListener(new PreferenceChangeListener(RESULT_CODE_THEME_UPDATED));

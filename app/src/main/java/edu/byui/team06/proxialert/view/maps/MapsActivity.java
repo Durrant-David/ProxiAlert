@@ -2,10 +2,12 @@ package edu.byui.team06.proxialert.view.maps;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -50,6 +52,17 @@ public class MapsActivity extends FragmentActivity
         } else {
             permissions.askMapsPermission(this);
         }
+        SharedPreferences pref = PreferenceManager
+                .getDefaultSharedPreferences(this);
+        boolean themeName = pref.getBoolean("themes", false);
+        if (themeName) {
+            setTheme(R.style.ThemeOverlay_MaterialComponents_Dark);
+        } else {
+            Toast.makeText(this, "set theme", Toast.LENGTH_SHORT).show();
+            setTheme(R.style.AppTheme);
+        }
+        Toast.makeText(this, "Theme has been reset to " + themeName,
+                Toast.LENGTH_SHORT).show();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.

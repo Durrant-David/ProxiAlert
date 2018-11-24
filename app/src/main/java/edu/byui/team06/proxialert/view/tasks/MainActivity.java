@@ -2,15 +2,16 @@ package edu.byui.team06.proxialert.view.tasks;
 
 //notification imports (many could probably be removed
 //since it was moved to its own class
-import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 
-//database imports
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -18,6 +19,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,12 +30,10 @@ import edu.byui.team06.proxialert.database.model.ProxiDB;
 import edu.byui.team06.proxialert.utils.MyDividerItemDecoration;
 import edu.byui.team06.proxialert.utils.Permissions;
 import edu.byui.team06.proxialert.utils.RecyclerTouchListener;
-import edu.byui.team06.proxialert.utils.Notification;
 import edu.byui.team06.proxialert.view.TaskAdapter;
 import edu.byui.team06.proxialert.view.settings.SettingsActivity;
 
-
-import static java.lang.Math.sqrt;
+//database imports
 
 
 public class MainActivity extends AppCompatActivity {
@@ -63,9 +63,19 @@ public class MainActivity extends AppCompatActivity {
 
 
     protected void onCreate(Bundle savedInstanceState) {
+        SharedPreferences pref = PreferenceManager
+                .getDefaultSharedPreferences(this);
+        boolean themeName = pref.getBoolean("themes", false);
+        if (themeName) {
+            setTheme(R.style.ThemeOverlay_MaterialComponents_Dark);
+        } else {
+            Toast.makeText(this, "set theme", Toast.LENGTH_SHORT).show();
+            setTheme(R.style.AppTheme);
+        }
+        Toast.makeText(this, "Theme has been reset to " + themeName,
+                Toast.LENGTH_SHORT).show();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         // Location permissions
         permissions = new Permissions();
         if ( permissions.checkMapsPermission(this)){
@@ -110,6 +120,8 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(mAdapter);
 
         toggleEmptyTasks();
+
+
 
         /**
          * On long press on RecyclerView item, open alert dialog

@@ -54,6 +54,19 @@ public class TaskActivity extends AppCompatActivity {
     final private int MAP_ACTIVITY_CODE = 1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        SharedPreferences pref = PreferenceManager
+                .getDefaultSharedPreferences(this);
+        boolean themeName = pref.getBoolean("themes", false);
+        if (themeName) {
+            setTheme(R.style.ThemeOverlay_MaterialComponents_Dark);
+        } else {
+            Toast.makeText(this, "set theme", Toast.LENGTH_SHORT).show();
+            setTheme(R.style.AppTheme);
+        }
+        Toast.makeText(this, "Theme has been reset to " + themeName,
+                Toast.LENGTH_SHORT).show();
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task);
         db = new DatabaseHelper(this);
