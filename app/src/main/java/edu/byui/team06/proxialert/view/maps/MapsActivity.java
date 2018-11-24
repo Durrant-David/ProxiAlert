@@ -1,13 +1,17 @@
 package edu.byui.team06.proxialert.view.maps;
 
 import android.Manifest;
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -32,7 +36,6 @@ public class MapsActivity extends FragmentActivity
         GoogleMap.OnMapClickListener,
         OnMapReadyCallback
 {
-
     private static final String TAG = MapsActivity.class.getSimpleName();
     private GoogleMap mMap;
     private Marker searchMarker;
@@ -50,8 +53,62 @@ public class MapsActivity extends FragmentActivity
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
         locationSearch = (EditText) findViewById(R.id.editText);
+        if ( checkPermission() ) {
+
+        } else {
+            askPermission();
+        }
 
     }
+
+    //START PERMISSIONS
+
+    private final int REQ_PERMISSION = 999;
+
+    // Check for permission to access Location
+    private boolean checkPermission() {
+        Log.d(TAG, "checkPermission()");
+        // Ask for permission if it wasn't granted yet
+        return (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED );
+    }
+
+    // Asks for permission
+    private void askPermission() {
+        Log.d(TAG, "askPermission()");
+        ActivityCompat.requestPermissions(
+                this,
+                new String[] { Manifest.permission.ACCESS_FINE_LOCATION },
+                REQ_PERMISSION
+        );
+    }
+
+    // Verify user's response of the permission requested
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        Log.d(TAG, "onRequestPermissionsResult()");
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch ( requestCode ) {
+            case REQ_PERMISSION: {
+                if ( grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED ){
+                    // Permission granted
+
+                } else {
+                    // Permission denied
+                    permissionsDenied();
+                }
+                break;
+            }
+        }
+    }
+
+    // App cannot work without the permissions
+    private void permissionsDenied() {
+        Log.w(TAG, "permissionsDenied()");
+        // TODO close app and warn user
+    }
+    //END PERMISSIONS
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -67,7 +124,6 @@ public class MapsActivity extends FragmentActivity
         mMap.setMyLocationEnabled(true);
         mMap.setOnMapClickListener(this);
     }
-
     @Override
     public void onMapClick(LatLng latLng)
     {
