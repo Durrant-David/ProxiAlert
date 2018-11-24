@@ -29,10 +29,10 @@
     <EditText
         android:id="@+id/task"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/input_height"
+        android:layout_height="@dimen/dot_height"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="36dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:background="@android:color/transparent"
@@ -43,14 +43,14 @@
         android:textColorHint="@color/hint_enter"
         android:textSize="@dimen/input_new"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.75"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/dialog_title" />
 
     <TextView
         android:id="@+id/address"
         android:layout_width="0dp"
-        android:layout_height="27dp"
-        android:layout_marginTop="24dp"
+        android:layout_height="@dimen/dot_height"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:background="@android:color/transparent"
@@ -58,29 +58,32 @@
         android:text="@string/hint_enter_address"
         android:textColorHint="@color/hint_enter"
         android:textSize="@dimen/input_new"
+        android:onClick="startMapActivity"
+        app:layout_constraintBottom_toBottomOf="@+id/setLocation"
         app:layout_constraintEnd_toStartOf="@+id/setLocation"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/task"
-        app:layout_constraintTop_toBottomOf="@+id/task" />
+        app:layout_constraintTop_toTopOf="@+id/setLocation" />
 
     <Button
         android:id="@+id/setLocation"
-        android:layout_width="99dp"
-        android:layout_height="40dp"
-        android:layout_marginTop="8dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
-        android:text="@string/setLocation"
         android:onClick="startMapActivity"
+        android:text="@string/setLocation"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/task" />
 
     <EditText
         android:id="@+id/dueDate"
         android:layout_width="0dp"
-        android:layout_height="40dp"
+        android:layout_height="@dimen/dot_height"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
+        android:layout_marginTop="32dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:background="@android:color/transparent"
@@ -92,17 +95,15 @@
         android:lines="4"
         android:textColorHint="@color/hint_enter"
         android:textSize="@dimen/input_new"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/radiusUnits" />
 
     <Button
         android:id="@+id/button"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="32dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:onClick="onSaveButton"
@@ -113,47 +114,45 @@
     <Button
         android:id="@+id/btnCancel"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_marginEnd="24dp"
         android:layout_marginRight="24dp"
         android:onClick="onCancelButton"
         android:text="@android:string/cancel"
+        app:layout_constraintBottom_toBottomOf="@+id/button"
         app:layout_constraintEnd_toStartOf="@+id/button"
         app:layout_constraintTop_toTopOf="@+id/button" />
 
     <Spinner
         android:id="@+id/radiusUnits"
-        android:layout_width="144dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginLeft="24dp"
+        android:layout_marginTop="32dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
-        android:layout_marginBottom="3dp"
         android:background="@android:drawable/btn_dropdown"
+        android:dropDownWidth="144dp"
+        android:scrollbarSize="@dimen/input_new"
         android:spinnerMode="dropdown"
-        app:layout_constraintBottom_toTopOf="@+id/dueDate"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="@+id/address"
-        app:layout_constraintTop_toBottomOf="@+id/address" />
+        app:layout_constraintEnd_toEndOf="@+id/setLocation"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/radius"
+        app:layout_constraintTop_toBottomOf="@+id/setLocation" />
 
     <EditText
         android:id="@+id/radius"
-        android:layout_width="173dp"
-        android:layout_height="40dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:inputType="numberDecimal"
-        android:hint="@string/hint_enter_radius"
+        android:layout_width="141dp"
+        android:layout_height="30dp"
         android:background="@android:color/transparent"
+        android:gravity="right"
+        android:hint="@string/hint_enter_radius"
+        android:inputType="numberDecimal"
         android:textColorHint="@color/hint_enter"
         android:textSize="@dimen/input_new"
-        app:layout_constraintBottom_toBottomOf="@+id/radiusUnits"
-        app:layout_constraintEnd_toStartOf="@+id/radiusUnits"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/address"
+        android:label="Proxi Distance:"
+        app:layout_constraintStart_toStartOf="@+id/task"
         app:layout_constraintTop_toTopOf="@+id/radiusUnits" />
 
 </android.support.constraint.ConstraintLayout>

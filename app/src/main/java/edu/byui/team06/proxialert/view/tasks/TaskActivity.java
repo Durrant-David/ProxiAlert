@@ -2,8 +2,10 @@ package edu.byui.team06.proxialert.view.tasks;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,8 +46,10 @@ public class TaskActivity extends AppCompatActivity {
     final private String myDateFormat = "MM/dd/yyyy";
     final private String [] items = {
             "Units...",
-            "miles",
-            "km"};
+            "Miles",
+            "Km",
+            "Feet",
+            "Meters"};
 
     final private int MAP_ACTIVITY_CODE = 1;
     @Override
@@ -65,7 +69,7 @@ public class TaskActivity extends AppCompatActivity {
 
 
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, items) {
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, items) {
             @Override
         public boolean isEnabled(int position) {
                 if (position == 0) {
@@ -142,6 +146,20 @@ public class TaskActivity extends AppCompatActivity {
             inputRadius.setText(radiusString);
             //radius.setSelection(intent.getStringExtra("RADIUS"));
             id = intent.getIntExtra("ID", -1);
+
+        }
+
+        else {
+            SharedPreferences sp = PreferenceManager
+                    .getDefaultSharedPreferences(this);
+            String units = sp.getString("units", "Units...");
+            int count = 0;
+            for(String s: items) {
+                if (units.contains(s))
+                    break;
+                count++;
+            }
+            radiusUnits.setSelection(count);
 
         }
     }

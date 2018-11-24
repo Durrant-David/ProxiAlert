@@ -5,5 +5,11 @@
     <SwitchPreference
         android:defaultValue="false"
         android:key="themes"
-        android:title="Themes" />
+        android:title="Dark Theme" />
+    <ListPreference
+        android:defaultValue="1"
+        android:entries="@array/default_units_list"
+        android:entryValues="@array/default_units_list_values"
+        android:key="units"
+        android:title="Default Proximity Units" />
 </PreferenceScreen>

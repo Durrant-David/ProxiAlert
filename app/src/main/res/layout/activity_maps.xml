@@ -39,25 +39,32 @@
         android:layout_weight="1"/>
         tools:context="com.viralandroid.googlemapsandroidapi.MapsActivity" />
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="bottom"
+        android:gravity="right"
         android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/maps_submit_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="onMapSubmit"
-            android:text="Submit" />
 
         <Button
             android:id="@+id/maps_cancel_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_gravity="right"
             android:onClick="onMapCancel"
             android:text="Cancel" />
 
-    </LinearLayout>
+        <Button
+            android:id="@+id/maps_submit_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="0dp"
+            android:layout_marginEnd="7dp"
+            android:layout_marginRight="7dp"
+            android:layout_toStartOf="@+id/maps_cancel_button"
+            android:layout_toLeftOf="@+id/maps_cancel_button"
+            android:onClick="onMapSubmit"
+            android:text="Submit" />
+
+    </RelativeLayout>
 </LinearLayout>
