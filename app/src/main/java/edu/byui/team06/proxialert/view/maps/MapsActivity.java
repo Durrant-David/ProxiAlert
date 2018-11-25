@@ -58,11 +58,8 @@ public class MapsActivity extends FragmentActivity
         if (themeName) {
             setTheme(R.style.ThemeOverlay_MaterialComponents_Dark);
         } else {
-            Toast.makeText(this, "set theme", Toast.LENGTH_SHORT).show();
             setTheme(R.style.AppTheme);
         }
-        Toast.makeText(this, "Theme has been reset to " + themeName,
-                Toast.LENGTH_SHORT).show();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.

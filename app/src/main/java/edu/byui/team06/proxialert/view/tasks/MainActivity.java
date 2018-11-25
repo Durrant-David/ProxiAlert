@@ -19,7 +19,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,11 +71,8 @@ public class MainActivity extends AppCompatActivity {
             setTheme(R.style.ThemeOverlay_MaterialComponents_Dark);
         } else {
             theme = themeName;
-            Toast.makeText(this, "set theme", Toast.LENGTH_SHORT).show();
             setTheme(R.style.AppTheme);
         }
-        Toast.makeText(this, "Theme has been reset to " + themeName,
-                Toast.LENGTH_SHORT).show();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         // Location permissions

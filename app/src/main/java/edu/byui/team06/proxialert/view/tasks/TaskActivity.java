@@ -64,11 +64,8 @@ public class TaskActivity extends AppCompatActivity {
         if (themeName) {
             setTheme(R.style.ThemeOverlay_MaterialComponents_Dark);
         } else {
-            Toast.makeText(this, "set theme", Toast.LENGTH_SHORT).show();
             setTheme(R.style.AppTheme);
         }
-        Toast.makeText(this, "Theme has been reset to " + themeName,
-                Toast.LENGTH_SHORT).show();
         theme = themeName;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task);
