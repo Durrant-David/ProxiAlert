@@ -7,9 +7,9 @@
         android:key="themes"
         android:title="Dark Theme" />
     <ListPreference
-        android:defaultValue="1"
+        android:defaultValue="Units..."
         android:entries="@array/default_units_list"
         android:entryValues="@array/default_units_list_values"
-        android:key="units"
+        android:key="ProxiUnits"
         android:title="Default Proximity Units" />
 </PreferenceScreen>

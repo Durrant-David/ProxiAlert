@@ -44,6 +44,8 @@ public class TaskActivity extends AppCompatActivity {
     private int mMonth;
     private int mYear;
     private boolean theme;
+    private String latitudeString;
+    private String longitudeString;
     final private String myDateFormat = "MM/dd/yyyy";
     final private String [] items = {
             "Units...",
@@ -124,14 +126,15 @@ public class TaskActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
-                // TODO Auto-generated method stub
                 //To show current date in the datepicker
                 Calendar myCalendar = Calendar.getInstance();
                 mYear = myCalendar.get(Calendar.YEAR);
                 mMonth = myCalendar.get(Calendar.MONTH);
                 mDay = myCalendar.get(Calendar.DAY_OF_MONTH);
 
-                DatePickerDialog mDatePicker = new DatePickerDialog(TaskActivity.this, R.style.UserDialog, new DatePickerDialog.OnDateSetListener() {
+                DatePickerDialog mDatePicker = new DatePickerDialog(TaskActivity.this,
+                        theme ? R.style.UserDialogDark : R.style.UserDialog,
+                        new DatePickerDialog.OnDateSetListener() {
                     public void onDateSet(DatePicker datepicker, int selectedyear, int selectedmonth, int selectedday) {
                         Calendar myCalendar = Calendar.getInstance();
                         myCalendar.set(Calendar.YEAR, selectedyear);
@@ -157,6 +160,8 @@ public class TaskActivity extends AppCompatActivity {
             inputAddress.setText(intent.getStringExtra("ADDRESS"));
             inputDueDate.setText(intent.getStringExtra("DUE"));
             String radiusString = intent.getStringExtra("RADIUS");
+            latitudeString = intent.getStringExtra("LAT");
+            longitudeString = intent.getStringExtra("LONG");
             int count = 0;
             for(String s: items) {
                 if (radiusString.contains(s))
@@ -175,7 +180,7 @@ public class TaskActivity extends AppCompatActivity {
         else {
             SharedPreferences sp = PreferenceManager
                     .getDefaultSharedPreferences(this);
-            String units = sp.getString("units", "Units...");
+            String units = sp.getString("ProxiUnits", "Units...");
             int count = 0;
             for(String s: items) {
                 if (units.contains(s))
@@ -248,9 +253,11 @@ public class TaskActivity extends AppCompatActivity {
             element.setRadius(radiusString + ' ' + unitsString);
             element.setTask(task);
             element.setTimeStamp(t.toString());
+            element.setLong(latitudeString);
+            element.setLat(longitudeString);
             db.updateTask(element);
         } else {
-            id = db.insertTask(task, address, dueDate, radiusString + ' ' + unitsString, t.toString());
+            id = db.insertTask(task, address, dueDate, radiusString + ' ' + unitsString, t.toString(), latitudeString, longitudeString);
         }
 
         intent.putExtra("id", id);
@@ -282,6 +289,9 @@ public class TaskActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
 
                inputAddress.setText(data.getStringExtra("ADDRESS"));
+               String coordinates = data.getStringExtra("COORDINATES");
+               latitudeString = coordinates.substring(coordinates.indexOf('(') + 1, coordinates.indexOf(','));
+               longitudeString = coordinates.substring(coordinates.indexOf(',') + 1, coordinates.indexOf(')'));
                //will also need to fetch the coordinates.
             }
         }

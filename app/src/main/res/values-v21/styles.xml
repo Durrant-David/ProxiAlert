@@ -6,9 +6,21 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:statusBarColor">@color/msg_no_tasks</item>
+        <item name="android:statusBarColor">@color/colorPrimaryDark</item>
     </style>
 
     <style name="UserDialog" parent="Theme.AppCompat.Light.Dialog">
+    </style>
+
+    <style name="UserDialogDark" parent="Theme.AppCompat.Light.Dialog">
+        <item name="android:background">@color/AlertGray</item>
+        <item name="android:colorForeground">@color/my_foreground_material_light</item>
+    </style>
+    <style name="Dark_Dialog_Alert" parent= "Theme.AppCompat.Light.Dialog.Alert" >
+        <item name="android:background">@color/AlertGray</item>
+        <item name="android:colorForeground">@color/my_foreground_material_light</item>
+        <item name="textColorAlertDialogListItem">@color/my_foreground_material_light</item>
+        <!--<item name="android:titleTextAppearance">@color/colorAccent</item>-->
+
     </style>
 </resources>

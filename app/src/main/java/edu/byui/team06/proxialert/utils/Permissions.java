@@ -14,6 +14,7 @@ public class Permissions implements  ActivityCompat.OnRequestPermissionsResultCa
 
     private final int REQ_PERMISSION = 999;
     private static final String TAG = Permissions.class.getSimpleName();
+    Context c;
 
     // Check for permission to access Location
     public boolean checkMapsPermission(Context context) {
@@ -21,6 +22,7 @@ public class Permissions implements  ActivityCompat.OnRequestPermissionsResultCa
         // Ask for permission if it wasn't granted yet
         return (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED );
+
     }
 
     // Asks for permission

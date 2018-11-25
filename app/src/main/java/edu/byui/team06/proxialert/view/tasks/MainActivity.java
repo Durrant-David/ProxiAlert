@@ -71,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
             theme = themeName;
             setTheme(R.style.ThemeOverlay_MaterialComponents_Dark);
         } else {
+            theme = themeName;
             Toast.makeText(this, "set theme", Toast.LENGTH_SHORT).show();
             setTheme(R.style.AppTheme);
         }
@@ -201,10 +202,13 @@ public class MainActivity extends AppCompatActivity {
      ****************************************************/
     private void showActionsDialog(final int position) {
 
-        //TODO Use a ListAdapter Instead so that we can control color depending on the theme.
         CharSequence colors[] = new CharSequence[]{"Edit", "Delete", "Mark As Complete"};
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog.Builder builder;
+        if(theme) {
+             builder = new AlertDialog.Builder(this, R.style.Dark_Dialog_Alert);
+        } else {
+            builder = new AlertDialog.Builder(this);
+        }
         builder.setTitle("Choose option");
         builder.setItems(colors, new DialogInterface.OnClickListener() {
             @Override
@@ -220,6 +224,8 @@ public class MainActivity extends AppCompatActivity {
                     taskIntent.putExtra("TASK", element.getTask());
                     taskIntent.putExtra("DUE", element.getDueDate());
                     taskIntent.putExtra("TIMESTAMP", element.getTimeStamp());
+                    taskIntent.putExtra("LAT", element.getLat());
+                    taskIntent.putExtra("LONG", element.getLong());
                     startActivityForResult(taskIntent, TASK_ACTIVITY_CODE);
                 } else {
                     deleteTask(position);
@@ -255,22 +261,13 @@ public class MainActivity extends AppCompatActivity {
                 if (isUpdate) {
                     taskList.set(data.getIntExtra("POSITION", 0), element);
                 } else {
-                    taskList.add(db.getTaskCount() - 1, element);
+                    taskList.add(taskList.size(), element);
                 }
 
                 //Update the view.
                 mAdapter.notifyDataSetChanged();
                 toggleEmptyTasks();
             }
-        }
-
-        if (requestCode == SETTINGS_ACTION) {
-            if (resultCode == SettingsActivity.RESULT_CODE_THEME_UPDATED) {
-                finish();
-                startActivity(getIntent());
-                return;
-            }
-            super.onActivityResult(requestCode, resultCode, data);
         }
     }
 

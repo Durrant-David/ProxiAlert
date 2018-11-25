@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorPrimary">#455399</color>
-    <color name="colorPrimaryDark">#455399</color>
+    <color name="colorPrimaryDark">#344075</color>
     <color name="colorAccent">#00c6ae</color>
     <color name="msg_no_tasks">#999</color>
     <color name="hint_enter">#89c3c3c3</color>
@@ -10,4 +10,6 @@
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
     <color name="dropDownGray">#666666</color>
+    <color name="my_foreground_material_light">#fcfcfc</color>
+    <color name="AlertGray">#222222</color>
 </resources>
