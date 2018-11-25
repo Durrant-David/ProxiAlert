@@ -44,7 +44,9 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
       @Override
       public boolean onPreferenceChange(Preference p, Object newValue) {
           //just return true
-          recreate();
+          if(resultCode == RESULT_CODE_THEME_UPDATED) {
+              recreate();
+          }
 
           return true;
       }
