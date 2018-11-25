@@ -9,4 +9,5 @@
     <color name="task_list_text">#232323</color>
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
+    <color name="dropDownGray">#666666</color>
 </resources>

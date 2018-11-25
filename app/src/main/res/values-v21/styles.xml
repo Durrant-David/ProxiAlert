@@ -8,4 +8,7 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:statusBarColor">@color/msg_no_tasks</item>
     </style>
+
+    <style name="UserDialog" parent="Theme.AppCompat.Light.Dialog">
+    </style>
 </resources>

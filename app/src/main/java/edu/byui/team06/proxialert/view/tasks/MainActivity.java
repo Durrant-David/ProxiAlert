@@ -200,7 +200,9 @@ public class MainActivity extends AppCompatActivity {
      * Delete - Calls deleteTask
      ****************************************************/
     private void showActionsDialog(final int position) {
-        CharSequence colors[] = new CharSequence[]{"Edit", "Delete"};
+
+        //TODO Use a ListAdapter Instead so that we can control color depending on the theme.
+        CharSequence colors[] = new CharSequence[]{"Edit", "Delete", "Mark As Complete"};
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Choose option");

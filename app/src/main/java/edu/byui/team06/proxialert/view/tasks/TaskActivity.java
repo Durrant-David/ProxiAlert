@@ -43,6 +43,7 @@ public class TaskActivity extends AppCompatActivity {
     private int mDay;
     private int mMonth;
     private int mYear;
+    private boolean theme;
     final private String myDateFormat = "MM/dd/yyyy";
     final private String [] items = {
             "Units...",
@@ -66,7 +67,7 @@ public class TaskActivity extends AppCompatActivity {
         }
         Toast.makeText(this, "Theme has been reset to " + themeName,
                 Toast.LENGTH_SHORT).show();
-
+        theme = themeName;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task);
         db = new DatabaseHelper(this);
@@ -103,13 +104,22 @@ public class TaskActivity extends AppCompatActivity {
                 tv.setTextColor(Color.GRAY);
             }
             else {
-                tv.setTextColor(Color.BLACK);
+                if (theme){
+                    tv.setTextColor(Color.WHITE);
+            } else {
+                    tv.setTextColor(Color.BLACK);
+                }
             }
             return view;
         }
+
+
+
     };
         radiusUnits.setAdapter(adapter);
-
+        if(theme) {
+            radiusUnits.setBackgroundColor(getResources().getColor(R.color.dropDownGray));
+        }
         inputDueDate.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -121,7 +131,7 @@ public class TaskActivity extends AppCompatActivity {
                 mMonth = myCalendar.get(Calendar.MONTH);
                 mDay = myCalendar.get(Calendar.DAY_OF_MONTH);
 
-                DatePickerDialog mDatePicker = new DatePickerDialog(TaskActivity.this, new DatePickerDialog.OnDateSetListener() {
+                DatePickerDialog mDatePicker = new DatePickerDialog(TaskActivity.this, R.style.UserDialog, new DatePickerDialog.OnDateSetListener() {
                     public void onDateSet(DatePicker datepicker, int selectedyear, int selectedmonth, int selectedday) {
                         Calendar myCalendar = Calendar.getInstance();
                         myCalendar.set(Calendar.YEAR, selectedyear);

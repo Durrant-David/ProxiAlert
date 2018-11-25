@@ -37,7 +37,6 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/address"
         android:layout_toRightOf="@id/dot"
-        android:textColor="@color/task_list_text"
         android:textSize="@dimen/task_list_text" />
 
     <TextView
