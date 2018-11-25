@@ -44,6 +44,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
       @Override
       public boolean onPreferenceChange(Preference p, Object newValue) {
           //just return true
+          recreate();
 
           return true;
       }

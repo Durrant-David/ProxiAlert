@@ -47,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
     int taskCount;
     private static final int TASK_ACTIVITY_CODE = 0;
     private int SETTINGS_ACTION = 1;
+    private boolean theme;
     private Permissions permissions;
 
     private DatabaseHelper db;
@@ -67,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
                 .getDefaultSharedPreferences(this);
         boolean themeName = pref.getBoolean("themes", false);
         if (themeName) {
+            theme = themeName;
             setTheme(R.style.ThemeOverlay_MaterialComponents_Dark);
         } else {
             Toast.makeText(this, "set theme", Toast.LENGTH_SHORT).show();
@@ -141,8 +143,18 @@ public class MainActivity extends AppCompatActivity {
             }
         }));
     }
+    @Override
+    public void onStart() {
+        super.onStart();
 
+        SharedPreferences pref = PreferenceManager
+                .getDefaultSharedPreferences(this);
+        boolean themeName = pref.getBoolean("themes", false);
+        if(theme != themeName) {
+            recreate();
+        }
 
+    }
     /****************************************************
      * onCreateOptionsMenu
      * displays the drop down list when dots in the corner
