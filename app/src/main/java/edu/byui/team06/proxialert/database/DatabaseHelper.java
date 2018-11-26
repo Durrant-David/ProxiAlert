@@ -149,6 +149,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return count;
     }
 
+    public int getLastInsertId() {
+        String idQuery = "SELECT last_insert_rowid()";
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(idQuery, null);
+        int id = cursor.getInt(0);
+        cursor.close();
+
+        return id;
+
+    }
+
     public int updateTask(ProxiDB proxiDB) {
         SQLiteDatabase db = this.getWritableDatabase();
 

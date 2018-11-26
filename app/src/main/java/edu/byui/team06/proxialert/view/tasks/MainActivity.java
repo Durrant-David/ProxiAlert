@@ -3,11 +3,17 @@ package edu.byui.team06.proxialert.view.tasks;
 //notification imports (many could probably be removed
 //since it was moved to its own class
 
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.location.Location;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
@@ -15,10 +21,32 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.GeofencingRequest;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +54,7 @@ import java.util.List;
 import edu.byui.team06.proxialert.R;
 import edu.byui.team06.proxialert.database.DatabaseHelper;
 import edu.byui.team06.proxialert.database.model.ProxiDB;
+import edu.byui.team06.proxialert.utils.GeofenceTrasitionService;
 import edu.byui.team06.proxialert.utils.MyDividerItemDecoration;
 import edu.byui.team06.proxialert.utils.Permissions;
 import edu.byui.team06.proxialert.utils.RecyclerTouchListener;
@@ -48,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
     private int SETTINGS_ACTION = 1;
     private boolean theme;
     private Permissions permissions;
+    private static final String TAG = MainActivity.class.getSimpleName();
 
     private DatabaseHelper db;
     @Override
@@ -121,7 +151,6 @@ public class MainActivity extends AppCompatActivity {
         toggleEmptyTasks();
 
 
-
         /**
          * On long press on RecyclerView item, open alert dialog
          * with options to choose
@@ -140,6 +169,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }));
     }
+
     @Override
     public void onStart() {
         super.onStart();
@@ -152,6 +182,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+
+
     /****************************************************
      * onCreateOptionsMenu
      * displays the drop down list when dots in the corner
@@ -283,4 +315,8 @@ public class MainActivity extends AppCompatActivity {
             noTaskView.setVisibility(View.VISIBLE);
         }
     }
+
+    //Geofence
+
+
 }
