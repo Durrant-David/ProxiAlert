@@ -114,7 +114,6 @@ public class MainActivity extends AppCompatActivity
 
         // create GoogleApiClient
         createGoogleApi();
-        startGeofence();
 
         //This is temporary. We can send a lot more notifications later, but for now
         //it just sends immediately.
@@ -185,6 +184,7 @@ public class MainActivity extends AppCompatActivity
                     .build();
             googleApiClient.connect();
         }
+        startGeofence();
     }
 
     @Override
@@ -293,6 +293,7 @@ public class MainActivity extends AppCompatActivity
                 } else {
                     deleteTask(position);
                 }
+                //TODO Determine what happens on "MARK AS COMPLETE" (currently deletes)
             }
         });
         builder.show();
@@ -358,7 +359,7 @@ public class MainActivity extends AppCompatActivity
     private LocationRequest locationRequest;
     // Defined in mili seconds.
     // This number in extremely low, and should be used only for debug
-    // TODO move to settings
+    //TODO add a setting for update interval.
     private final int UPDATE_INTERVAL =  1000;
     private final int FASTEST_INTERVAL = 900;
 
@@ -501,6 +502,27 @@ public class MainActivity extends AppCompatActivity
         } else {
             // inform about fail
         }
+    }
+
+    private float convertToMeters(float value, String unit) {
+
+        if(unit.equals("Miles"))
+        {
+            return value * 5280;
+        }
+        else if(unit.equals("Meters"))
+        {
+            return value;
+        }
+        else if(unit.equals("Feet"))
+        {
+            return value * 0.3048f;
+        }
+        else if(unit.equals("Km"))
+        {
+            return value * 1000;
+        }
+        return 1000;
     }
 
 }
