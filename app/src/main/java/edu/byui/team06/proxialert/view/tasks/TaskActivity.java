@@ -1,11 +1,16 @@
 package edu.byui.team06.proxialert.view.tasks;
 
+import android.Manifest;
 import android.app.DatePickerDialog;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -18,7 +23,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.GeofencingClient;
 import com.google.android.gms.location.GeofencingRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -31,6 +40,7 @@ import java.util.Locale;
 import edu.byui.team06.proxialert.R;
 import edu.byui.team06.proxialert.database.DatabaseHelper;
 import edu.byui.team06.proxialert.database.model.ProxiDB;
+import edu.byui.team06.proxialert.utils.GeofenceTrasitionService;
 import edu.byui.team06.proxialert.utils.Permissions;
 import edu.byui.team06.proxialert.view.maps.MapsActivity;
 
@@ -59,8 +69,9 @@ public class TaskActivity extends AppCompatActivity {
             "Feet",
             "Meters"};
     private Permissions permissions = new Permissions();
+    private GeofencingClient mGeofencingClient;
     final private int MAP_ACTIVITY_CODE = 1;
-    private static final String TAG = MapsActivity.class.getSimpleName();
+    private static final String TAG = TaskActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +98,8 @@ public class TaskActivity extends AppCompatActivity {
         radiusUnits = findViewById(R.id.radiusUnits);
         inputRadius = findViewById(R.id.radius);
 
+        // Geofence
+//        mGeofencingClient = LocationServices.getGeofencingClient(this);
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, items) {
             @Override
@@ -246,6 +259,7 @@ public class TaskActivity extends AppCompatActivity {
 
 
         if (isUpdate) {
+            Log.i(TAG, "Update task");
             ProxiDB element = db.getProxiDB(id);
             element.setAddress(address);
             element.setDueDate(dueDate);
@@ -256,14 +270,37 @@ public class TaskActivity extends AppCompatActivity {
             element.setLat(longitudeString);
             db.updateTask(element);
         } else {
+            Log.i(TAG, "New task");
             id = db.insertTask(task, address, dueDate, radiusString + ' ' + unitsString, t.toString(), latitudeString, longitudeString);
-            int lastId = db.getLastInsertId();
-            Log.v(TAG, "id"+lastId);
-            createGeofence(
-                    lastId,
-                    Double.parseDouble(latitudeString),
-                    Double.parseDouble(longitudeString),
-                    Float.parseFloat(radiusString));
+//            int lastId = db.getLastInsertId();
+//            Log.v(TAG, "id" + lastId);
+//            Geofence geofence = createGeofence(
+//                    lastId,
+//                    Double.parseDouble(latitudeString),
+//                    Double.parseDouble(longitudeString),
+//                    Float.parseFloat(radiusString));
+//            GeofencingRequest geofenceRequest = createGeofenceRequest(geofence);
+//            if (permissions.checkMapsPermission( this)) {
+//                mGeofencingClient.addGeofences(
+//                        createGeofenceRequest(geofence),
+//                        createGeofencePendingIntent())
+//                        .addOnSuccessListener(this, new OnSuccessListener<Void>() {
+//                            @Override
+//                            public void onSuccess(Void aVoid) {
+//                                Log.i(TAG, "Geofence added");
+//                            }
+//                        })
+//                        .addOnFailureListener(this, new OnFailureListener() {
+//                            @Override
+//                            public void onFailure(@NonNull Exception e) {
+//                                Log.e(TAG, "Failure to add Geofence");
+//                            }
+//                        });
+//            } else {
+//                permissions.askMapsPermission(this);
+//            }
+            //addGeofence( geofenceRequest );
+
         }
 
         intent.putExtra("id", id);
@@ -273,22 +310,45 @@ public class TaskActivity extends AppCompatActivity {
     }
 
     // Geofence
-
-    // Create a Geofence
-    private Geofence createGeofence( int id, double lat, double lng, float radius ) {
-        Log.d(TAG, "createGeofence");
-        return new Geofence.Builder()
-                .setRequestId(String.valueOf(id))
-                .setCircularRegion( lat, lng, radius)
-                .setTransitionTypes( Geofence.GEOFENCE_TRANSITION_ENTER)
-                .build();
-    }
-
-    // button to open MapsActivity
-    protected void startMapActivity(View view) {
-        Intent mapIntent = new Intent(TaskActivity.this, MapsActivity.class);
-        startActivityForResult(mapIntent, MAP_ACTIVITY_CODE);
-    }
+//
+//    // Create a Geofence
+//    private Geofence createGeofence( int id, double lat, double lng, float radius ) {
+//        Log.d(TAG, "createGeofence");
+//        return new Geofence.Builder()
+//                .setRequestId(String.valueOf(id))
+//                .setCircularRegion( lat, lng, radius)
+//                .setTransitionTypes( Geofence.GEOFENCE_TRANSITION_ENTER |
+//                    Geofence.GEOFENCE_TRANSITION_EXIT)
+//                .build();
+//    }
+//
+//    // Create a Geofence Request
+//    private GeofencingRequest createGeofenceRequest( Geofence geofence ) {
+//        Log.d(TAG, "createGeofenceRequest");
+//        return new GeofencingRequest.Builder()
+//                .setInitialTrigger( GeofencingRequest.INITIAL_TRIGGER_ENTER )
+//                .addGeofence( geofence )
+//                .build();
+//    }
+//
+//    private PendingIntent geoFencePendingIntent;
+//    private final int GEOFENCE_REQ_CODE = 0;
+//    private PendingIntent createGeofencePendingIntent() {
+//        Log.d(TAG, "createGeofencePendingIntent");
+//        if ( geoFencePendingIntent != null )
+//            return geoFencePendingIntent;
+//
+//        Intent intent = new Intent( this, GeofenceTrasitionService.class);
+//        return PendingIntent.getService(
+//                this, GEOFENCE_REQ_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT );
+//    }
+//
+//
+//    // button to open MapsActivity
+//    protected void startMapActivity(View view) {
+//        Intent mapIntent = new Intent(TaskActivity.this, MapsActivity.class);
+//        startActivityForResult(mapIntent, MAP_ACTIVITY_CODE);
+//    }
 
     /*******************************************************
      * onActivityResult

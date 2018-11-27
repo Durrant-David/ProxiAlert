@@ -3,11 +3,13 @@ package edu.byui.team06.proxialert.view.tasks;
 //notification imports (many could probably be removed
 //since it was moved to its own class
 
+import android.Manifest;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
@@ -16,6 +18,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -23,6 +27,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -40,7 +45,6 @@ import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
@@ -64,7 +68,13 @@ import edu.byui.team06.proxialert.view.settings.SettingsActivity;
 //database imports
 
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity
+        implements
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,
+        LocationListener,
+        ResultCallback<Status>
+{
     private TaskAdapter mAdapter;
     private List<ProxiDB> taskList = new ArrayList<>();
     private CoordinatorLayout coordinatorLayout;
@@ -77,6 +87,8 @@ public class MainActivity extends AppCompatActivity {
     private int SETTINGS_ACTION = 1;
     private boolean theme;
     private Permissions permissions;
+    private GoogleApiClient googleApiClient;
+    private Location lastLocation;
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private DatabaseHelper db;
@@ -105,6 +117,8 @@ public class MainActivity extends AppCompatActivity {
         }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Geofence
         // Location permissions
         permissions = new Permissions();
         if ( permissions.checkMapsPermission(this)){
@@ -112,6 +126,10 @@ public class MainActivity extends AppCompatActivity {
         } else {
             permissions.askMapsPermission(this);
         }
+
+        // create GoogleApiClient
+        createGoogleApi();
+
         //This is temporary. We can send a lot more notifications later, but for now
         //it just sends immediately.
         /*
@@ -150,7 +168,6 @@ public class MainActivity extends AppCompatActivity {
 
         toggleEmptyTasks();
 
-
         /**
          * On long press on RecyclerView item, open alert dialog
          * with options to choose
@@ -170,6 +187,21 @@ public class MainActivity extends AppCompatActivity {
         }));
     }
 
+    //Geofence
+    // Create GoogleApiClient instance
+    private void createGoogleApi() {
+        Log.d(TAG, "createGoogleApi()");
+        if ( googleApiClient == null ) {
+            googleApiClient = new GoogleApiClient.Builder( this )
+                    .addConnectionCallbacks( this )
+                    .addOnConnectionFailedListener( this )
+                    .addApi( LocationServices.API )
+                    .build();
+            googleApiClient.connect();
+            startGeofence();
+        }
+    }
+
     @Override
     public void onStart() {
         super.onStart();
@@ -181,8 +213,23 @@ public class MainActivity extends AppCompatActivity {
             recreate();
         }
 
+        // Geofence
+        // Call GoogleApiClient connection when starting the Activity
+        if(googleApiClient != null){
+            googleApiClient.connect();
+        }
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        // Geofence
+        // Disconnect GoogleApiClient when stopping Activity
+        if(googleApiClient != null){
+            googleApiClient.disconnect();
+        }
+    }
 
     /****************************************************
      * onCreateOptionsMenu
@@ -318,5 +365,138 @@ public class MainActivity extends AppCompatActivity {
 
     //Geofence
 
+
+
+    private LocationRequest locationRequest;
+    // Defined in mili seconds.
+    // This number in extremely low, and should be used only for debug
+    private final int UPDATE_INTERVAL =  1000;
+    private final int FASTEST_INTERVAL = 900;
+
+    // Start location Updates
+    private void startLocationUpdates(){
+        Log.i(TAG, "startLocationUpdates()");
+        locationRequest = LocationRequest.create()
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+                .setInterval(UPDATE_INTERVAL)
+                .setFastestInterval(FASTEST_INTERVAL);
+
+        if ( permissions.checkMapsPermission(this) )
+            LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        Log.d(TAG, "onLocationChanged ["+location+"]");
+        lastLocation = location;
+    }
+
+    // GoogleApiClient.ConnectionCallbacks connected
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        Log.i(TAG, "onConnected()");
+        getLastKnownLocation();
+    }
+
+    // GoogleApiClient.ConnectionCallbacks suspended
+    @Override
+    public void onConnectionSuspended(int i) {
+        Log.w(TAG, "onConnectionSuspended()");
+    }
+
+    // GoogleApiClient.OnConnectionFailedListener fail
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        Log.w(TAG, "onConnectionFailed()");
+    }
+
+    // Get last known location
+    private void getLastKnownLocation() {
+        Log.d(TAG, "getLastKnownLocation()");
+        if ( permissions.checkMapsPermission(this) ) {
+            lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+            if ( lastLocation != null ) {
+                Log.i(TAG, "LasKnown location. " +
+                        "Long: " + lastLocation.getLongitude() +
+                        " | Lat: " + lastLocation.getLatitude());
+                startLocationUpdates();
+            } else {
+                Log.w(TAG, "No location retrieved yet");
+                startLocationUpdates();
+            }
+        }
+        else permissions.askMapsPermission(this);
+    }
+
+
+    // Start Geofence creation process
+    private void startGeofence() {
+        Log.i(TAG, "startGeofence()");
+        Geofence geofence = createGeofence(
+                "0",
+                40.77340882,
+                -111.88904945,
+                5000,
+                1000);
+        GeofencingRequest geofenceRequest = createGeofenceRequest( geofence );
+        addGeofence( geofenceRequest );
+    }
+
+    private static final long GEO_DURATION = 60 * 60 * 1000;
+    private static final String GEOFENCE_REQ_ID = "My Geofence";
+    private static final float GEOFENCE_RADIUS = 500.0f; // in meters
+
+    // Create a Geofence
+    private Geofence createGeofence( String id, double lat, double lng, float radius, long duration) {
+        Log.d(TAG, "createGeofence");
+        return new Geofence.Builder()
+                .setRequestId(id)
+                .setCircularRegion( lat, lng, radius)
+                .setExpirationDuration( duration )
+                .setTransitionTypes( Geofence.GEOFENCE_TRANSITION_ENTER
+                        | Geofence.GEOFENCE_TRANSITION_EXIT )
+                .build();
+    }
+
+    // Create a Geofence Request
+    private GeofencingRequest createGeofenceRequest( Geofence geofence ) {
+        Log.d(TAG, "createGeofenceRequest");
+        return new GeofencingRequest.Builder()
+                .setInitialTrigger( GeofencingRequest.INITIAL_TRIGGER_ENTER )
+                .addGeofence( geofence )
+                .build();
+    }
+
+    private PendingIntent geoFencePendingIntent;
+    private final int GEOFENCE_REQ_CODE = 0;
+    private PendingIntent createGeofencePendingIntent() {
+        Log.d(TAG, "createGeofencePendingIntent");
+        if ( geoFencePendingIntent != null )
+            return geoFencePendingIntent;
+
+        Intent intent = new Intent( this, GeofenceTrasitionService.class);
+        return PendingIntent.getService(
+                this, GEOFENCE_REQ_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT );
+    }
+
+    // Add the created GeofenceRequest to the device's monitoring list
+    private void addGeofence(GeofencingRequest request) {
+        Log.d(TAG, "addGeofence");
+        if (permissions.checkMapsPermission(this))
+            LocationServices.GeofencingApi.addGeofences(
+                    googleApiClient,
+                    request,
+                    createGeofencePendingIntent()
+            ).setResultCallback(this);
+    }
+
+    @Override
+    public void onResult(@NonNull Status status) {
+        Log.i(TAG, "onResult: " + status);
+        if ( status.isSuccess() ) {
+        } else {
+            // inform about fail
+        }
+    }
 
 }

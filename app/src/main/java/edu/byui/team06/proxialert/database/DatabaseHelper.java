@@ -15,7 +15,7 @@ import edu.byui.team06.proxialert.database.model.ProxiDB;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     // Database Version
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     // Database Name
     private static final String DATABASE_NAME = "ProxiDB";
@@ -150,9 +150,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public int getLastInsertId() {
-        String idQuery = "SELECT last_insert_rowid()";
+        // TODO fix error in int id
         SQLiteDatabase db = this.getReadableDatabase();
+        String idQuery = "SELECT MAX(" + ProxiDB.COLUMN_ID + ") FROM " + ProxiDB.TABLE_NAME;
         Cursor cursor = db.rawQuery(idQuery, null);
+        cursor.moveToFirst();
         int id = cursor.getInt(0);
         cursor.close();
 
