@@ -1,3 +1,5 @@
+
+
 package edu.byui.team06.proxialert.view.tasks;
 
 import android.app.DatePickerDialog;
@@ -44,6 +46,7 @@ public class TaskActivity extends AppCompatActivity {
     private int mMonth;
     private int mYear;
     private boolean theme;
+    private String units;
     private String latitudeString;
     private String longitudeString;
     final private String myDateFormat = "MM/dd/yyyy";
@@ -79,6 +82,8 @@ public class TaskActivity extends AppCompatActivity {
         inputDueDate = findViewById(R.id.dueDate);
         radiusUnits = findViewById(R.id.radiusUnits);
         inputRadius = findViewById(R.id.radius);
+
+
 
 
 
@@ -156,19 +161,18 @@ public class TaskActivity extends AppCompatActivity {
             inputTask.setText(intent.getStringExtra("TASK"));
             inputAddress.setText(intent.getStringExtra("ADDRESS"));
             inputDueDate.setText(intent.getStringExtra("DUE"));
-            String radiusString = intent.getStringExtra("RADIUS");
             latitudeString = intent.getStringExtra("LAT");
             longitudeString = intent.getStringExtra("LONG");
+            units = intent.getStringExtra("UNITS");
             int count = 0;
             for(String s: items) {
-                if (radiusString.contains(s))
+                if (units.equals(s))
                     break;
                 count++;
             }
 
             radiusUnits.setSelection(count);
-            radiusString = radiusString.replace(' ' + radiusUnits.getSelectedItem().toString(), "");
-            inputRadius.setText(radiusString);
+            inputRadius.setText(intent.getStringExtra("RADIUS"));
             //radius.setSelection(intent.getStringExtra("RADIUS"));
             id = intent.getIntExtra("ID", -1);
 
@@ -177,10 +181,10 @@ public class TaskActivity extends AppCompatActivity {
         else {
             SharedPreferences sp = PreferenceManager
                     .getDefaultSharedPreferences(this);
-            String units = sp.getString("ProxiUnits", "Units...");
+            String prefUnits = sp.getString("ProxiUnits", "Units...");
             int count = 0;
             for(String s: items) {
-                if (units.contains(s))
+                if (prefUnits.contains(s))
                     break;
                 count++;
             }
@@ -247,14 +251,15 @@ public class TaskActivity extends AppCompatActivity {
             ProxiDB element = db.getProxiDB(id);
             element.setAddress(address);
             element.setDueDate(dueDate);
-            element.setRadius(radiusString + ' ' + unitsString);
+            element.setRadius(radiusString);
+            element.setUnits(unitsString);
             element.setTask(task);
             element.setTimeStamp(t.toString());
             element.setLong(latitudeString);
             element.setLat(longitudeString);
             db.updateTask(element);
         } else {
-            id = db.insertTask(task, address, dueDate, radiusString + ' ' + unitsString, t.toString(), latitudeString, longitudeString);
+            id = db.insertTask(task, address, dueDate, radiusString, unitsString, t.toString(), latitudeString, longitudeString);
         }
 
         intent.putExtra("id", id);
