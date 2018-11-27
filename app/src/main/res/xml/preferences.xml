@@ -12,4 +12,10 @@
         android:entryValues="@array/default_units_list_values"
         android:key="ProxiUnits"
         android:title="Default Proximity Units" />
+    <EditTextPreference
+        android:defaultValue="5"
+        android:key="edit_text_preference_1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="Update Interval (minutes)" />
 </PreferenceScreen>

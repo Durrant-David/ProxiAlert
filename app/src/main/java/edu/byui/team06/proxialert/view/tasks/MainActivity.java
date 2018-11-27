@@ -3,14 +3,10 @@ package edu.byui.team06.proxialert.view.tasks;
 //notification imports (many could probably be removed
 //since it was moved to its own class
 
-import android.Manifest;
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -18,8 +14,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -27,7 +21,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -41,16 +34,6 @@ import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdate;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.Circle;
-import com.google.android.gms.maps.model.CircleOptions;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -306,6 +289,7 @@ public class MainActivity extends AppCompatActivity
                 } else {
                     deleteTask(position);
                 }
+                //TODO Determine what happens on "MARK AS COMPLETE" (currently deletes)
             }
         });
         builder.show();
@@ -371,6 +355,7 @@ public class MainActivity extends AppCompatActivity
     private LocationRequest locationRequest;
     // Defined in mili seconds.
     // This number in extremely low, and should be used only for debug
+    //TODO add a setting for update interval.
     private final int UPDATE_INTERVAL =  1000;
     private final int FASTEST_INTERVAL = 900;
 
@@ -498,6 +483,27 @@ public class MainActivity extends AppCompatActivity
         } else {
             // inform about fail
         }
+    }
+
+    private float convertToMeters(float value, String unit) {
+
+        if(unit.equals("Miles"))
+        {
+            return value * 5280;
+        }
+        else if(unit.equals("Meters"))
+        {
+            return value;
+        }
+        else if(unit.equals("Feet"))
+        {
+            return value * 0.3048f;
+        }
+        else if(unit.equals("Km"))
+        {
+            return value * 1000;
+        }
+
     }
 
 }
