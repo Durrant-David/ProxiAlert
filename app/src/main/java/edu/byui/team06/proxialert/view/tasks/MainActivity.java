@@ -77,6 +77,13 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private DatabaseHelper db;
+
+    // Defined in milliseconds.
+    // This number in extremely low, and should be used only for debug
+    private int UPDATE_INTERVAL =  1000;
+    private int FASTEST_INTERVAL = 900;
+
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -100,6 +107,8 @@ public class MainActivity extends AppCompatActivity
             theme = themeName;
             setTheme(R.style.AppTheme);
         }
+        UPDATE_INTERVAL = (int) (Float.parseFloat(pref.getString("interval", "2")) * 60 * 1000);
+        FASTEST_INTERVAL = UPDATE_INTERVAL / 2;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -194,10 +203,20 @@ public class MainActivity extends AppCompatActivity
         SharedPreferences pref = PreferenceManager
                 .getDefaultSharedPreferences(this);
         boolean themeName = pref.getBoolean("themes", false);
+        String intervalString = pref.getString("interval", "0");
+        float interval = Float.parseFloat(intervalString);
         if(theme != themeName) {
             recreate();
         }
 
+        if(interval * 60 * 1000 != UPDATE_INTERVAL)
+        {
+            UPDATE_INTERVAL = (int)(interval * 60 * 1000);
+            FASTEST_INTERVAL = UPDATE_INTERVAL - 1000;
+            if(googleApiClient.isConnected()) {
+                startLocationUpdates();
+            }
+        }
         // Geofence
         // Call GoogleApiClient connection when starting the Activity
         if(googleApiClient != null){
@@ -205,6 +224,7 @@ public class MainActivity extends AppCompatActivity
         } else {
             createGoogleApi();
         }
+
     }
 
     @Override
@@ -357,11 +377,7 @@ public class MainActivity extends AppCompatActivity
 
 
     private LocationRequest locationRequest;
-    // Defined in mili seconds.
-    // This number in extremely low, and should be used only for debug
-    //TODO add a setting for update interval.
-    private final int UPDATE_INTERVAL =  1000;
-    private final int FASTEST_INTERVAL = 900;
+
 
     // Start location Updates
     private void startLocationUpdates(){

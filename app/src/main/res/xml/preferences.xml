@@ -5,7 +5,8 @@
     <SwitchPreference
         android:defaultValue="false"
         android:key="themes"
-        android:title="Dark Theme" />
+        android:title="Dark Theme"
+        android:summary="Note: Some menu items may not appear properly in this mode."/>
     <ListPreference
         android:defaultValue="Units..."
         android:entries="@array/default_units_list"
@@ -14,8 +15,10 @@
         android:title="Default Proximity Units" />
     <EditTextPreference
         android:defaultValue="5"
-        android:key="edit_text_preference_1"
+        android:key="interval"
         android:selectAllOnFocus="true"
         android:singleLine="true"
-        android:title="Update Interval (minutes)" />
+        android:title="Update Interval (minutes)"
+        android:textColor="@color/black"/>
+
 </PreferenceScreen>

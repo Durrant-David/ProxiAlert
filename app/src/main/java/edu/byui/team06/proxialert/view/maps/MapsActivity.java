@@ -42,6 +42,7 @@ public class MapsActivity extends FragmentActivity
     private LatLng latlng;
     private String location;
     private Permissions permissions;
+    private String taskName;
 
     // TODO search adds a new marker.
     // TODO zoom in on current location
@@ -69,7 +70,8 @@ public class MapsActivity extends FragmentActivity
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
         locationSearch = (EditText) findViewById(R.id.editText);
-
+        Intent intent = getIntent();
+        taskName = intent.getStringExtra("TaskName");
     }
 
     @Override
@@ -100,7 +102,13 @@ public class MapsActivity extends FragmentActivity
 
     private void setSearchMarker(LatLng latLng) {
         Log.i(TAG, "setSearchMarker("+latLng+")");
-        String title = latLng.latitude + ", " + latLng.longitude;
+       String title;
+        if(taskName.length() > 0) {
+            title = taskName;
+        } else {
+            title = latLng.latitude + ", " + latLng.longitude;
+        }
+
         // Define marker options
         MarkerOptions markerOptions = new MarkerOptions()
                 .position(latLng)
@@ -109,7 +117,7 @@ public class MapsActivity extends FragmentActivity
             // Remove last searchMarker
             if (searchMarker != null)
                 searchMarker.remove();
-
+            mMap.clear();
             searchMarker = mMap.addMarker(markerOptions);
 
         }
@@ -136,9 +144,19 @@ public class MapsActivity extends FragmentActivity
                 Toast.makeText(MapsActivity.this, "Invalid Location/Address. Please Try Again.", Toast.LENGTH_SHORT).show();
                 return;
             }
+
+
             Address address = addressList.get(0);
             latlng = new LatLng(address.getLatitude(), address.getLongitude());
-            mMap.addMarker(new MarkerOptions().position(latlng).title("Marker"));
+
+            String title;
+            if(taskName.length() > 0) {
+                title = taskName;
+            } else {
+                title = latlng.latitude + ", " + latlng.longitude;
+            }
+
+            mMap.addMarker(new MarkerOptions().position(latlng).title(title));
             mMap.animateCamera(CameraUpdateFactory.newLatLng(latlng));
             setSearchMarker(latlng);
             mMap.animateCamera(CameraUpdateFactory.newLatLng(latlng));

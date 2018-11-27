@@ -272,6 +272,7 @@ public class TaskActivity extends AppCompatActivity {
     // button to open MapsActivity
     protected void startMapActivity(View view) {
         Intent mapIntent = new Intent(TaskActivity.this, MapsActivity.class);
+        mapIntent.putExtra("TaskName", inputTask.getText().toString());
         startActivityForResult(mapIntent, MAP_ACTIVITY_CODE);
     }
 
