@@ -3,14 +3,10 @@ package edu.byui.team06.proxialert.view.tasks;
 //notification imports (many could probably be removed
 //since it was moved to its own class
 
-import android.Manifest;
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -18,8 +14,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -27,7 +21,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -41,16 +34,8 @@ import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdate;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.Circle;
-import com.google.android.gms.maps.model.CircleOptions;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -129,6 +114,7 @@ public class MainActivity extends AppCompatActivity
 
         // create GoogleApiClient
         createGoogleApi();
+        startGeofence();
 
         //This is temporary. We can send a lot more notifications later, but for now
         //it just sends immediately.
@@ -198,7 +184,6 @@ public class MainActivity extends AppCompatActivity
                     .addApi( LocationServices.API )
                     .build();
             googleApiClient.connect();
-            startGeofence();
         }
     }
 
@@ -217,6 +202,8 @@ public class MainActivity extends AppCompatActivity
         // Call GoogleApiClient connection when starting the Activity
         if(googleApiClient != null){
             googleApiClient.connect();
+        } else {
+            createGoogleApi();
         }
     }
 
@@ -252,7 +239,7 @@ public class MainActivity extends AppCompatActivity
         startActivity(intent);
     }
 
-
+    // TODO clear geofence linked to task
     /****************************************************
      * deleteTasks
      * Deletes note from SQLite and removing the
@@ -371,6 +358,7 @@ public class MainActivity extends AppCompatActivity
     private LocationRequest locationRequest;
     // Defined in mili seconds.
     // This number in extremely low, and should be used only for debug
+    // TODO move to settings
     private final int UPDATE_INTERVAL =  1000;
     private final int FASTEST_INTERVAL = 900;
 
@@ -484,11 +472,26 @@ public class MainActivity extends AppCompatActivity
     private void addGeofence(GeofencingRequest request) {
         Log.d(TAG, "addGeofence");
         if (permissions.checkMapsPermission(this))
-            LocationServices.GeofencingApi.addGeofences(
-                    googleApiClient,
+            if(googleApiClient != null){
+                googleApiClient.connect();
+            } else {
+                createGoogleApi();
+            }
+            LocationServices.getGeofencingClient(this).addGeofences(
                     request,
                     createGeofencePendingIntent()
-            ).setResultCallback(this);
+            ).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    Log.i(TAG, "add geofence success");
+                }
+            }
+            ).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.i(TAG, "add geofence failure");
+                }
+            });
     }
 
     @Override

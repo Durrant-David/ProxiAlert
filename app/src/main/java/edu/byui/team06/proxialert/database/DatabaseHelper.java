@@ -154,7 +154,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public int getLastInsertId() {
-        // TODO fix error in int id
         SQLiteDatabase db = this.getReadableDatabase();
         String idQuery = "SELECT MAX(" + ProxiDB.COLUMN_ID + ") FROM " + ProxiDB.TABLE_NAME;
         Cursor cursor = db.rawQuery(idQuery, null);
