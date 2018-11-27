@@ -1,18 +1,14 @@
+
+
 package edu.byui.team06.proxialert.view.tasks;
 
-import android.Manifest;
 import android.app.DatePickerDialog;
-import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -21,13 +17,6 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.google.android.gms.location.Geofence;
-import com.google.android.gms.location.GeofencingClient;
-import com.google.android.gms.location.GeofencingRequest;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -40,8 +29,6 @@ import java.util.Locale;
 import edu.byui.team06.proxialert.R;
 import edu.byui.team06.proxialert.database.DatabaseHelper;
 import edu.byui.team06.proxialert.database.model.ProxiDB;
-import edu.byui.team06.proxialert.utils.GeofenceTrasitionService;
-import edu.byui.team06.proxialert.utils.Permissions;
 import edu.byui.team06.proxialert.view.maps.MapsActivity;
 
 public class TaskActivity extends AppCompatActivity {
@@ -59,20 +46,18 @@ public class TaskActivity extends AppCompatActivity {
     private int mMonth;
     private int mYear;
     private boolean theme;
+    private String units;
     private String latitudeString;
     private String longitudeString;
     final private String myDateFormat = "MM/dd/yyyy";
-    final private String[] items = {
+    final private String [] items = {
             "Units...",
             "Miles",
             "Km",
             "Feet",
             "Meters"};
-    private Permissions permissions = new Permissions();
-    private GeofencingClient mGeofencingClient;
-    final private int MAP_ACTIVITY_CODE = 1;
-    private static final String TAG = TaskActivity.class.getSimpleName();
 
+    final private int MAP_ACTIVITY_CODE = 1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -98,12 +83,13 @@ public class TaskActivity extends AppCompatActivity {
         radiusUnits = findViewById(R.id.radiusUnits);
         inputRadius = findViewById(R.id.radius);
 
-        // Geofence
-//        mGeofencingClient = LocationServices.getGeofencingClient(this);
+
+
+
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, items) {
             @Override
-            public boolean isEnabled(int position) {
+        public boolean isEnabled(int position) {
                 if (position == 0) {
                     // Disable the first item from Spinner
                     // First item will be use for hint
@@ -112,29 +98,30 @@ public class TaskActivity extends AppCompatActivity {
                     return true;
                 }
             }
-
-            @Override
-            public View getDropDownView(int position, View convertView,
-                                        ViewGroup parent) {
-                View view = super.getDropDownView(position, convertView, parent);
-                TextView tv = (TextView) view;
-                if (position == 0) {
-                    // Set the hint text color gray
-                    tv.setTextColor(Color.GRAY);
-                } else {
-                    if (theme) {
-                        tv.setTextColor(Color.WHITE);
-                    } else {
-                        tv.setTextColor(Color.BLACK);
-                    }
-                }
-                return view;
+        @Override
+        public View getDropDownView(int position, View convertView,
+                ViewGroup parent) {
+            View view = super.getDropDownView(position, convertView, parent);
+            TextView tv = (TextView) view;
+            if(position == 0){
+                // Set the hint text color gray
+                tv.setTextColor(Color.GRAY);
             }
+            else {
+                if (theme){
+                    tv.setTextColor(Color.WHITE);
+            } else {
+                    tv.setTextColor(Color.BLACK);
+                }
+            }
+            return view;
+        }
 
 
-        };
+
+    };
         radiusUnits.setAdapter(adapter);
-        if (theme) {
+        if(theme) {
             radiusUnits.setBackgroundColor(getResources().getColor(R.color.dropDownGray));
         }
         inputDueDate.setOnClickListener(new View.OnClickListener() {
@@ -150,19 +137,19 @@ public class TaskActivity extends AppCompatActivity {
                 DatePickerDialog mDatePicker = new DatePickerDialog(TaskActivity.this,
                         theme ? R.style.UserDialogDark : R.style.UserDialog,
                         new DatePickerDialog.OnDateSetListener() {
-                            public void onDateSet(DatePicker datepicker, int selectedyear, int selectedmonth, int selectedday) {
-                                Calendar myCalendar = Calendar.getInstance();
-                                myCalendar.set(Calendar.YEAR, selectedyear);
-                                myCalendar.set(Calendar.MONTH, selectedmonth);
-                                myCalendar.set(Calendar.DAY_OF_MONTH, selectedday);
-                                //Change as you need
-                                SimpleDateFormat sdf = new SimpleDateFormat(myDateFormat, Locale.ENGLISH);
-                                inputDueDate.setText(sdf.format(myCalendar.getTime()));
-                                mDay = selectedday;
-                                mMonth = selectedmonth;
-                                mYear = selectedyear;
-                            }
-                        }, mYear, mMonth, mDay);
+                    public void onDateSet(DatePicker datepicker, int selectedyear, int selectedmonth, int selectedday) {
+                        Calendar myCalendar = Calendar.getInstance();
+                        myCalendar.set(Calendar.YEAR, selectedyear);
+                        myCalendar.set(Calendar.MONTH, selectedmonth);
+                        myCalendar.set(Calendar.DAY_OF_MONTH, selectedday);
+                        //Change as you need
+                        SimpleDateFormat sdf = new SimpleDateFormat(myDateFormat, Locale.ENGLISH);
+                        inputDueDate.setText(sdf.format(myCalendar.getTime()));
+                        mDay = selectedday;
+                        mMonth = selectedmonth;
+                        mYear = selectedyear;
+                    }
+                }, mYear, mMonth, mDay);
                 //mDatePicker.setTitle("Select date");
                 mDatePicker.show();
             }
@@ -174,29 +161,30 @@ public class TaskActivity extends AppCompatActivity {
             inputTask.setText(intent.getStringExtra("TASK"));
             inputAddress.setText(intent.getStringExtra("ADDRESS"));
             inputDueDate.setText(intent.getStringExtra("DUE"));
-            String radiusString = intent.getStringExtra("RADIUS");
             latitudeString = intent.getStringExtra("LAT");
             longitudeString = intent.getStringExtra("LONG");
+            units = intent.getStringExtra("UNITS");
             int count = 0;
-            for (String s : items) {
-                if (radiusString.contains(s))
+            for(String s: items) {
+                if (units.equals(s))
                     break;
                 count++;
             }
 
             radiusUnits.setSelection(count);
-            radiusString = radiusString.replace(' ' + radiusUnits.getSelectedItem().toString(), "");
-            inputRadius.setText(radiusString);
+            inputRadius.setText(intent.getStringExtra("RADIUS"));
             //radius.setSelection(intent.getStringExtra("RADIUS"));
             id = intent.getIntExtra("ID", -1);
 
-        } else {
+        }
+
+        else {
             SharedPreferences sp = PreferenceManager
                     .getDefaultSharedPreferences(this);
-            String units = sp.getString("ProxiUnits", "Units...");
+            String prefUnits = sp.getString("ProxiUnits", "Units...");
             int count = 0;
-            for (String s : items) {
-                if (units.contains(s))
+            for(String s: items) {
+                if (prefUnits.contains(s))
                     break;
                 count++;
             }
@@ -226,7 +214,8 @@ public class TaskActivity extends AppCompatActivity {
         long timeStamp;
 
 
-        if (task.length() == 0) {
+
+        if(task.length() == 0) {
             Toast.makeText(TaskActivity.this, "Please enter a task name.", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -241,7 +230,7 @@ public class TaskActivity extends AppCompatActivity {
             return;
         }
 
-        if (radiusString.length() == 0) {
+        if(radiusString.length() == 0) {
             Toast.makeText(TaskActivity.this, "Please enter the proximity value.", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -259,48 +248,18 @@ public class TaskActivity extends AppCompatActivity {
 
 
         if (isUpdate) {
-            Log.i(TAG, "Update task");
             ProxiDB element = db.getProxiDB(id);
             element.setAddress(address);
             element.setDueDate(dueDate);
-            element.setRadius(radiusString + ' ' + unitsString);
+            element.setRadius(radiusString);
+            element.setUnits(unitsString);
             element.setTask(task);
             element.setTimeStamp(t.toString());
             element.setLong(latitudeString);
             element.setLat(longitudeString);
             db.updateTask(element);
         } else {
-            Log.i(TAG, "New task");
-            id = db.insertTask(task, address, dueDate, radiusString + ' ' + unitsString, t.toString(), latitudeString, longitudeString);
-//            int lastId = db.getLastInsertId();
-//            Log.v(TAG, "id" + lastId);
-//            Geofence geofence = createGeofence(
-//                    lastId,
-//                    Double.parseDouble(latitudeString),
-//                    Double.parseDouble(longitudeString),
-//                    Float.parseFloat(radiusString));
-//            GeofencingRequest geofenceRequest = createGeofenceRequest(geofence);
-//            if (permissions.checkMapsPermission( this)) {
-//                mGeofencingClient.addGeofences(
-//                        createGeofenceRequest(geofence),
-//                        createGeofencePendingIntent())
-//                        .addOnSuccessListener(this, new OnSuccessListener<Void>() {
-//                            @Override
-//                            public void onSuccess(Void aVoid) {
-//                                Log.i(TAG, "Geofence added");
-//                            }
-//                        })
-//                        .addOnFailureListener(this, new OnFailureListener() {
-//                            @Override
-//                            public void onFailure(@NonNull Exception e) {
-//                                Log.e(TAG, "Failure to add Geofence");
-//                            }
-//                        });
-//            } else {
-//                permissions.askMapsPermission(this);
-//            }
-            //addGeofence( geofenceRequest );
-
+            id = db.insertTask(task, address, dueDate, radiusString, unitsString, t.toString(), latitudeString, longitudeString);
         }
 
         intent.putExtra("id", id);
@@ -310,45 +269,11 @@ public class TaskActivity extends AppCompatActivity {
     }
 
     // Geofence
-//
-//    // Create a Geofence
-//    private Geofence createGeofence( int id, double lat, double lng, float radius ) {
-//        Log.d(TAG, "createGeofence");
-//        return new Geofence.Builder()
-//                .setRequestId(String.valueOf(id))
-//                .setCircularRegion( lat, lng, radius)
-//                .setTransitionTypes( Geofence.GEOFENCE_TRANSITION_ENTER |
-//                    Geofence.GEOFENCE_TRANSITION_EXIT)
-//                .build();
-//    }
-//
-//    // Create a Geofence Request
-//    private GeofencingRequest createGeofenceRequest( Geofence geofence ) {
-//        Log.d(TAG, "createGeofenceRequest");
-//        return new GeofencingRequest.Builder()
-//                .setInitialTrigger( GeofencingRequest.INITIAL_TRIGGER_ENTER )
-//                .addGeofence( geofence )
-//                .build();
-//    }
-//
-//    private PendingIntent geoFencePendingIntent;
-//    private final int GEOFENCE_REQ_CODE = 0;
-//    private PendingIntent createGeofencePendingIntent() {
-//        Log.d(TAG, "createGeofencePendingIntent");
-//        if ( geoFencePendingIntent != null )
-//            return geoFencePendingIntent;
-//
-//        Intent intent = new Intent( this, GeofenceTrasitionService.class);
-//        return PendingIntent.getService(
-//                this, GEOFENCE_REQ_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT );
-//    }
-//
-//
-//    // button to open MapsActivity
-//    protected void startMapActivity(View view) {
-//        Intent mapIntent = new Intent(TaskActivity.this, MapsActivity.class);
-//        startActivityForResult(mapIntent, MAP_ACTIVITY_CODE);
-//    }
+    // button to open MapsActivity
+    protected void startMapActivity(View view) {
+        Intent mapIntent = new Intent(TaskActivity.this, MapsActivity.class);
+        startActivityForResult(mapIntent, MAP_ACTIVITY_CODE);
+    }
 
     /*******************************************************
      * onActivityResult
@@ -365,15 +290,117 @@ public class TaskActivity extends AppCompatActivity {
             //If the result was set to Ok, then we will update the Views.
             if (resultCode == RESULT_OK) {
 
-                inputAddress.setText(data.getStringExtra("ADDRESS"));
-                String coordinates = data.getStringExtra("COORDINATES");
-                latitudeString = coordinates.substring(coordinates.indexOf('(') + 1, coordinates.indexOf(','));
-                longitudeString = coordinates.substring(coordinates.indexOf(',') + 1, coordinates.indexOf(')'));
-                //will also need to fetch the coordinates.
+               inputAddress.setText(data.getStringExtra("ADDRESS"));
+               String coordinates = data.getStringExtra("COORDINATES");
+               latitudeString = coordinates.substring(coordinates.indexOf('(') + 1, coordinates.indexOf(','));
+               longitudeString = coordinates.substring(coordinates.indexOf(',') + 1, coordinates.indexOf(')'));
+               //will also need to fetch the coordinates.
             }
         }
     }
-
-    //Geofence
-
 }
+    /*
+    private void showTaskDialog(final boolean shouldUpdate, final ProxiDB proxiDB, final int position) {
+        LayoutInflater layoutInflaterAndroid = LayoutInflater.from(getApplicationContext());
+        View view = layoutInflaterAndroid.inflate(R.layout.task_dialog, null);
+
+        AlertDialog.Builder alertDialogBuilderUserInput = new AlertDialog.Builder(TaskActivity.this);
+        alertDialogBuilderUserInput.setView(view);
+
+        final EditText inputTask = view.findViewById(R.id.task);
+        final TextView inputAddress = view.findViewById(R.id.address);
+        final EditText inputDueDate = view.findViewById(R.id.dueDate);
+        final EditText inputRadius = view.findViewById(R.id.radius);
+        TextView dialogTitle = view.findViewById(R.id.dialog_title);
+        dialogTitle.setText(!shouldUpdate ? getString(R.string.lbl_new_task_title) : getString(R.string.lbl_edit_task_title));
+
+        if (shouldUpdate && proxiDB != null) {
+            inputTask.setText(proxiDB.getTask());
+        }
+//        alertDialogBuilderUserInput
+//                .setCancelable(false)
+//                .setPositiveButton(shouldUpdate ? "update" : "save", new DialogInterface.OnClickListener() {
+//                    public void onClick(DialogInterface dialogBox, int id) {
+//
+//                    }
+//                })
+//                .setNegativeButton("cancel",
+//                        new DialogInterface.OnClickListener() {
+//                            public void onClick(DialogInterface dialogBox, int id) {
+//                                dialogBox.cancel();
+//                            }
+//                        });
+//
+//        final AlertDialog alertDialog = alertDialogBuilderUserInput.create();
+//        alertDialog.show();
+//
+//        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                // Show toast message when no text is entered
+//                if (TextUtils.isEmpty(inputTask.getText().toString())) {
+//                    Toast.makeText(TaskActivity.this, "Enter task!", Toast.LENGTH_SHORT).show();
+//                    return;
+//                } else {
+//                    alertDialog.dismiss();
+//                }
+//
+//                // check if user updating note
+//                if (shouldUpdate && proxiDB != null) {
+//                    // update note by it's id
+//                    updateTask(inputTask.getText().toString(),
+//                            inputAddress.getText().toString(),
+//                            inputDueDate.getText().toString(),
+//                            inputRadius.getText().toString(),
+//                            position);
+//                } else {
+//                    // create new note
+//                    createTask(inputTask.getText().toString(),
+//                            inputAddress.getText().toString(),
+//                            inputDueDate.getText().toString(),
+//                            inputRadius.getText().toString()
+//                    );
+//                }
+//            }
+//        });
+    }
+
+    private void createTask(String task, String address, String dueDate, String radius) {
+        // inserting task in db and getting
+        // newly inserted task id
+
+        //Toast toast = Toast.makeText(this, "test"+ id, Toast.LENGTH_SHORT);
+       // toast.show();
+        // get the newly inserted task from db
+        //ProxiDB n = db.getProxiDB(id);
+
+        //if (n != null) {
+            // adding new task to array list at 0 position
+            //taskList.add(0, n);
+
+            // refreshing the list
+            //mAdapter.notifyDataSetChanged();
+
+            //toggleEmptyTasks();
+       // }
+    }
+
+    private void updateTask(String task, String address, String dueDate, String radius, int position) {
+        ProxiDB n = taskList.get(position);
+        // updating task text
+        n.setTask(task);
+        n.setAddress(address);
+        n.setDueDate(dueDate);
+        n.setRadius(radius);
+
+        // updating task in db
+        db.updateTask(n);
+
+        // refreshing the list
+        taskList.set(position, n);
+        //mAdapter.notifyItemChanged(position);
+
+        //toggleEmptyTasks();
+    }
+}
+*/

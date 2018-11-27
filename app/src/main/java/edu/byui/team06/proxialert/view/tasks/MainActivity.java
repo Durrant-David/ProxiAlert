@@ -295,6 +295,7 @@ public class MainActivity extends AppCompatActivity
                     taskIntent.putExtra(POSITION, position);
                     taskIntent.putExtra("ADDRESS", element.getAddress());
                     taskIntent.putExtra("RADIUS", element.getRadius());
+                    taskIntent.putExtra("UNITS", element.getUnits());
                     taskIntent.putExtra("ID", element.getId());
                     taskIntent.putExtra("TASK", element.getTask());
                     taskIntent.putExtra("DUE", element.getDueDate());

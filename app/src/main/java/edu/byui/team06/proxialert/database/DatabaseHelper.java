@@ -43,7 +43,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    public long insertTask(String task, String address, String dueDate, String radius, String timeStamp, String latitude, String longitude) {
+    public long insertTask(String task, String address, String dueDate, String radius, String units, String timeStamp, String latitude, String longitude) {
         // get writable database as we want to write data
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -55,6 +55,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(ProxiDB.COLUMN_TS, timeStamp);
         values.put(ProxiDB.COLUMN_LAT, latitude);
         values.put(ProxiDB.COLUMN_LONG, longitude);
+        values.put(ProxiDB.COLUMN_UNITS, units);
 
         // insert row
         long id = db.insert(ProxiDB.TABLE_NAME, null, values);
@@ -76,6 +77,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         ProxiDB.COLUMN_ADDRESS,
                         ProxiDB.COLUMN_DUEDATE,
                         ProxiDB.COLUMN_RADIUS,
+                        ProxiDB.COLUMN_UNITS,
                         ProxiDB.COLUMN_TS,
                         ProxiDB.COLUMN_LAT,
                         ProxiDB.COLUMN_LONG},
@@ -92,6 +94,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_ADDRESS)),
                 cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_DUEDATE)),
                 cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_RADIUS)),
+                cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_UNITS)),
                 cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_TS)),
                 cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_LAT)),
                 cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_LONG)));
@@ -121,6 +124,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 proxiDB.setAddress(cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_ADDRESS)));
                 proxiDB.setDueDate(cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_DUEDATE)));
                 proxiDB.setRadius(cursor.getString(cursor.getColumnIndex(proxiDB.COLUMN_RADIUS)));
+                proxiDB.setUnits(cursor.getString(cursor.getColumnIndex(proxiDB.COLUMN_UNITS)));
                 proxiDB.setTimeStamp(cursor.getString(cursor.getColumnIndex(proxiDB.COLUMN_TS)));
                 proxiDB.setLat(cursor.getString(cursor.getColumnIndex(proxiDB.COLUMN_LAT)));
                 proxiDB.setLong(cursor.getString(cursor.getColumnIndex(proxiDB.COLUMN_LONG)));
@@ -170,6 +174,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(ProxiDB.COLUMN_ADDRESS, proxiDB.getAddress());
         values.put(ProxiDB.COLUMN_DUEDATE, proxiDB.getDueDate());
         values.put(ProxiDB.COLUMN_RADIUS, proxiDB.getRadius());
+        values.put(ProxiDB.COLUMN_UNITS, proxiDB.getUnits());
         values.put(ProxiDB.COLUMN_TS, proxiDB.getTimeStamp());
         values.put(ProxiDB.COLUMN_LAT, proxiDB.getLat());
         values.put(ProxiDB.COLUMN_LONG, proxiDB.getLong());
