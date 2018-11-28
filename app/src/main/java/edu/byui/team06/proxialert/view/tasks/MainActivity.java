@@ -43,7 +43,7 @@ import java.util.List;
 import edu.byui.team06.proxialert.R;
 import edu.byui.team06.proxialert.database.DatabaseHelper;
 import edu.byui.team06.proxialert.database.model.ProxiDB;
-import edu.byui.team06.proxialert.utils.GeofenceTrasitionService;
+import edu.byui.team06.proxialert.utils.GeofenceTransitionsIntentService;
 import edu.byui.team06.proxialert.utils.MyDividerItemDecoration;
 import edu.byui.team06.proxialert.utils.Permissions;
 import edu.byui.team06.proxialert.utils.RecyclerTouchListener;
@@ -480,7 +480,7 @@ public class MainActivity extends AppCompatActivity
         if ( geoFencePendingIntent != null )
             return geoFencePendingIntent;
 
-        Intent intent = new Intent( this, GeofenceTrasitionService.class);
+        Intent intent = new Intent( this, GeofenceTransitionsIntentService.class);
         return PendingIntent.getService(
                 this, GEOFENCE_REQ_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT );
     }
