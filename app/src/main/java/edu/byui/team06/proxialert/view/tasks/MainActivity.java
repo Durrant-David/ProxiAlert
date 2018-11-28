@@ -18,6 +18,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -35,6 +36,7 @@ import java.util.List;
 
 import edu.byui.team06.proxialert.R;
 import edu.byui.team06.proxialert.database.DatabaseHelper;
+import edu.byui.team06.proxialert.database.model.Fence;
 import edu.byui.team06.proxialert.database.model.ProxiDB;
 import edu.byui.team06.proxialert.utils.GeofenceTransitionsIntentService;
 import edu.byui.team06.proxialert.utils.MyDividerItemDecoration;
@@ -62,9 +64,8 @@ public class MainActivity extends AppCompatActivity {
     private Permissions permissions;
     private GeofencingClient mGeofencingClient;
     private ArrayList<Geofence> mGeofenceList;
-    private final static int GEOFENCE_RADIUS_IN_METERS = 300;
-    private final static long GEOFENCE_EXPIRATION_IN_MILLISECONDS = Geofence.NEVER_EXPIRE;
     private PendingIntent mGeofencePendingIntent;
+    private Fence fence;
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -94,47 +95,6 @@ public class MainActivity extends AppCompatActivity {
         }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        // Geofence
-        // Location permissions
-        permissions = new Permissions();
-        if ( permissions.checkMapsPermission(this)){
-
-        } else {
-            permissions.askMapsPermission(this);
-        }
-
-        // Geofence
-        mGeofencingClient = new GeofencingClient(this);
-        //mGeofencingClient = LocationServices.getGeofencingClient(this);
-        double Longitude = -111.8890807;
-        double Latitude = 40.7736293;
-
-        Geofence geofence = new Geofence.Builder()
-                .setRequestId("Google HQ")
-                .setCircularRegion(Latitude, Longitude, GEOFENCE_RADIUS_IN_METERS)
-                .setExpirationDuration(60*60*100)
-                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
-                        Geofence.GEOFENCE_TRANSITION_EXIT |
-                        Geofence.GEOFENCE_TRANSITION_DWELL)
-                .setLoiteringDelay(1)
-                .build();
-        mGeofenceList = new ArrayList<>();
-        mGeofenceList.add(geofence);
-
-        mGeofencingClient.addGeofences(getGeofencingRequest(), getGeofencePendingIntent())
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        // do something
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        // do something
-                    }
-                });
 
         //This is temporary. We can send a lot more notifications later, but for now
         //it just sends immediately.
@@ -174,6 +134,43 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(mAdapter);
 
         toggleEmptyTasks();
+
+        // Geofence
+        // Location permissions
+        permissions = new Permissions();
+        if ( permissions.checkMapsPermission(this)){
+            mGeofencingClient = new GeofencingClient(this);
+
+            Geofence geofence;
+            mGeofenceList = new ArrayList<>();
+
+            if (taskCount > 0) {
+                for (int i = 0; i < taskCount; i++) {
+                    fence = new Fence(taskList.get(i));
+                    fence.setDuration(3600000);
+                    fence.setDwell(1);
+                    geofence = buildGeofence(fence);
+                    mGeofenceList.add(geofence);
+                }
+                mGeofencingClient.addGeofences(getGeofencingRequest(), getGeofencePendingIntent())
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.i (TAG, "successfully added Geofences");
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w(TAG, "failed to add Geofences");
+                            }
+                        });
+
+            }
+
+        } else {
+            permissions.askMapsPermission(this);
+        }
 
         /**
          * On long press on RecyclerView item, open alert dialog
@@ -365,26 +362,15 @@ public class MainActivity extends AppCompatActivity {
         return mGeofencePendingIntent;
     }
 
-    private float convertToMeters(float value, String unit) {
-
-        if(unit.equals("Miles"))
-        {
-            return value * 5280;
-        }
-        else if(unit.equals("Meters"))
-        {
-            return value;
-        }
-        else if(unit.equals("Feet"))
-        {
-            return value * 0.3048f;
-        }
-        else if(unit.equals("Km"))
-        {
-            return value * 1000;
-        }
-
-        return 1000;
+    private Geofence buildGeofence(Fence f) {
+        return new Geofence.Builder()
+                .setRequestId(f.getStringId())
+                .setCircularRegion(f.getLat(), f.getLng(), f.getRadius())
+                .setExpirationDuration(f.getDuration())
+                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
+                        Geofence.GEOFENCE_TRANSITION_DWELL)
+                .setLoiteringDelay(f.getDwell())
+                .build();
     }
 
 }
