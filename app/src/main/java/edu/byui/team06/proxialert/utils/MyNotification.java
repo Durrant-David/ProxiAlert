@@ -10,21 +10,21 @@ import android.support.v4.app.NotificationCompat;
 import edu.byui.team06.proxialert.R;
 import static android.support.v4.content.ContextCompat.getSystemService;
 
-public class Notification {
+public class MyNotification {
 
     private NotificationManager notifManager;
     private static int notificationCounter = 0;
     private int notificationId;
     private NotificationCompat.Builder nb;
 
-    public Notification(String title, String content, String longText, Context c ) {
+    public MyNotification(String title, String content, String longText, Context c ) {
         notificationCounter++;
         notificationId = notificationCounter;
         notifManager = getSystemService(c, NotificationManager.class);
 
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            /* create a Notification channel */
+            /* create a MyNotification channel */
             String channelId = "myNotification";
             CharSequence channelName = "Some Channel";
             int importance = NotificationManager.IMPORTANCE_HIGH;

@@ -4,14 +4,13 @@ package edu.byui.team06.proxialert.view.tasks;
 //since it was moved to its own class
 
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.location.Location;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
@@ -19,20 +18,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.GeofencingClient;
 import com.google.android.gms.location.GeofencingRequest;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -43,8 +36,9 @@ import java.util.List;
 import edu.byui.team06.proxialert.R;
 import edu.byui.team06.proxialert.database.DatabaseHelper;
 import edu.byui.team06.proxialert.database.model.ProxiDB;
-import edu.byui.team06.proxialert.utils.GeofenceTrasitionService;
+import edu.byui.team06.proxialert.utils.GeofenceTransitionsIntentService;
 import edu.byui.team06.proxialert.utils.MyDividerItemDecoration;
+import edu.byui.team06.proxialert.utils.MyNotification;
 import edu.byui.team06.proxialert.utils.Permissions;
 import edu.byui.team06.proxialert.utils.RecyclerTouchListener;
 import edu.byui.team06.proxialert.view.TaskAdapter;
@@ -53,13 +47,7 @@ import edu.byui.team06.proxialert.view.settings.SettingsActivity;
 //database imports
 
 
-public class MainActivity extends AppCompatActivity
-        implements
-        GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener,
-        LocationListener,
-        ResultCallback<Status>
-{
+public class MainActivity extends AppCompatActivity {
     private TaskAdapter mAdapter;
     private List<ProxiDB> taskList = new ArrayList<>();
     private CoordinatorLayout coordinatorLayout;
@@ -72,8 +60,12 @@ public class MainActivity extends AppCompatActivity
     private int SETTINGS_ACTION = 1;
     private boolean theme;
     private Permissions permissions;
-    private GoogleApiClient googleApiClient;
-    private Location lastLocation;
+    private GeofencingClient mGeofencingClient;
+    private ArrayList<Geofence> mGeofenceList;
+    private final static int GEOFENCE_RADIUS_IN_METERS = 300;
+    private final static long GEOFENCE_EXPIRATION_IN_MILLISECONDS = Geofence.NEVER_EXPIRE;
+    private PendingIntent mGeofencePendingIntent;
+
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private DatabaseHelper db;
@@ -112,18 +104,48 @@ public class MainActivity extends AppCompatActivity
             permissions.askMapsPermission(this);
         }
 
-        // create GoogleApiClient
-        createGoogleApi();
+        // Geofence
+        mGeofencingClient = new GeofencingClient(this);
+        //mGeofencingClient = LocationServices.getGeofencingClient(this);
+        double Longitude = -111.8890807;
+        double Latitude = 40.7736293;
+
+        Geofence geofence = new Geofence.Builder()
+                .setRequestId("Google HQ")
+                .setCircularRegion(Latitude, Longitude, GEOFENCE_RADIUS_IN_METERS)
+                .setExpirationDuration(60*60*100)
+                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
+                        Geofence.GEOFENCE_TRANSITION_EXIT |
+                        Geofence.GEOFENCE_TRANSITION_DWELL)
+                .setLoiteringDelay(1)
+                .build();
+        mGeofenceList = new ArrayList<>();
+        mGeofenceList.add(geofence);
+
+        mGeofencingClient.addGeofences(getGeofencingRequest(), getGeofencePendingIntent())
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        // do something
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        // do something
+                    }
+                });
 
         //This is temporary. We can send a lot more notifications later, but for now
         //it just sends immediately.
         /*
-        Notification n = new Notification("Test", "This is working",
+        MyNotification n = new MyNotification("Test", "This is working",
                 "I'm working and this is longer " +
                         "text that can be read if the notification is expanded.",
                 this.getApplicationContext());
         n.send();
         */
+
         coordinatorLayout = findViewById(R.id.coordinator_layout);
         recyclerView = findViewById(R.id.recycler_view);
         noTaskView = findViewById(R.id.empty_tasks_view);
@@ -172,21 +194,6 @@ public class MainActivity extends AppCompatActivity
         }));
     }
 
-    //Geofence
-    // Create GoogleApiClient instance
-    private void createGoogleApi() {
-        Log.d(TAG, "createGoogleApi()");
-        if ( googleApiClient == null ) {
-            googleApiClient = new GoogleApiClient.Builder( this )
-                    .addConnectionCallbacks( this )
-                    .addOnConnectionFailedListener( this )
-                    .addApi( LocationServices.API )
-                    .build();
-            googleApiClient.connect();
-        }
-        startGeofence();
-    }
-
     @Override
     public void onStart() {
         super.onStart();
@@ -198,24 +205,6 @@ public class MainActivity extends AppCompatActivity
             recreate();
         }
 
-        // Geofence
-        // Call GoogleApiClient connection when starting the Activity
-        if(googleApiClient != null){
-            googleApiClient.connect();
-        } else {
-            createGoogleApi();
-        }
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-
-        // Geofence
-        // Disconnect GoogleApiClient when stopping Activity
-        if(googleApiClient != null){
-            googleApiClient.disconnect();
-        }
     }
 
     /****************************************************
@@ -246,6 +235,7 @@ public class MainActivity extends AppCompatActivity
      * item from the ListView by its position
      *****************************************************/
     private void deleteTask(int position) {
+
         // deleting the note from db
         db.deleteTask(taskList.get(position));
 
@@ -254,6 +244,7 @@ public class MainActivity extends AppCompatActivity
         mAdapter.notifyItemRemoved(position);
 
         toggleEmptyTasks();
+
     }
 
     /***************************************************
@@ -352,156 +343,26 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    //Geofence
+    // Geofence
 
-
-
-    private LocationRequest locationRequest;
-    // Defined in mili seconds.
-    // This number in extremely low, and should be used only for debug
-    //TODO add a setting for update interval.
-    private final int UPDATE_INTERVAL =  1000;
-    private final int FASTEST_INTERVAL = 900;
-
-    // Start location Updates
-    private void startLocationUpdates(){
-        Log.i(TAG, "startLocationUpdates()");
-        locationRequest = LocationRequest.create()
-                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setInterval(UPDATE_INTERVAL)
-                .setFastestInterval(FASTEST_INTERVAL);
-
-        if ( permissions.checkMapsPermission(this) )
-            LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        Log.d(TAG, "onLocationChanged ["+location+"]");
-        lastLocation = location;
-    }
-
-    // GoogleApiClient.ConnectionCallbacks connected
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        Log.i(TAG, "onConnected()");
-        getLastKnownLocation();
-    }
-
-    // GoogleApiClient.ConnectionCallbacks suspended
-    @Override
-    public void onConnectionSuspended(int i) {
-        Log.w(TAG, "onConnectionSuspended()");
-    }
-
-    // GoogleApiClient.OnConnectionFailedListener fail
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Log.w(TAG, "onConnectionFailed()");
-    }
-
-    // Get last known location
-    private void getLastKnownLocation() {
-        Log.d(TAG, "getLastKnownLocation()");
-        if ( permissions.checkMapsPermission(this) ) {
-            lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
-            if ( lastLocation != null ) {
-                Log.i(TAG, "LasKnown location. " +
-                        "Long: " + lastLocation.getLongitude() +
-                        " | Lat: " + lastLocation.getLatitude());
-                startLocationUpdates();
-            } else {
-                Log.w(TAG, "No location retrieved yet");
-                startLocationUpdates();
-            }
-        }
-        else permissions.askMapsPermission(this);
-    }
-
-
-    // Start Geofence creation process
-    private void startGeofence() {
-        Log.i(TAG, "startGeofence()");
-        Geofence geofence = createGeofence(
-                "0",
-                40.77340882,
-                -111.88904945,
-                5000,
-                1000);
-        GeofencingRequest geofenceRequest = createGeofenceRequest( geofence );
-        addGeofence( geofenceRequest );
-    }
-
-    private static final long GEO_DURATION = 60 * 60 * 1000;
-    private static final String GEOFENCE_REQ_ID = "My Geofence";
-    private static final float GEOFENCE_RADIUS = 500.0f; // in meters
-
-    // Create a Geofence
-    private Geofence createGeofence( String id, double lat, double lng, float radius, long duration) {
-        Log.d(TAG, "createGeofence");
-        return new Geofence.Builder()
-                .setRequestId(id)
-                .setCircularRegion( lat, lng, radius)
-                .setExpirationDuration( duration )
-                .setTransitionTypes( Geofence.GEOFENCE_TRANSITION_ENTER
-                        | Geofence.GEOFENCE_TRANSITION_EXIT )
-                .build();
-    }
-
-    // Create a Geofence Request
-    private GeofencingRequest createGeofenceRequest( Geofence geofence ) {
-        Log.d(TAG, "createGeofenceRequest");
+    private GeofencingRequest getGeofencingRequest() {
         return new GeofencingRequest.Builder()
-                .setInitialTrigger( GeofencingRequest.INITIAL_TRIGGER_ENTER )
-                .addGeofence( geofence )
+                .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER | GeofencingRequest.INITIAL_TRIGGER_DWELL)
+                .addGeofences(mGeofenceList)
                 .build();
     }
 
-    private PendingIntent geoFencePendingIntent;
-    private final int GEOFENCE_REQ_CODE = 0;
-    private PendingIntent createGeofencePendingIntent() {
-        Log.d(TAG, "createGeofencePendingIntent");
-        if ( geoFencePendingIntent != null )
-            return geoFencePendingIntent;
-
-        Intent intent = new Intent( this, GeofenceTrasitionService.class);
-        return PendingIntent.getService(
-                this, GEOFENCE_REQ_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT );
-    }
-
-    // Add the created GeofenceRequest to the device's monitoring list
-    private void addGeofence(GeofencingRequest request) {
-        Log.d(TAG, "addGeofence");
-        if (permissions.checkMapsPermission(this))
-            if(googleApiClient != null){
-                googleApiClient.connect();
-            } else {
-                createGoogleApi();
-            }
-            LocationServices.getGeofencingClient(this).addGeofences(
-                    request,
-                    createGeofencePendingIntent()
-            ).addOnSuccessListener(new OnSuccessListener<Void>() {
-                @Override
-                public void onSuccess(Void aVoid) {
-                    Log.i(TAG, "add geofence success");
-                }
-            }
-            ).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Log.i(TAG, "add geofence failure");
-                }
-            });
-    }
-
-    @Override
-    public void onResult(@NonNull Status status) {
-        Log.i(TAG, "onResult: " + status);
-        if ( status.isSuccess() ) {
-        } else {
-            // inform about fail
+    private PendingIntent getGeofencePendingIntent() {
+        // Reuse the PendingIntent if we already have it.
+        if (mGeofencePendingIntent != null) {
+            return mGeofencePendingIntent;
         }
+        Intent intent = new Intent(this, GeofenceTransitionsIntentService.class);
+        // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when
+        // calling addGeofences() and removeGeofences().
+        mGeofencePendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.
+                FLAG_UPDATE_CURRENT);
+        return mGeofencePendingIntent;
     }
 
     private float convertToMeters(float value, String unit) {
@@ -522,6 +383,7 @@ public class MainActivity extends AppCompatActivity
         {
             return value * 1000;
         }
+
         return 1000;
     }
 

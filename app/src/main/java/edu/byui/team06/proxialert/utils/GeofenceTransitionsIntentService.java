@@ -2,10 +2,7 @@ package edu.byui.team06.proxialert.utils;
 
 import android.app.IntentService;
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.TaskStackBuilder;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.support.v4.app.NotificationCompat;
@@ -19,40 +16,54 @@ import com.google.android.gms.location.GeofencingEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.byui.team06.proxialert.view.tasks.MainActivity;
 
+public class GeofenceTransitionsIntentService extends IntentService {
 
-public class GeofenceTrasitionService extends IntentService {
-
-    private static final String TAG = GeofenceTrasitionService.class.getSimpleName();
-
+    private static final String TAG = GeofenceTransitionsIntentService.class.getSimpleName();
+    private MyNotification notification;
     public static final int GEOFENCE_NOTIFICATION_ID = 0;
 
-    public GeofenceTrasitionService() {
+    public GeofenceTransitionsIntentService() {
         super(TAG);
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
         GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
-        // Handling errors
-        if ( geofencingEvent.hasError() ) {
-            String errorMsg = getErrorString(geofencingEvent.getErrorCode() );
-            Log.e( TAG, errorMsg );
+        if (geofencingEvent.hasError()) {
+            String errorMessage = getErrorString(geofencingEvent.getErrorCode());
+            Log.e(TAG, errorMessage);
             return;
         }
 
-        int geoFenceTransition = geofencingEvent.getGeofenceTransition();
-        // Check if the transition type is of interest
-        if ( geoFenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER ||
-                geoFenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT ) {
-            // Get the geofence that were triggered
+        // Get the transition type.
+        int geofenceTransition = geofencingEvent.getGeofenceTransition();
+
+        // Test that the reported transition was of interest.
+        if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER ||
+                geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
+
+            // Get the geofences that were triggered. A single event can trigger
+            // multiple geofences.
             List<Geofence> triggeringGeofences = geofencingEvent.getTriggeringGeofences();
 
-            String geofenceTransitionDetails = getGeofenceTrasitionDetails(geoFenceTransition, triggeringGeofences );
+            // Get the transition details as a String.
+            String geofenceTransitionDetails = getGeofenceTrasitionDetails(
+                    geofenceTransition,
+                    triggeringGeofences
+            );
 
-            // Send notification details as a String
-            sendNotification( geofenceTransitionDetails );
+            // Send notification and log the transition details.
+            sendNotification(geofenceTransitionDetails);
+
+            MyNotification n = new MyNotification("Geofence", "This is working",
+                    "I'm working and this is longer " +
+                            "text that can be read if the notification is expanded.",
+                    this.getApplicationContext());
+            n.send();
+            Log.i(TAG, geofenceTransitionDetails);
+        } else {
+            // Log the error.
         }
     }
 
@@ -75,23 +86,8 @@ public class GeofenceTrasitionService extends IntentService {
     private void sendNotification( String msg ) {
         Log.i(TAG, "sendNotification: " + msg );
 
-        // Intent to start the main Activity
-//        Intent notificationIntent = MainActivity.makeNotificationIntent(
-//                getApplicationContext(), msg
-//        );
+        notification = new MyNotification("Test", "Geofence"+ msg, "long text", this);
 
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-        stackBuilder.addParentStack(MainActivity.class);
-//        stackBuilder.addNextIntent(notificationIntent);
-        PendingIntent notificationPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-
-
-        // Creating and sending Notification
-        NotificationManager notificatioMng =
-                (NotificationManager) getSystemService( Context.NOTIFICATION_SERVICE );
-        notificatioMng.notify(
-                GEOFENCE_NOTIFICATION_ID,
-                createNotification(msg, notificationPendingIntent));
 
     }
 
@@ -102,7 +98,7 @@ public class GeofenceTrasitionService extends IntentService {
                 //.setSmallIcon(R.drawable.ic_action_location)
                 .setColor(Color.RED)
                 .setContentTitle(msg)
-                .setContentText("Geofence Notification!")
+                .setContentText("Geofence MyNotification!")
                 .setContentIntent(notificationPendingIntent)
                 .setDefaults(Notification.DEFAULT_LIGHTS | Notification.DEFAULT_VIBRATE | Notification.DEFAULT_SOUND)
                 .setAutoCancel(true);
