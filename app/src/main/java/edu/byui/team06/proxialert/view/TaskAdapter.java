@@ -26,11 +26,23 @@ import java.util.Locale;
 import edu.byui.team06.proxialert.R;
 import edu.byui.team06.proxialert.database.model.ProxiDB;
 import edu.byui.team06.proxialert.view.maps.MapsActivity;
+/**@author
+ * @version  1.0
+ * @since
+ * <p>TaskAdapter holds the list of tasks that is located
+ * in MainActivity</p>
+ * <p>the embedded class MyViewHolder
+ *  formats the view of each task in the list.
+ *  </p>
+ * @param
+ * @return
+ */
 
 public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder>{
 
     private List<ProxiDB> _taskList;
     //
+
     public class MyViewHolder extends RecyclerView.ViewHolder {
         public TextView task;
         public TextView dot;
@@ -65,12 +77,14 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder>{
     }
 
 
-    /***************************************************************
+    /**@author
+     * @version  1.0
+     * @since
      * onBindViewHolder
      * This where each list item is created. Not sure where it is called
      * @param holder - The task item itself.
      * @param position - location on the screen
-     ***************************************************************/
+     */
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {

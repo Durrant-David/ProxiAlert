@@ -31,6 +31,11 @@ import edu.byui.team06.proxialert.database.DatabaseHelper;
 import edu.byui.team06.proxialert.database.model.ProxiDB;
 import edu.byui.team06.proxialert.view.maps.MapsActivity;
 
+/**@author
+ * @verion
+ * TaskActivityClass handles
+ * the task creation and update
+ */
 public class TaskActivity extends AppCompatActivity {
     private List<ProxiDB> taskList = new ArrayList<>();
     private DatabaseHelper db;
@@ -88,6 +93,12 @@ public class TaskActivity extends AppCompatActivity {
 
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, items) {
+            /**
+             * isEnabled
+             * disables the first item of the units drop down.
+              * @param position
+             * @return
+             */
             @Override
         public boolean isEnabled(int position) {
                 if (position == 0) {
@@ -98,6 +109,16 @@ public class TaskActivity extends AppCompatActivity {
                     return true;
                 }
             }
+
+            /**
+             * getDropDownView creates the drop down and
+             * sets the color of each item in the list based
+             * on the Theme.
+             * @param position
+             * @param convertView
+             * @param parent
+             * @return
+             */
         @Override
         public View getDropDownView(int position, View convertView,
                 ViewGroup parent) {
@@ -125,7 +146,11 @@ public class TaskActivity extends AppCompatActivity {
             radiusUnits.setBackgroundColor(getResources().getColor(R.color.dropDownGray));
         }
         inputDueDate.setOnClickListener(new View.OnClickListener() {
-
+            /**
+             * onClick opens up a Calendar picker
+             * for due date selection
+             * @param v
+             */
             @Override
             public void onClick(View v) {
                 //To show current date in the datepicker

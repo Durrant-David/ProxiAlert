@@ -48,7 +48,19 @@ import edu.byui.team06.proxialert.view.settings.SettingsActivity;
 
 //database imports
 
-
+/**@author
+ * @version  1.0
+ * @since
+ * <p>
+ * The main activity handles views and interactions with buttons
+ * in the main screen when the program starts up.
+ * It also handles the perimeters around each task to determine when to notify user.
+ * It also adds the task to the database (when the task is updated/created)
+ * </p>
+ *
+ * @param
+ * @return
+ */
 public class MainActivity extends AppCompatActivity {
     private TaskAdapter mAdapter;
     private List<ProxiDB> taskList = new ArrayList<>();
@@ -70,6 +82,16 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private DatabaseHelper db;
+    /** @author
+     * @version  1.0
+     * @since
+     *
+     * This class is detecting what menu button is selected.
+     *
+     * @param
+     * @return
+     *
+     * */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -116,6 +138,7 @@ public class MainActivity extends AppCompatActivity {
         taskCount = db.getTaskCount();
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View view) {
                 Intent taskIntent = new Intent(MainActivity.this, TaskActivity.class);
@@ -190,7 +213,14 @@ public class MainActivity extends AppCompatActivity {
             }
         }));
     }
-
+    /**@author
+     * @version  1.0
+     * @since
+     * onStart
+     * This method checks and loads the Theme sharedPreference onStart
+     * @param
+     * @return
+     */
     @Override
     public void onStart() {
         super.onStart();
@@ -204,22 +234,31 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    /****************************************************
+    /**@author
+     * @version  1.0
+     * @since
      * onCreateOptionsMenu
-     * displays the drop down list when dots in the corner
-     * are clicked on.
-     *****************************************************/
+     * This method displays the drop down list when dots
+     * in the corner are clicked on.
+     * @param
+     * @return
+     */
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
+/**@author
+ * @version  1.0
+ * @since
+ * StartSettings
+ * This method starts the settings activity
+ * @param
+ * @return
+ */
 
-    /****************************************************
-     * startSettings
-     * start the settings Activity
-     *****************************************************/
     public void startSettings(MenuItem item) {
         Intent intent = new Intent(this, SettingsActivity.class);
         startActivity(intent);
@@ -243,13 +282,17 @@ public class MainActivity extends AppCompatActivity {
         toggleEmptyTasks();
 
     }
+/**@author
+ * @version  1.0
+ * @since
+ * showActionDialog
+ * Opens dialog with Edit/Delete options
+ * Edit option starts the TaskActivity
+ * Delete option calls deleteTask
+ * @param
+ * @return
+ */
 
-    /***************************************************
-     * showActionsDialog
-     * Opens dialog with Edit - Delete options
-     * Edit - Starts the TaskActivity
-     * Delete - Calls deleteTask
-     ****************************************************/
     private void showActionsDialog(final int position) {
 
         CharSequence colors[] = new CharSequence[]{"Edit", "Delete", "Mark As Complete"};
@@ -286,13 +329,16 @@ public class MainActivity extends AppCompatActivity {
         });
         builder.show();
     }
+/**@author
+ * @version  1.0
+ * @since
+ * onActivityResult handles any intents
+ * that are returned to main via StartActivityForResult
+ * @param
+ * @return
+ */
 
-    /*******************************************************
-     * onActivityResult
-     * Handles any intents that are returned to main via
-     * StartActivityForResult
-     *******************************************************/
-    @Override
+   @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
@@ -323,13 +369,21 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+/**@author
+ * @version  1.0
+ * @since
+ * <p>
+ *   The toggleEmptytasks performs the following:
+ *   toggleEmptyTasks
+ *   toggleEmptyTasks will toggle the Empty task
+ *   visibility on or off depending on the amount
+ *   of tasks saved in the database.
+ * </p>
+ *
+ * @param
+ * @return
+ */
 
-    /*******************************************************
-     * toggleEmptyTasks
-     * toggleEmptyTasks will toggle the Empty task
-     * visibility on or off depending on the amount
-     * of tasks saved in the database.
-     *******************************************************/
     public void toggleEmptyTasks() {
         // you can check notesList.size() > 0
 
