@@ -21,6 +21,7 @@
             android:value="@integer/google_play_services_version" />
 
         <activity android:name=".view.tasks.MainActivity">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -29,12 +30,28 @@
         </activity>
         <activity
             android:name=".view.settings.SettingsActivity"
-            android:label="@string/title_activity_settings" />
+            android:label="@string/title_activity_settings"
+            android:parentActivityName=".view.tasks.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".view.tasks.MainActivity" />
+        </activity>
+
         <activity
             android:name=".view.maps.MapsActivity"
-            android:label="@string/title_activity_maps" />
+            android:label="@string/title_activity_maps"
+            android:parentActivityName=".view.tasks.TaskActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".view.tasks.TaskActivity"/>
+        </activity>
         <uses-library android:name="org.apache.http.legacy" android:required="false"/>
-        <activity android:name=".view.tasks.TaskActivity"></activity>
+        <activity android:name=".view.tasks.TaskActivity"
+            android:parentActivityName=".view.tasks.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".view.tasks.MainActivity"/>
+        </activity>
 
     </application>
 

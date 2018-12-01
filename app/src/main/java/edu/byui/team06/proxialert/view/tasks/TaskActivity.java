@@ -150,7 +150,6 @@ public class TaskActivity extends AppCompatActivity {
                         mYear = selectedyear;
                     }
                 }, mYear, mMonth, mDay);
-                //mDatePicker.setTitle("Select date");
                 mDatePicker.show();
             }
         });
@@ -255,8 +254,8 @@ public class TaskActivity extends AppCompatActivity {
             element.setUnits(unitsString);
             element.setTask(task);
             element.setTimeStamp(t.toString());
-            element.setLong(latitudeString);
-            element.setLat(longitudeString);
+            element.setLong(longitudeString);
+            element.setLat(latitudeString);
             db.updateTask(element);
         } else {
             id = db.insertTask(task, address, dueDate, radiusString, unitsString, t.toString(), latitudeString, longitudeString);
