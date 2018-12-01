@@ -30,6 +30,10 @@ import java.util.Locale;
 import edu.byui.team06.proxialert.R;
 import edu.byui.team06.proxialert.utils.Permissions;
 
+/**
+ * MapsActivity it handles the activity
+ * used for selecting location of the task
+ */
 public class MapsActivity extends FragmentActivity
         implements
         GoogleMap.OnMapClickListener,
@@ -74,6 +78,12 @@ public class MapsActivity extends FragmentActivity
         taskName = intent.getStringExtra("TaskName");
     }
 
+    /**
+     * onMapReady asks user for permission
+     * to access for Google maps.
+     * It marks user's current location
+     * @param googleMap
+     */
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -88,6 +98,14 @@ public class MapsActivity extends FragmentActivity
         mMap.setMyLocationEnabled(true);
         mMap.setOnMapClickListener(this);
     }
+
+    /**
+     * MapClick sets a marker to where
+     * the user clicked. Sets the text
+     * of the location search bar
+     * to the nearest address.
+     * @param latLng
+     */
     @Override
     public void onMapClick(LatLng latLng)
     {
@@ -123,6 +141,14 @@ public class MapsActivity extends FragmentActivity
         }
     }
 
+    /**
+     * onMapSearch
+     * When the user clicks the Search button, it gets
+     * the search result and searches for the address using
+     * Google database. It sets the marker at the location of that
+     * address and moves the map camera to that spot.
+     * @param view
+     */
     public void onMapSearch(View view) {
 
         EditText locationSearch = findViewById(R.id.editText);
@@ -163,6 +189,13 @@ public class MapsActivity extends FragmentActivity
         }
     }
 
+    /**
+     * onMapSubmit
+     * Submit button which saves the information from the
+     * search bar and the coordinates to an intent that will be
+     * used in the TaskActivity. It then closes the map activity.
+     * @param view
+     */
     public void onMapSubmit(View view) {
 
 
@@ -181,6 +214,12 @@ public class MapsActivity extends FragmentActivity
         finish();
     }
 
+    /**
+     * onMapCancel
+     * It sets the result to cancelled and closes
+     * the activity. 
+     * @param view
+     */
     public void onMapCancel(View view) {
         setResult(RESULT_CANCELED);
         finish();

@@ -9,7 +9,14 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
-
+/**@author
+ * @version  1.0
+ * @since
+ * This class gets the maps permissions in the beginning
+ * of the program
+ * @param
+ * @return
+ */
 public class Permissions implements  ActivityCompat.OnRequestPermissionsResultCallback {
 
     private final int REQ_PERMISSION = 999;
