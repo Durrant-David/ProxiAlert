@@ -187,9 +187,9 @@ public class MainActivity extends AppCompatActivity {
                 geofence = buildGeofence(fence);
                 mGeofenceList.add(geofence);
             }
+            // add geofences to geofence client list
+            addGeofences();
         }
-        // add geofences to geofence client list
-        addGeofences();
 
 
         /**
