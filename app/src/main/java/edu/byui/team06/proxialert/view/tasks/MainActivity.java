@@ -337,6 +337,7 @@ public class MainActivity extends AppCompatActivity {
                     taskIntent.putExtra("TIMESTAMP", element.getTimeStamp());
                     taskIntent.putExtra("LAT", element.getLat());
                     taskIntent.putExtra("LONG", element.getLong());
+                    taskIntent.putExtra("DESCRIPTION", element.getDescription());
                     startActivityForResult(taskIntent, TASK_ACTIVITY_CODE);
                 } else {
                     deleteTask(position);
