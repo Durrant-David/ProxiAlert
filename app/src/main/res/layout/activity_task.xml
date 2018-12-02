@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:fillViewport="true">
 
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
     tools:context=".view.tasks.TaskActivity"
     android:paddingLeft="@dimen/activity_margin"
     android:paddingRight="@dimen/activity_margin"
@@ -18,11 +19,9 @@
 
     <TextView
         android:id="@+id/dialog_title"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="16dp"
         android:fontFamily="sans-serif-medium"
         android:lineSpacingExtra="8sp"
         android:text="@string/lbl_new_task_title"
@@ -32,134 +31,156 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <EditText
-        android:id="@+id/task"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/dot_height"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="36dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:background="@android:color/transparent"
-        android:gravity="top"
-        android:hint="@string/hint_enter_task"
-        android:inputType="textCapSentences|textMultiLine"
-        android:lines="4"
-        android:textColorHint="@color/hint_enter"
-        android:textSize="@dimen/input_new"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.75"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/dialog_title" />
+        <EditText
+            android:id="@+id/task"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="36dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:gravity="top"
+            android:hint="@string/hint_enter_task"
+            android:inputType="textMultiLine"
+            android:textColorHint="@color/hint_enter"
+            android:textSize="@dimen/input_new"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.75"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/dialog_title" />
 
-    <TextView
-        android:id="@+id/address"
-        android:layout_width="0dp"
-        android:layout_height="@dimen/dot_height"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:background="@android:color/transparent"
-        android:gravity="top"
-        android:text="@string/hint_enter_address"
-        android:textColorHint="@color/hint_enter"
-        android:textSize="@dimen/input_new"
-        android:onClick="startMapActivity"
-        app:layout_constraintBottom_toBottomOf="@+id/setLocation"
-        app:layout_constraintEnd_toStartOf="@+id/setLocation"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/task"
-        app:layout_constraintTop_toTopOf="@+id/setLocation" />
+        <EditText
+            android:id="@+id/taskDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/task_update_sep"
+            android:layout_marginRight="8dp"
+            android:ems="10"
+            android:lines="2"
+            android:gravity="bottom"
+            android:hint="Enter the Task Description Here."
+            android:inputType="textMultiLine"
+            android:textColorHint="@color/hint_enter"
+            android:textSize="20sp"
+            app:layout_constraintEnd_toEndOf="@+id/task"
+            app:layout_constraintStart_toStartOf="@+id/task"
+            app:layout_constraintTop_toBottomOf="@+id/task" />
 
-    <Button
-        android:id="@+id/setLocation"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="28dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:onClick="startMapActivity"
-        android:text="@string/setLocation"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/task" />
+        <EditText
+                android:id="@+id/address"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/task_update_sep"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                android:gravity="top"
+                android:onClick="startMapActivity"
+                android:hint="@string/hint_enter_address"
+                android:textColorHint="@color/hint_enter"
+                android:textSize="@dimen/input_new"
+                android:inputType="none"
+                android:focusable="false"
+                app:layout_constraintBottom_toBottomOf="@+id/setLocation"
+                app:layout_constraintEnd_toStartOf="@+id/setLocation"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="@+id/task"
+                app:layout_constraintTop_toTopOf="@+id/setLocation" />
 
-    <EditText
-        android:id="@+id/dueDate"
-        android:layout_width="0dp"
-        android:layout_height="@dimen/dot_height"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:background="@android:color/transparent"
-        android:editable="false"
-        android:focusable="false"
-        android:gravity="top"
-        android:hint="@string/hint_enter_due_date"
-        android:inputType="none"
-        android:lines="4"
-        android:textColorHint="@color/hint_enter"
-        android:textSize="@dimen/input_new"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/radiusUnits" />
 
-    <Button
-        android:id="@+id/button"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:onClick="onSaveButton"
-        android:text="@string/save"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/dueDate" />
+        <EditText
+            android:id="@+id/dueDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/task_update_sep"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:focusable="false"
+            android:gravity="top"
+            android:hint="@string/hint_enter_due_date"
+            android:inputType="none"
+            android:textColorHint="@color/hint_enter"
+            android:textSize="@dimen/input_new"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/radiusUnits" />
 
-    <Button
-        android:id="@+id/btnCancel"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_marginEnd="24dp"
-        android:layout_marginRight="24dp"
-        android:onClick="onCancelButton"
-        android:text="@android:string/cancel"
-        app:layout_constraintBottom_toBottomOf="@+id/button"
-        app:layout_constraintEnd_toStartOf="@+id/button"
-        app:layout_constraintTop_toTopOf="@+id/button" />
 
-    <Spinner
-        android:id="@+id/radiusUnits"
-        android:layout_width="wrap_content"
-        android:layout_height="40dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginLeft="24dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        android:background="@android:drawable/btn_dropdown"
-        android:dropDownWidth="144dp"
-        android:scrollbarSize="@dimen/input_new"
-        android:spinnerMode="dropdown"
-        app:layout_constraintEnd_toEndOf="@+id/setLocation"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/radius"
-        app:layout_constraintTop_toBottomOf="@+id/setLocation" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/task_update_sep"
+            android:orientation="horizontal">
 
-    <EditText
-        android:id="@+id/radius"
-        android:layout_width="141dp"
-        android:layout_height="30dp"
-        android:background="@android:color/transparent"
-        android:gravity="right"
-        android:hint="@string/hint_enter_radius"
-        android:inputType="numberDecimal"
-        android:textColorHint="@color/hint_enter"
-        android:textSize="@dimen/input_new"
-        android:label="Proxi Distance:"
-        app:layout_constraintStart_toStartOf="@+id/task"
-        app:layout_constraintTop_toTopOf="@+id/radiusUnits" />
+            <TextView
+                android:id="@+id/editText3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="8dp"
+                android:text="Notify me within"
+                android:textSize="@dimen/input_new"
+                app:layout_constraintStart_toStartOf="@+id/address"
+                app:layout_constraintTop_toBottomOf="@+id/address" />
 
-</android.support.constraint.ConstraintLayout>
+            <EditText
+                android:id="@+id/radius"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="@string/hint_enter_radius"
+                android:inputType="numberDecimal"
+                android:textColorHint="@color/hint_enter"
+                android:textSize="@dimen/input_new"
+                app:layout_constraintBottom_toBottomOf="@+id/editText3"
+                app:layout_constraintTop_toTopOf="@+id/editText3"
+                tools:layout_editor_absoluteX="197dp" />
+
+            <Spinner
+                android:id="@+id/radiusUnits"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/input_height"
+                android:layout_gravity="center"
+                android:dropDownWidth="144dp"
+                android:scrollbarSize="@dimen/input_new"
+                android:spinnerMode="dropdown"
+                android:background="@android:drawable/btn_dropdown"
+                app:layout_constraintEnd_toEndOf="@+id/radius"
+                app:layout_constraintStart_toStartOf="@+id/radius"
+                app:layout_constraintTop_toBottomOf="@+id/radius" />
+
+        </LinearLayout>
+
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:layout_marginTop="36dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnCancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_gravity="right"
+                android:onClick="onCancelButton"
+                android:text="@android:string/cancel" />
+
+            <Button
+                android:id="@+id/button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="0dp"
+                android:layout_marginEnd="7dp"
+                android:layout_marginRight="7dp"
+                android:layout_toStartOf="@+id/btnCancel"
+                android:layout_toLeftOf="@+id/btnCancel"
+                android:onClick="onSaveButton"
+                android:text="Submit" />
+
+        </RelativeLayout>
+
+
+    </LinearLayout>
+
+
 </ScrollView>

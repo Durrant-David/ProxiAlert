@@ -45,6 +45,7 @@ public class TaskActivity extends AppCompatActivity {
     private EditText inputRadius;
     private TextView inputAddress;
     private EditText inputDueDate;
+    private EditText inputTaskDesc;
     Spinner radiusUnits;
     private long id;
     private int mDay;
@@ -87,7 +88,7 @@ public class TaskActivity extends AppCompatActivity {
         inputDueDate = findViewById(R.id.dueDate);
         radiusUnits = findViewById(R.id.radiusUnits);
         inputRadius = findViewById(R.id.radius);
-
+        inputTaskDesc = findViewById(R.id.taskDescription);
 
 
 
@@ -195,8 +196,10 @@ public class TaskActivity extends AppCompatActivity {
                 count++;
             }
 
+
             radiusUnits.setSelection(count);
             inputRadius.setText(intent.getStringExtra("RADIUS"));
+            inputTaskDesc.setText(intent.getStringExtra("DESCRIPTION"));
             //radius.setSelection(intent.getStringExtra("RADIUS"));
             id = intent.getIntExtra("ID", -1);
 
@@ -233,6 +236,7 @@ public class TaskActivity extends AppCompatActivity {
         String dueDate = inputDueDate.getText().toString();
         String unitsString = radiusUnits.getSelectedItem().toString();
         String radiusString = inputRadius.getText().toString();
+        String description = inputTaskDesc.getText().toString();
         SimpleDateFormat sdf = new SimpleDateFormat(myDateFormat, Locale.ENGLISH);
         Date date;
         long timeStamp;
@@ -258,6 +262,12 @@ public class TaskActivity extends AppCompatActivity {
             Toast.makeText(TaskActivity.this, "Please enter the proximity value.", Toast.LENGTH_SHORT).show();
             return;
         }
+
+        if(description.length() == 0) {
+            Toast.makeText(TaskActivity.this, "Please enter a description.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         //One more to see if the radius value is empty.
 
         try {
@@ -281,9 +291,10 @@ public class TaskActivity extends AppCompatActivity {
             element.setTimeStamp(t.toString());
             element.setLong(longitudeString);
             element.setLat(latitudeString);
+            element.setDescription(description);
             db.updateTask(element);
         } else {
-            id = db.insertTask(task, address, dueDate, radiusString, unitsString, t.toString(), latitudeString, longitudeString);
+            id = db.insertTask(task, address, dueDate, radiusString, unitsString, t.toString(), latitudeString, longitudeString, description);
         }
 
         intent.putExtra("id", id);
@@ -324,108 +335,3 @@ public class TaskActivity extends AppCompatActivity {
         }
     }
 }
-    /*
-    private void showTaskDialog(final boolean shouldUpdate, final ProxiDB proxiDB, final int position) {
-        LayoutInflater layoutInflaterAndroid = LayoutInflater.from(getApplicationContext());
-        View view = layoutInflaterAndroid.inflate(R.layout.task_dialog, null);
-
-        AlertDialog.Builder alertDialogBuilderUserInput = new AlertDialog.Builder(TaskActivity.this);
-        alertDialogBuilderUserInput.setView(view);
-
-        final EditText inputTask = view.findViewById(R.id.task);
-        final TextView inputAddress = view.findViewById(R.id.address);
-        final EditText inputDueDate = view.findViewById(R.id.dueDate);
-        final EditText inputRadius = view.findViewById(R.id.radius);
-        TextView dialogTitle = view.findViewById(R.id.dialog_title);
-        dialogTitle.setText(!shouldUpdate ? getString(R.string.lbl_new_task_title) : getString(R.string.lbl_edit_task_title));
-
-        if (shouldUpdate && proxiDB != null) {
-            inputTask.setText(proxiDB.getTask());
-        }
-//        alertDialogBuilderUserInput
-//                .setCancelable(false)
-//                .setPositiveButton(shouldUpdate ? "update" : "save", new DialogInterface.OnClickListener() {
-//                    public void onClick(DialogInterface dialogBox, int id) {
-//
-//                    }
-//                })
-//                .setNegativeButton("cancel",
-//                        new DialogInterface.OnClickListener() {
-//                            public void onClick(DialogInterface dialogBox, int id) {
-//                                dialogBox.cancel();
-//                            }
-//                        });
-//
-//        final AlertDialog alertDialog = alertDialogBuilderUserInput.create();
-//        alertDialog.show();
-//
-//        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                // Show toast message when no text is entered
-//                if (TextUtils.isEmpty(inputTask.getText().toString())) {
-//                    Toast.makeText(TaskActivity.this, "Enter task!", Toast.LENGTH_SHORT).show();
-//                    return;
-//                } else {
-//                    alertDialog.dismiss();
-//                }
-//
-//                // check if user updating note
-//                if (shouldUpdate && proxiDB != null) {
-//                    // update note by it's id
-//                    updateTask(inputTask.getText().toString(),
-//                            inputAddress.getText().toString(),
-//                            inputDueDate.getText().toString(),
-//                            inputRadius.getText().toString(),
-//                            position);
-//                } else {
-//                    // create new note
-//                    createTask(inputTask.getText().toString(),
-//                            inputAddress.getText().toString(),
-//                            inputDueDate.getText().toString(),
-//                            inputRadius.getText().toString()
-//                    );
-//                }
-//            }
-//        });
-    }
-
-    private void createTask(String task, String address, String dueDate, String radius) {
-        // inserting task in db and getting
-        // newly inserted task id
-
-        //Toast toast = Toast.makeText(this, "test"+ id, Toast.LENGTH_SHORT);
-       // toast.show();
-        // get the newly inserted task from db
-        //ProxiDB n = db.getProxiDB(id);
-
-        //if (n != null) {
-            // adding new task to array list at 0 position
-            //taskList.add(0, n);
-
-            // refreshing the list
-            //mAdapter.notifyDataSetChanged();
-
-            //toggleEmptyTasks();
-       // }
-    }
-
-    private void updateTask(String task, String address, String dueDate, String radius, int position) {
-        ProxiDB n = taskList.get(position);
-        // updating task text
-        n.setTask(task);
-        n.setAddress(address);
-        n.setDueDate(dueDate);
-        n.setRadius(radius);
-
-        // updating task in db
-        db.updateTask(n);
-
-        // refreshing the list
-        taskList.set(position, n);
-        //mAdapter.notifyItemChanged(position);
-
-        //toggleEmptyTasks();
-    }
-}
-*/

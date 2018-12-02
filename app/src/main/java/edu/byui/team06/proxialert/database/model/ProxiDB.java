@@ -12,6 +12,7 @@ public class ProxiDB {
     public static final String COLUMN_LAT = "latitude";
     public static final String COLUMN_LONG = "longitude";
     public static final String COLUMN_UNITS = "units";
+    public static final String COLUMN_DESCRIPTION = "description";
 
     private int _id;
     private String _task;
@@ -22,7 +23,7 @@ public class ProxiDB {
     private String _latitude;
     private String _longitude;
     private String _units;
-
+    private String _description;
     // Create table SQL query
     public static final String CREATE_TABLE =
             "CREATE TABLE " + TABLE_NAME + "("
@@ -34,14 +35,17 @@ public class ProxiDB {
                     + COLUMN_UNITS + " TEXT,"
                     + COLUMN_TS + " TEXT,"
                     + COLUMN_LAT + " TEXT,"
-                    + COLUMN_LONG + " TEXT"
+                    + COLUMN_LONG + " TEXT,"
+                    + COLUMN_DESCRIPTION + " TEXT"
+
                     +")";
 
     public ProxiDB() {
     }
 
     public ProxiDB(int id, String task, String address, String dueDate, String radius,
-                   String radiusUnits, String timeStamp, String latitude, String longitude) {
+                   String radiusUnits, String timeStamp, String latitude, String longitude,
+                   String description) {
         _id = id;
         _task = task;
         _address = address;
@@ -51,6 +55,7 @@ public class ProxiDB {
         _timeStamp = timeStamp;
         _latitude = latitude;
         _longitude = longitude;
+        _description = description;
     }
 
     public String getLat() { return _latitude; }
@@ -108,4 +113,8 @@ public class ProxiDB {
     public String getUnits() { return _units; }
 
     public void setUnits(String units) { _units = units; }
+
+    public void setDescription(String description) { _description = description; }
+
+    public String getDescription() { return _description; }
 }

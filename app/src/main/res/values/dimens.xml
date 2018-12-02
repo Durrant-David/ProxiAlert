@@ -13,4 +13,5 @@
     <dimen name="dot_text_size">40sp</dimen>
     <dimen name="address">14sp</dimen>
     <dimen name="task_list_text">18sp</dimen>
+    <dimen name="task_update_sep">16dp</dimen>
 </resources>
