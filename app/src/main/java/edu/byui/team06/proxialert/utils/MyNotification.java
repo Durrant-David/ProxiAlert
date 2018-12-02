@@ -45,7 +45,7 @@ public class MyNotification {
         nb = new NotificationCompat.Builder(c, "myNotification")
                 //.setLargeIcon(BitmapFactory.decodeFile(Context.getFilesDir().getPath("/data/data/edu.byui.team06.proxialert/IMG_2149.JPG"))
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
-                .setContentTitle("ProxiDB: You are near "+task.getTask()+ " located at " + task.getAddress())
+                .setContentTitle("ProxiAlert: You are near "+task.getTask()+ " located at " + task.getAddress())
                .setContentText("Task Description: "+task.getDescription())
                 .setStyle(new NotificationCompat.BigTextStyle()
                    .bigText("Task Description: "+task.getDescription()))
