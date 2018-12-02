@@ -2,12 +2,17 @@ package edu.byui.team06.proxialert.utils;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 import edu.byui.team06.proxialert.R;
+import edu.byui.team06.proxialert.database.model.ProxiDB;
+
 import static android.support.v4.content.ContextCompat.getSystemService;
 
 public class MyNotification {
@@ -17,7 +22,7 @@ public class MyNotification {
     private int notificationId;
     private NotificationCompat.Builder nb;
 
-    public MyNotification(String title, String content, String longText, Context c ) {
+    public MyNotification(ProxiDB task, Context c ) {
         notificationCounter++;
         notificationId = notificationCounter;
         notifManager = getSystemService(c, NotificationManager.class);
@@ -40,11 +45,24 @@ public class MyNotification {
         nb = new NotificationCompat.Builder(c, "myNotification")
                 //.setLargeIcon(BitmapFactory.decodeFile(Context.getFilesDir().getPath("/data/data/edu.byui.team06.proxialert/IMG_2149.JPG"))
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
-                .setContentTitle(title)
-               .setContentText(content)
+                .setContentTitle("ProxiDB: You are near "+task.getTask()+ " located at " + task.getAddress())
+               .setContentText("Task Description: "+task.getDescription())
                 .setStyle(new NotificationCompat.BigTextStyle()
-                   .bigText(longText))
+                   .bigText("Task Description: "+task.getDescription()))
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+
+
+        //Intent
+        Uri navUri = Uri.parse("google.navigation:q="+task.getLat()+","+task.getLong());
+        Intent navigationIntent =new Intent(Intent.ACTION_VIEW, navUri);
+        navigationIntent.setPackage("com.google.android.apps.maps");
+
+        PendingIntent contentIntent = PendingIntent.getActivity(c, 0,
+                new Intent(navigationIntent), PendingIntent.FLAG_UPDATE_CURRENT);
+
+        nb.setContentIntent(contentIntent);
+
 
     }
 

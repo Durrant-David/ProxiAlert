@@ -55,6 +55,7 @@ public class TaskActivity extends AppCompatActivity {
     private String units;
     private String latitudeString;
     private String longitudeString;
+    private String isComplete;
     final private String myDateFormat = "MM/dd/yyyy";
     final private String [] items = {
             "Units...",
@@ -189,6 +190,7 @@ public class TaskActivity extends AppCompatActivity {
             latitudeString = intent.getStringExtra("LAT");
             longitudeString = intent.getStringExtra("LONG");
             units = intent.getStringExtra("UNITS");
+            isComplete = intent.getStringExtra("COMPLETE");
             int count = 0;
             for(String s: items) {
                 if (units.equals(s))
@@ -292,9 +294,10 @@ public class TaskActivity extends AppCompatActivity {
             element.setLong(longitudeString);
             element.setLat(latitudeString);
             element.setDescription(description);
+            element.setComplete(isComplete);
             db.updateTask(element);
         } else {
-            id = db.insertTask(task, address, dueDate, radiusString, unitsString, t.toString(), latitudeString, longitudeString, description);
+            id = db.insertTask(task, address, dueDate, radiusString, unitsString, t.toString(), latitudeString, longitudeString, description, "false");
         }
 
         intent.putExtra("id", id);

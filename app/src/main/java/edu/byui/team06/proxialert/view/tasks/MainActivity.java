@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -118,16 +119,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //This is temporary. We can send a lot more notifications later, but for now
-        //it just sends immediately.
-        /*
-        MyNotification n = new MyNotification("Test", "This is working",
-                "I'm working and this is longer " +
-                        "text that can be read if the notification is expanded.",
-                this.getApplicationContext());
-        n.send();
-        */
-
         coordinatorLayout = findViewById(R.id.coordinator_layout);
         recyclerView = findViewById(R.id.recycler_view);
         noTaskView = findViewById(R.id.empty_tasks_view);
@@ -192,6 +183,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
+
         /**
          * On long press on RecyclerView item, open alert dialog
          * with options to choose
@@ -201,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
                 recyclerView, new RecyclerTouchListener.ClickListener() {
             @Override
             public void onClick(View view, final int position) {
-                //Maybe we can start navigation to the location.
+                startDirectionsActivity(position);
             }
 
             @Override
@@ -312,7 +304,20 @@ public class MainActivity extends AppCompatActivity {
 
     private void showActionsDialog(final int position) {
 
-        CharSequence colors[] = new CharSequence[]{"Edit", "Delete", "Mark As Complete"};
+
+        ProxiDB element = taskList.get(position);
+        boolean isComplete = Boolean.parseBoolean(element.getComplete());
+        CharSequence colors[];
+        if(isComplete)
+        {
+            colors = new CharSequence[]{"Edit", "Delete", "Unmark As Complete"};
+        }
+        else
+        {
+            colors = new CharSequence[]{"Edit", "Delete", "Mark As Complete"};
+        }
+
+
         AlertDialog.Builder builder;
         if(theme) {
              builder = new AlertDialog.Builder(this, R.style.Dark_Dialog_Alert);
@@ -323,8 +328,9 @@ public class MainActivity extends AppCompatActivity {
         builder.setItems(colors, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                ProxiDB element = taskList.get(position);
                 if (which == 0) {
-                    ProxiDB element = taskList.get(position);
+
                     Intent taskIntent = new Intent(MainActivity.this, TaskActivity.class);
                     taskIntent.putExtra(UPDATE, true);
                     taskIntent.putExtra(POSITION, position);
@@ -338,9 +344,21 @@ public class MainActivity extends AppCompatActivity {
                     taskIntent.putExtra("LAT", element.getLat());
                     taskIntent.putExtra("LONG", element.getLong());
                     taskIntent.putExtra("DESCRIPTION", element.getDescription());
+                    taskIntent.putExtra("COMPLETE", element.getComplete());
                     startActivityForResult(taskIntent, TASK_ACTIVITY_CODE);
-                } else {
+                } else if (which == 1){
                     deleteTask(position);
+                } else {
+                    if(element.getComplete().equals("true")) {
+                        element.setComplete("false");
+                    } else {
+                        element.setComplete("true");
+
+                    }
+                    db.updateTask(element);
+                    taskList.clear();
+                    taskList.addAll(db.getAllTasks());
+                    mAdapter.notifyDataSetChanged();
                 }
                 //TODO Determine what happens on "MARK AS COMPLETE" (currently deletes)
             }
@@ -376,10 +394,13 @@ public class MainActivity extends AppCompatActivity {
                 //If it's NOT an update, add it to the end.
                 if (isUpdate) {
                     taskList.set(data.getIntExtra("POSITION", 0), element);
+                    mAdapter.notifyItemChanged(data.getIntExtra("POSITION", 0));
                 } else {
                     taskList.add(taskList.size(), element);
+                    mAdapter.notifyDataSetChanged();
                 }
 
+                //TODO Update Old geofence if update occurred.
                 // Geofence
                 Geofence geofence;
                 fence = new Fence(element);
@@ -480,5 +501,15 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    void startDirectionsActivity(final int position) {
+
+        ProxiDB task = taskList.get(position);
+        Uri navUri = Uri.parse("google.navigation:q="+task.getLat()+","+task.getLong());
+        Intent navigationIntent =new Intent(Intent.ACTION_VIEW, navUri);
+        navigationIntent.setPackage("com.google.android.apps.maps");
+        startActivity(navigationIntent);
+
+
+    }
 
 }

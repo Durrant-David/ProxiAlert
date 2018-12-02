@@ -3,6 +3,7 @@ package edu.byui.team06.proxialert.view;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.support.v7.widget.RecyclerView;
@@ -92,16 +93,32 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder>{
 
         holder.task.setText(proxiDB.getTask());
 
+
+
         //Date d = Calendar.getInstance().getTime();
         //SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yyyy");
         //String formattedDate = df.format(d);
         // Displaying dot from HTML character code
 
-        long timeStamp = Long.parseLong(proxiDB.getTimeStamp());
-         if(timeStamp +86400000 <= System.currentTimeMillis()) {
-             holder.dot.setTextColor(Color.parseColor("#ff0000"));
-         }
-
+        if(proxiDB.getComplete().equals("true"))
+        {
+            holder.dot.setTextColor(Color.parseColor("#888888"));
+            holder.task.setPaintFlags(holder.task.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            holder.address.setPaintFlags(holder.address.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            holder.dueDate.setPaintFlags(holder.dueDate.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+        }
+        else {
+            //If an item is no longer not completed we have to "unstrike" through them because if we resort items,
+            //items that are not complete and in the same position as the striked through will become striked through
+            holder.task.setPaintFlags(holder.task.getPaintFlags() & ~ Paint.STRIKE_THRU_TEXT_FLAG);
+            holder.address.setPaintFlags(holder.address.getPaintFlags() & ~ Paint.STRIKE_THRU_TEXT_FLAG);
+            holder.dueDate.setPaintFlags(holder.dueDate.getPaintFlags() & ~ Paint.STRIKE_THRU_TEXT_FLAG);
+            holder.dot.setTextColor(Color.parseColor("#00c6ae"));
+            long timeStamp = Long.parseLong(proxiDB.getTimeStamp());
+            if (timeStamp + 86400000 <= System.currentTimeMillis()) {
+                holder.dot.setTextColor(Color.parseColor("#ff0000"));
+            }
+        }
         holder.dot.setText(Html.fromHtml("&#8226;"));
         holder.dueDate.setText(proxiDB.getDueDate());
         holder.address.setText(proxiDB.getAddress());

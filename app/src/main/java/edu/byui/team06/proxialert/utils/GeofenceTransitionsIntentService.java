@@ -60,11 +60,14 @@ public class GeofenceTransitionsIntentService extends IntentService {
             // Send notification and log the transition details.
             sendNotification(geofenceTransitionDetails);
 
-            MyNotification n = new MyNotification("Geofence", ""+triggerId,
-                    "I'm working and this is longer " +
-                            "text that can be read if the notification is expanded.",
-                    this.getApplicationContext());
-            n.send();
+            //MyNotification syntax has changed. Send ENTIRE ProxiDB as first parameter
+            //send context as second parameter.
+
+//            MyNotification n = new MyNotification("Geofence", ""+triggerId,
+//                    "I'm working and this is longer " +
+//                            "text that can be read if the notification is expanded.",
+//                    this.getApplicationContext());
+//            n.send();
             Log.i(TAG, geofenceTransitionDetails);
         } else {
             // Log the error.
@@ -90,7 +93,6 @@ public class GeofenceTransitionsIntentService extends IntentService {
     private void sendNotification( String msg ) {
         Log.i(TAG, "sendNotification: " + msg );
 
-        notification = new MyNotification("Test", "Geofence"+ msg, "long text", this);
 
 
     }
