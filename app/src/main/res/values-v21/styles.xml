@@ -16,6 +16,8 @@
         <item name="android:background">@color/AlertGray</item>
         <item name="android:colorForeground">@color/my_foreground_material_light</item>
         <item name="android:textColorTertiary">@color/my_foreground_material_light</item>
+        <item name="android:textColorPrimary">@color/my_foreground_material_light</item>
+        <item name="android:textColorSecondary">@color/my_foreground_material_light</item>
     </style>
     <style name="Dark_Dialog_Alert" parent= "Theme.AppCompat.Light.Dialog.Alert" >
         <item name="android:background">@color/AlertGray</item>

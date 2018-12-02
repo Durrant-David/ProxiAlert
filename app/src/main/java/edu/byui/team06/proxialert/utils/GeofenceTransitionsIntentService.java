@@ -47,6 +47,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
             // multiple geofences.
             List<Geofence> triggeringGeofences = geofencingEvent.getTriggeringGeofences();
 
+            String triggerId = triggeringGeofences.get(0).getRequestId();
             // Get the transition details as a String.
             String geofenceTransitionDetails = getGeofenceTrasitionDetails(
                     geofenceTransition,
@@ -56,7 +57,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
             // Send notification and log the transition details.
             sendNotification(geofenceTransitionDetails);
 
-            MyNotification n = new MyNotification("Geofence", "This is working",
+            MyNotification n = new MyNotification("Geofence", ""+triggerId,
                     "I'm working and this is longer " +
                             "text that can be read if the notification is expanded.",
                     this.getApplicationContext());

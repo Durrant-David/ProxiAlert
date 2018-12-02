@@ -73,11 +73,11 @@ public class MainActivity extends AppCompatActivity {
     private static final int TASK_ACTIVITY_CODE = 0;
     private int SETTINGS_ACTION = 1;
     private boolean theme;
-    private Permissions permissions;
-    private GeofencingClient mGeofencingClient;
     private ArrayList<Geofence> mGeofenceList;
     private PendingIntent mGeofencePendingIntent;
     private Fence fence;
+    private static final long DURATION = Geofence.NEVER_EXPIRE;
+    private static final int DWELL = 1;
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -159,41 +159,38 @@ public class MainActivity extends AppCompatActivity {
         toggleEmptyTasks();
 
         // Geofence
-        // Location permissions
-        permissions = new Permissions();
-        if ( permissions.checkMapsPermission(this)){
-            mGeofencingClient = new GeofencingClient(this);
+        GeofencingClient mGeofencingClient;
+        mGeofencingClient = new GeofencingClient(this);
 
-            Geofence geofence;
-            mGeofenceList = new ArrayList<>();
-
-            if (taskCount > 0) {
-                for (int i = 0; i < taskCount; i++) {
-                    fence = new Fence(taskList.get(i));
-                    fence.setDuration(3600000);
-                    fence.setDwell(1);
-                    geofence = buildGeofence(fence);
-                    mGeofenceList.add(geofence);
-                }
-                mGeofencingClient.addGeofences(getGeofencingRequest(), getGeofencePendingIntent())
-                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                Log.i (TAG, "successfully added Geofences");
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.w(TAG, "failed to add Geofences");
-                            }
-                        });
-
+        // First remove all geofences, to get a fresh start
+        mGeofencingClient.removeGeofences(getGeofencePendingIntent())
+                .addOnSuccessListener(this, new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.i(TAG, "successfully removed all Geofences");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "failed to remove all Geofences - " + e);
+                    }
+                });
+        Geofence geofence;
+        mGeofenceList = new ArrayList<>();
+        // if there are tasks in the DB than add them to geofence
+        if (taskCount > 0) {
+            for (int i = 0; i < taskCount; i++) {
+                fence = new Fence(taskList.get(i));
+                fence.setDuration(DURATION);
+                fence.setDwell(DWELL);
+                geofence = buildGeofence(fence);
+                mGeofenceList.add(geofence);
             }
-
-        } else {
-            permissions.askMapsPermission(this);
         }
+        // add geofences to geofence client list
+        addGeofences();
+
 
         /**
          * On long press on RecyclerView item, open alert dialog
@@ -271,6 +268,26 @@ public class MainActivity extends AppCompatActivity {
      * item from the ListView by its position
      *****************************************************/
     private void deleteTask(int position) {
+
+        // remove Geofence connected to task
+        List<String> geofenceList = new ArrayList<>();
+        GeofencingClient mGeofencingClient;
+        geofenceList.add(String.valueOf(position));
+
+        mGeofencingClient = new GeofencingClient(this);
+        mGeofencingClient.removeGeofences(geofenceList)
+                .addOnSuccessListener(this, new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.i(TAG, "successfully removed Geofence");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "failed to remove Geofence - " + e);
+                    }
+                });
 
         // deleting the note from db
         db.deleteTask(taskList.get(position));
@@ -362,6 +379,16 @@ public class MainActivity extends AppCompatActivity {
                     taskList.add(taskList.size(), element);
                 }
 
+                // Geofence
+                Geofence geofence;
+                fence = new Fence(element);
+                fence.setDuration(DURATION);
+                fence.setDwell(DWELL);
+                geofence = buildGeofence(fence);
+                mGeofenceList.add(geofence);
+
+                addGeofences();
+
                 //Update the view.
                 mAdapter.notifyDataSetChanged();
                 toggleEmptyTasks();
@@ -426,5 +453,31 @@ public class MainActivity extends AppCompatActivity {
                 .setLoiteringDelay(f.getDwell())
                 .build();
     }
+
+    private void addGeofences() {
+        GeofencingClient mGeofencingClient;
+
+        // Location permissions
+        Permissions permissions = new Permissions();
+        if ( permissions.checkMapsPermission(this)){
+            mGeofencingClient = new GeofencingClient(this);
+            mGeofencingClient.addGeofences(getGeofencingRequest(), getGeofencePendingIntent())
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.i (TAG, "successfully added Geofences");
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w(TAG, "failed to add Geofences - " + e);
+                        }
+                    });
+        } else {
+            permissions.askMapsPermission(this);
+        }
+    }
+
 
 }
