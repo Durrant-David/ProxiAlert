@@ -17,6 +17,8 @@ import com.google.android.gms.location.GeofencingEvent;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.byui.team06.proxialert.database.model.ProxiDB;
+import edu.byui.team06.proxialert.database.DatabaseHelper;
 
 public class GeofenceTransitionsIntentService extends IntentService {
 
@@ -36,9 +38,6 @@ public class GeofenceTransitionsIntentService extends IntentService {
             Log.e(TAG, errorMessage);
             return;
         }
-
-
-
         // Get the transition type.
         int geofenceTransition = geofencingEvent.getGeofenceTransition();
 
@@ -58,8 +57,11 @@ public class GeofenceTransitionsIntentService extends IntentService {
             );
 
             // Send notification and log the transition details.
-            sendNotification(geofenceTransitionDetails);
+          DatabaseHelper DB = new DatabaseHelper(getApplicationContext());
+            ProxiDB task =  DB.getProxiDB(Long.parseLong(triggerId));
 
+            MyNotification n = new MyNotification(task, getApplicationContext());
+            n.send();
             //MyNotification syntax has changed. Send ENTIRE ProxiDB as first parameter
             //send context as second parameter.
 
