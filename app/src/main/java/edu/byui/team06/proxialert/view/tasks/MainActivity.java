@@ -46,6 +46,7 @@ import edu.byui.team06.proxialert.utils.Permissions;
 import edu.byui.team06.proxialert.utils.RecyclerTouchListener;
 import edu.byui.team06.proxialert.view.TaskAdapter;
 import edu.byui.team06.proxialert.view.settings.SettingsActivity;
+import edu.byui.team06.proxialert.view.maps.MapsTaskActivity;
 
 //database imports
 
@@ -250,6 +251,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void startSettings(MenuItem item) {
         Intent intent = new Intent(this, SettingsActivity.class);
+        startActivity(intent);
+    }
+
+    public void startMapView(MenuItem item) {
+        Intent intent = new Intent(this, MapsTaskActivity.class);
         startActivity(intent);
     }
 
