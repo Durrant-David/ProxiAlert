@@ -351,8 +351,10 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     if(element.getComplete().equals("true")) {
                         element.setComplete("false");
+                        //TODO put geofence back since the task has now been re-added
                     } else {
                         element.setComplete("true");
+                        //TODO remove geofence since the task is complete.
 
                     }
                     db.updateTask(element);
@@ -360,7 +362,7 @@ public class MainActivity extends AppCompatActivity {
                     taskList.addAll(db.getAllTasks());
                     mAdapter.notifyDataSetChanged();
                 }
-                //TODO Determine what happens on "MARK AS COMPLETE" (currently deletes)
+                
             }
         });
         builder.show();
