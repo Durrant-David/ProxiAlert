@@ -5,11 +5,14 @@ package edu.byui.team06.proxialert.view.tasks;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.media.MediaRecorder;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.preference.PreferenceManager;
+import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -80,6 +83,7 @@ public class TaskActivity extends AppCompatActivity {
     long recorderStartTime;
     private ProgressBarAdapter pba;
     final private int MAP_ACTIVITY_CODE = 1;
+    final private int CONTACT_ACTIVITY_CODE = 2;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -300,14 +304,20 @@ public class TaskActivity extends AppCompatActivity {
 
 
 
+
     public void onCancelButton(View view) {
+        mRecorder.stop();
         setResult(RESULT_CANCELED);
         finish();
     }
 
     public void onSaveButton(View view) {
 
-
+        if(isRecorderStarted) {
+            mRecorder.stop();
+            mRecorder.release();
+            isRecorderStarted = false;
+        }
         Intent intent = new Intent();
         intent.putExtra("UPDATE", isUpdate);
         intent.putExtra("POSITION", position);
@@ -389,11 +399,19 @@ public class TaskActivity extends AppCompatActivity {
     // Geofence
     // button to open MapsActivity
     public void startMapActivity(View view) {
+        if(isRecorderStarted) {
+            mRecorder.stop();
+            mRecorder.release();
+        }
         Intent mapIntent = new Intent(TaskActivity.this, MapsActivity.class);
         mapIntent.putExtra("TaskName", inputTask.getText().toString());
         startActivityForResult(mapIntent, MAP_ACTIVITY_CODE);
     }
 
+    public void selectContact(View view) {
+        Intent contactIntent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
+        startActivityForResult(contactIntent, CONTACT_ACTIVITY_CODE);
+    }
     /*******************************************************
      * onActivityResult
      * Handles any intents that are returned to main via
@@ -404,17 +422,27 @@ public class TaskActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         // TASK_ACTIVITY_CODE represents results with the Task Activity.
-        if (requestCode == MAP_ACTIVITY_CODE) {
+        if(resultCode == RESULT_OK) {
+            if (requestCode == MAP_ACTIVITY_CODE) {
 
-            //If the result was set to Ok, then we will update the Views.
-            if (resultCode == RESULT_OK) {
+                //If the result was set to Ok, then we will update the Views.
 
-               inputAddress.setText(data.getStringExtra("ADDRESS"));
-               String coordinates = data.getStringExtra("COORDINATES");
-               latitudeString = coordinates.substring(coordinates.indexOf('(') + 1, coordinates.indexOf(','));
-               longitudeString = coordinates.substring(coordinates.indexOf(',') + 1, coordinates.indexOf(')'));
-               //will also need to fetch the coordinates.
+                inputAddress.setText(data.getStringExtra("ADDRESS"));
+                String coordinates = data.getStringExtra("COORDINATES");
+                latitudeString = coordinates.substring(coordinates.indexOf('(') + 1, coordinates.indexOf(','));
+                longitudeString = coordinates.substring(coordinates.indexOf(',') + 1, coordinates.indexOf(')'));
+                //will also need to fetch the coordinates.
+            }
+            else if(requestCode == CONTACT_ACTIVITY_CODE) {
+                Uri contactData = data.getData();
+                Cursor c = getContentResolver().query(contactData, null, null, null, null);
+                if(c.moveToFirst()) {
+                    String name = c.getString(c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                    //TODO decide what info to keep here.
+                }
             }
         }
+
+
     }
 }

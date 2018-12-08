@@ -7,10 +7,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.media.AudioAttributes;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
+import android.provider.MediaStore;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+
 import edu.byui.team06.proxialert.R;
 import edu.byui.team06.proxialert.database.model.ProxiDB;
 
@@ -22,15 +30,24 @@ public class MyNotification {
     private static int notificationCounter = 0;
     private int notificationId;
     private NotificationCompat.Builder nb;
-
+    private MediaPlayer notifSound;
     public MyNotification(ProxiDB task, Context c ) {
         notificationCounter++;
         notificationId = notificationCounter;
         notifManager = getSystemService(c, NotificationManager.class);
 
+        File file = new File(task.getAudio());
+        file.setReadable(true, false);
+        String s = task.getAudio();
+        Uri notifUri = Uri.parse("file:/" + task.getAudio());
+
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             /* create a MyNotification channel */
+            AudioAttributes audioAtts = new AudioAttributes.Builder()
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                    .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                    .build();
             String channelId = "myNotification";
             CharSequence channelName = "Some Channel";
             int importance = NotificationManager.IMPORTANCE_HIGH;
@@ -39,9 +56,19 @@ public class MyNotification {
             notificationChannel.setLightColor(Color.BLUE);
             notificationChannel.enableVibration(true);
             notificationChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
+            notificationChannel.setSound(notifUri, audioAtts);
             notifManager.createNotificationChannel(notificationChannel);
+
+
         }
 
+        notifSound = new MediaPlayer();
+
+        try {
+            notifSound.setDataSource(task.getAudio());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         //build the notification
         nb = new NotificationCompat.Builder(c, "myNotification")
                 .setLargeIcon(BitmapFactory.decodeResource(c.getResources(),
@@ -51,7 +78,8 @@ public class MyNotification {
                .setContentText("Task Description: "+task.getDescription())
                 .setStyle(new NotificationCompat.BigTextStyle()
                    .bigText("Task Description: "+task.getDescription()))
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setSound(notifUri);
 
 
 
@@ -71,6 +99,13 @@ public class MyNotification {
     public void send()
     {
         notifManager.notify(notificationId, nb.build());
+        try {
+            notifSound.prepare();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        notifSound.start();
+
     }
 
 

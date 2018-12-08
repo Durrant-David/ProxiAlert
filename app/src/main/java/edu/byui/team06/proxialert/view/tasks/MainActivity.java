@@ -141,6 +141,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         mAdapter = new TaskAdapter(taskList);
+
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -196,7 +197,24 @@ public class MainActivity extends AppCompatActivity {
                 recyclerView, new RecyclerTouchListener.ClickListener() {
             @Override
             public void onClick(View view, final int position) {
-                startDirectionsActivity(position);
+                ProxiDB element = taskList.get(position);
+                Intent taskIntent = new Intent(MainActivity.this, TaskActivity.class);
+                taskIntent.putExtra(UPDATE, true);
+                taskIntent.putExtra(POSITION, position);
+                taskIntent.putExtra("ADDRESS", element.getAddress());
+                taskIntent.putExtra("RADIUS", element.getRadius());
+                taskIntent.putExtra("UNITS", element.getUnits());
+                taskIntent.putExtra("ID", element.getId());
+                taskIntent.putExtra("TASK", element.getTask());
+                taskIntent.putExtra("DUE", element.getDueDate());
+                taskIntent.putExtra("TIMESTAMP", element.getTimeStamp());
+                taskIntent.putExtra("LAT", element.getLat());
+                taskIntent.putExtra("LONG", element.getLong());
+                taskIntent.putExtra("DESCRIPTION", element.getDescription());
+                taskIntent.putExtra("COMPLETE", element.getComplete());
+                taskIntent.putExtra("AUDIO", element.getAudio());
+                startActivityForResult(taskIntent, TASK_ACTIVITY_CODE);
+
             }
 
             @Override
@@ -322,11 +340,11 @@ public class MainActivity extends AppCompatActivity {
         CharSequence colors[];
         if(isComplete)
         {
-            colors = new CharSequence[]{"Edit", "Delete", "Unmark As Complete"};
+            colors = new CharSequence[]{"Navigate to...", "Delete", "Unmark As Complete"};
         }
         else
         {
-            colors = new CharSequence[]{"Edit", "Delete", "Mark As Complete"};
+            colors = new CharSequence[]{"Navigate to...", "Delete", "Mark As Complete"};
         }
 
 
@@ -342,22 +360,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 ProxiDB element = taskList.get(position);
                 if (which == 0) {
-
-                    Intent taskIntent = new Intent(MainActivity.this, TaskActivity.class);
-                    taskIntent.putExtra(UPDATE, true);
-                    taskIntent.putExtra(POSITION, position);
-                    taskIntent.putExtra("ADDRESS", element.getAddress());
-                    taskIntent.putExtra("RADIUS", element.getRadius());
-                    taskIntent.putExtra("UNITS", element.getUnits());
-                    taskIntent.putExtra("ID", element.getId());
-                    taskIntent.putExtra("TASK", element.getTask());
-                    taskIntent.putExtra("DUE", element.getDueDate());
-                    taskIntent.putExtra("TIMESTAMP", element.getTimeStamp());
-                    taskIntent.putExtra("LAT", element.getLat());
-                    taskIntent.putExtra("LONG", element.getLong());
-                    taskIntent.putExtra("DESCRIPTION", element.getDescription());
-                    taskIntent.putExtra("COMPLETE", element.getComplete());
-                    startActivityForResult(taskIntent, TASK_ACTIVITY_CODE);
+                    startDirectionsActivity(position);
                 } else if (which == 1){
                     deleteTask(position);
                 } else {

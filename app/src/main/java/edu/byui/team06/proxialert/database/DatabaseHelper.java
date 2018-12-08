@@ -15,7 +15,7 @@ import edu.byui.team06.proxialert.database.model.ProxiDB;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     // Database Version
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 6;
 
     // Database Name
     private static final String DATABASE_NAME = "ProxiDB";
@@ -46,7 +46,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public long insertTask(String task, String address, String dueDate,
                            String radius, String units, String timeStamp,
                            String latitude, String longitude, String description,
-                            String complete) {
+                            String complete, String audio) {
 
         // get writable database as we want to write data
         SQLiteDatabase db = this.getWritableDatabase();
@@ -62,7 +62,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(ProxiDB.COLUMN_UNITS, units);
         values.put(ProxiDB.COLUMN_DESCRIPTION, description);
         values.put(ProxiDB.COLUMN_COMPLETE, complete);
-
+        values.put(ProxiDB.COLUMN_AUDIO, audio);
         // insert row
         long id = db.insert(ProxiDB.TABLE_NAME, null, values);
 
@@ -88,7 +88,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         ProxiDB.COLUMN_LAT,
                         ProxiDB.COLUMN_LONG,
                         ProxiDB.COLUMN_DESCRIPTION,
-                        ProxiDB.COLUMN_COMPLETE},
+                        ProxiDB.COLUMN_COMPLETE,
+                        ProxiDB.COLUMN_AUDIO},
                 ProxiDB.COLUMN_ID + "=?",
                 new String[]{String.valueOf(id)}, null, null, null, null);
 
@@ -107,7 +108,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_LAT)),
                 cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_LONG)),
                 cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_DESCRIPTION)),
-                cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_COMPLETE)));
+                cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_COMPLETE)),
+                cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_AUDIO)));
 
         // close the db connection
         cursor.close();
@@ -141,6 +143,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 proxiDB.setLong(cursor.getString(cursor.getColumnIndex(proxiDB.COLUMN_LONG)));
                 proxiDB.setDescription(cursor.getString(cursor.getColumnIndex(proxiDB.COLUMN_DESCRIPTION)));
                 proxiDB.setComplete(cursor.getString(cursor.getColumnIndex(proxiDB.COLUMN_COMPLETE)));
+                proxiDB.setAudio(cursor.getString(cursor.getColumnIndex(proxiDB.COLUMN_AUDIO)));
                 tasks.add(proxiDB);
             } while (cursor.moveToNext());
         }
@@ -192,6 +195,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(ProxiDB.COLUMN_LONG, proxiDB.getLong());
         values.put(ProxiDB.COLUMN_DESCRIPTION, proxiDB.getDescription());
         values.put(ProxiDB.COLUMN_COMPLETE, proxiDB.getComplete());
+        values.put(ProxiDB.COLUMN_AUDIO, proxiDB.getAudio());
         // updating row
         return db.update(ProxiDB.TABLE_NAME, values, ProxiDB.COLUMN_ID + " = ?",
                 new String[]{String.valueOf(proxiDB.getId())});

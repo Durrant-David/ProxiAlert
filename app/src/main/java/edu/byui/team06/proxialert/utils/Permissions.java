@@ -21,6 +21,7 @@ public class Permissions implements  ActivityCompat.OnRequestPermissionsResultCa
 
     private final int MAP_PERMISSION = 999;
     private final int MIC_PERMISSION = 1;
+    private final int CONTACT_PERMISSION = 2;
     private static final String TAG = Permissions.class.getSimpleName();
     Context c;
 
@@ -29,7 +30,7 @@ public class Permissions implements  ActivityCompat.OnRequestPermissionsResultCa
         Log.d(TAG, "checkPermission()");
         // Ask for permission if it wasn't granted yet
         return (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED );
+                == PackageManager.PERMISSION_GRANTED);
 
     }
 
@@ -38,14 +39,30 @@ public class Permissions implements  ActivityCompat.OnRequestPermissionsResultCa
         Log.d(TAG, "askMapsPermission()");
         ActivityCompat.requestPermissions(
                 activity,
-                new String[] { Manifest.permission.ACCESS_FINE_LOCATION },
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                 MAP_PERMISSION
         );
     }
 
+
+    public boolean checkContactPermission(Context context) {
+        Log.d(TAG, "checkContactPermission()");
+        return (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CONTACTS)
+                == PackageManager.PERMISSION_GRANTED);
+    }
+
+    public void askContactPermission(Activity activity) {
+        Log.d(TAG, "askContactsPermission()");
+        ActivityCompat.requestPermissions(
+                activity,
+                new String[]{Manifest.permission.READ_CONTACTS},
+                CONTACT_PERMISSION);
+    }
+
+
     public boolean checkMicPermission(Context context) {
         Log.d(TAG, "checkMicPermissions()");
-        return(ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO)
+        return (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO)
                 == PackageManager.PERMISSION_GRANTED);
     }
 
@@ -53,7 +70,7 @@ public class Permissions implements  ActivityCompat.OnRequestPermissionsResultCa
         Log.d(TAG, "askMicPermission");
         ActivityCompat.requestPermissions(
                 activity,
-                new String[] { Manifest.permission.RECORD_AUDIO},
+                new String[]{Manifest.permission.RECORD_AUDIO},
                 MIC_PERMISSION);
 
     }
@@ -84,8 +101,19 @@ public class Permissions implements  ActivityCompat.OnRequestPermissionsResultCa
                 }
                 break;
             }
+            case CONTACT_PERMISSION: {
+                if (grantResults.length > 1
+                        && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                    Log.i(TAG, "Mic permission granted");
+                } else {
+                    permissionsDenied();
+                }
+                break;
+            }
         }
     }
+
+
     // App cannot work without the permissions
     private void permissionsDenied() {
         Log.w(TAG, "permissionsDenied()");

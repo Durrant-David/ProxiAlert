@@ -14,6 +14,7 @@ public class ProxiDB {
     public static final String COLUMN_UNITS = "units";
     public static final String COLUMN_DESCRIPTION = "description";
     public static final String COLUMN_COMPLETE = "complete";
+    public static final String COLUMN_AUDIO = "audio";
 
     private int _id;
     private String _task;
@@ -26,6 +27,7 @@ public class ProxiDB {
     private String _units;
     private String _description;
     private String _complete;
+    private String _audio;
     // Create table SQL query
     public static final String CREATE_TABLE =
             "CREATE TABLE " + TABLE_NAME + "("
@@ -39,7 +41,8 @@ public class ProxiDB {
                     + COLUMN_LAT + " TEXT,"
                     + COLUMN_LONG + " TEXT,"
                     + COLUMN_DESCRIPTION + " TEXT,"
-                    + COLUMN_COMPLETE + " TEXT"
+                    + COLUMN_COMPLETE + " TEXT,"
+                    + COLUMN_AUDIO + " TEXT"
 
                     +")";
 
@@ -48,7 +51,7 @@ public class ProxiDB {
 
     public ProxiDB(int id, String task, String address, String dueDate, String radius,
                    String radiusUnits, String timeStamp, String latitude, String longitude,
-                   String description, String complete) {
+                   String description, String complete, String audio) {
         _id = id;
         _task = task;
         _address = address;
@@ -60,6 +63,7 @@ public class ProxiDB {
         _longitude = longitude;
         _description = description;
         _complete = complete;
+        _audio = audio;
     }
 
     public String getLat() { return _latitude; }
@@ -125,4 +129,8 @@ public class ProxiDB {
     public void setComplete(String isComplete) { _complete = isComplete; }
 
     public String getComplete() { return _complete;}
+
+    public void setAudio(String audio) { _audio = audio; }
+
+    public String getAudio () { return _audio; }
 }
