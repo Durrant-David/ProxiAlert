@@ -19,7 +19,8 @@ import android.util.Log;
  */
 public class Permissions implements  ActivityCompat.OnRequestPermissionsResultCallback {
 
-    private final int REQ_PERMISSION = 999;
+    private final int MAP_PERMISSION = 999;
+    private final int MIC_PERMISSION = 1;
     private static final String TAG = Permissions.class.getSimpleName();
     Context c;
 
@@ -34,12 +35,27 @@ public class Permissions implements  ActivityCompat.OnRequestPermissionsResultCa
 
     // Asks for permission
     public void askMapsPermission(Activity activity) {
-        Log.d(TAG, "askPermission()");
+        Log.d(TAG, "askMapsPermission()");
         ActivityCompat.requestPermissions(
                 activity,
                 new String[] { Manifest.permission.ACCESS_FINE_LOCATION },
-                REQ_PERMISSION
+                MAP_PERMISSION
         );
+    }
+
+    public boolean checkMicPermission(Context context) {
+        Log.d(TAG, "checkMicPermissions()");
+        return(ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO)
+                == PackageManager.PERMISSION_GRANTED);
+    }
+
+    public void askMicPermission(Activity activity) {
+        Log.d(TAG, "askMicPermission");
+        ActivityCompat.requestPermissions(
+                activity,
+                new String[] { Manifest.permission.RECORD_AUDIO},
+                MIC_PERMISSION);
+
     }
 
     // Verify user's response of the permission requested
@@ -47,10 +63,10 @@ public class Permissions implements  ActivityCompat.OnRequestPermissionsResultCa
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         Log.d(TAG, "onRequestPermissionsResult()");
         //super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch ( requestCode ) {
-            case REQ_PERMISSION: {
-                if ( grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED ){
+        switch (requestCode) {
+            case MAP_PERMISSION: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // Permission granted
                     Log.i(TAG, "Location permission granted");
                 } else {
@@ -59,12 +75,22 @@ public class Permissions implements  ActivityCompat.OnRequestPermissionsResultCa
                 }
                 break;
             }
+            case MIC_PERMISSION: {
+                if (grantResults.length > 1
+                        && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                    Log.i(TAG, "Mic permission granted");
+                } else {
+                    permissionsDenied();
+                }
+                break;
+            }
         }
     }
-
     // App cannot work without the permissions
     private void permissionsDenied() {
         Log.w(TAG, "permissionsDenied()");
         // TODO close app and warn user
+        // TODO send a parameter and if it's the Mic permission,
+        // send a toast that will notify the user.
     }
 }

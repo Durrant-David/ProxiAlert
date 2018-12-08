@@ -180,6 +180,9 @@ public class MainActivity extends AppCompatActivity {
             }
             // add geofences to geofence client list
             addGeofences();
+
+
+
         }
 
 

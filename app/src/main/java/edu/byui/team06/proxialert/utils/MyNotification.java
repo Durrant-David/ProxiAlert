@@ -5,6 +5,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
@@ -43,9 +44,10 @@ public class MyNotification {
 
         //build the notification
         nb = new NotificationCompat.Builder(c, "myNotification")
-                //.setLargeIcon(BitmapFactory.decodeFile(Context.getFilesDir().getPath("/data/data/edu.byui.team06.proxialert/IMG_2149.JPG"))
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
-                .setContentTitle("ProxiAlert: You are near "+task.getTask()+ " located at " + task.getAddress())
+                .setLargeIcon(BitmapFactory.decodeResource(c.getResources(),
+                        R.mipmap.ic_launcher))
+                .setSmallIcon(R.mipmap.proxi_icon_round)
+                .setContentTitle("ProxiAlert: You are near "+task.getTask()+ " at " + task.getAddress())
                .setContentText("Task Description: "+task.getDescription())
                 .setStyle(new NotificationCompat.BigTextStyle()
                    .bigText("Task Description: "+task.getDescription()))

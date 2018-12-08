@@ -135,12 +135,14 @@
             <Spinner
                 android:id="@+id/radiusUnits"
                 android:layout_width="wrap_content"
-                android:layout_height="@dimen/input_height"
+                android:layout_height="50dp"
                 android:layout_gravity="center"
-                android:dropDownWidth="144dp"
+                android:background="@android:drawable/btn_dropdown"
+                android:dropDownWidth="wrap_content"
                 android:scrollbarSize="@dimen/input_new"
                 android:spinnerMode="dropdown"
-                android:background="@android:drawable/btn_dropdown"
+                android:visibility="visible"
+                android:textSize="50sp"
                 app:layout_constraintEnd_toEndOf="@+id/radius"
                 app:layout_constraintStart_toStartOf="@+id/radius"
                 app:layout_constraintTop_toBottomOf="@+id/radius" />
@@ -148,7 +150,31 @@
         </LinearLayout>
 
 
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
+        <Button
+            android:id="@+id/button2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Start Recording"
+            android:onClick="onStartRecording"/>
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="167dp"
+                android:layout_height="26dp"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_gravity="center_vertical"
+                android:layout_marginRight="0dp"
+                android:layout_toEndOf="@+id/button2"
+                android:layout_toRightOf="@+id/button2" />
+
+        </RelativeLayout>
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

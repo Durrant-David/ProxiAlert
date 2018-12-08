@@ -6,18 +6,24 @@ import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.media.MediaRecorder;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -29,6 +35,8 @@ import java.util.Locale;
 import edu.byui.team06.proxialert.R;
 import edu.byui.team06.proxialert.database.DatabaseHelper;
 import edu.byui.team06.proxialert.database.model.ProxiDB;
+import edu.byui.team06.proxialert.utils.Permissions;
+import edu.byui.team06.proxialert.utils.ProgressBarAdapter;
 import edu.byui.team06.proxialert.view.maps.MapsActivity;
 
 /**@author
@@ -37,7 +45,7 @@ import edu.byui.team06.proxialert.view.maps.MapsActivity;
  * the task creation and update
  */
 public class TaskActivity extends AppCompatActivity {
-    private List<ProxiDB> taskList = new ArrayList<>();
+    final private String TAG = Permissions.class.getSimpleName();
     private DatabaseHelper db;
     private boolean isUpdate;
     private int position;
@@ -56,6 +64,7 @@ public class TaskActivity extends AppCompatActivity {
     private String latitudeString;
     private String longitudeString;
     private String isComplete;
+    private MediaRecorder mRecorder;
     final private String myDateFormat = "MM/dd/yyyy";
     final private String [] items = {
             "Units...",
@@ -64,6 +73,10 @@ public class TaskActivity extends AppCompatActivity {
             "Feet",
             "Meters"};
 
+    private String _audioFilename;
+    private boolean isRecorderStarted;
+    long recorderStartTime;
+    private ProgressBarAdapter pba;
     final private int MAP_ACTIVITY_CODE = 1;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,8 +103,7 @@ public class TaskActivity extends AppCompatActivity {
         radiusUnits = findViewById(R.id.radiusUnits);
         inputRadius = findViewById(R.id.radius);
         inputTaskDesc = findViewById(R.id.taskDescription);
-
-
+        isRecorderStarted = false;
 
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, items) {
@@ -220,7 +232,70 @@ public class TaskActivity extends AppCompatActivity {
             radiusUnits.setSelection(count);
 
         }
+        Permissions mic = new Permissions();
+        if(!mic.checkMicPermission(this)) {
+            mic.askMicPermission(this);
+        }
     }
+
+
+    public void onStartRecording(View view) {
+        if (isRecorderStarted) {
+            pba.cancel(true);
+            mRecorder.stop();
+            mRecorder.release();
+            isRecorderStarted = false;
+        } else {
+            if (new Permissions().checkMicPermission(this)) {
+                if (inputTask.getText().toString().length() > 0) {
+                    //TODO Start a ten second timer which will stop the recorder AND fill up the status bar.
+                    File f = getFilesDir();
+                    _audioFilename = f.getAbsolutePath() + "/ProxiVoice" + inputTask.getText().toString() + ".3gp";
+                    ProgressBar bar = findViewById(R.id.progressBar);
+                    pba = new ProgressBarAdapter(bar);
+                    pba.execute("");
+                    mRecorder = new MediaRecorder();
+                    mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+                    mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+                    mRecorder.setOutputFile(_audioFilename);
+                    mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+
+                    try {
+                        mRecorder.prepare();
+                    } catch (IOException e) {
+                        Log.e(TAG, "prepare() failed");
+                    }
+
+                    mRecorder.start();
+                    isRecorderStarted = true;
+                    new CountDownTimer(10000, 10) {
+
+                        public void onTick(long millis) {
+                            ; //do nothing.
+                        }
+
+                        @Override
+                        public void onFinish() {
+                            if(isRecorderStarted) {
+                                mRecorder.stop();
+                                mRecorder.release();
+                                isRecorderStarted = false;
+                                Toast.makeText(TaskActivity.this, "Max Recording Time is 10 seconds", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    }.start();
+
+                } else {
+                    Toast.makeText(TaskActivity.this, "Please enter a task name before recording.", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                new Permissions().askMicPermission(this);
+
+            }
+        }
+    }
+
+
 
     public void onCancelButton(View view) {
         setResult(RESULT_CANCELED);
