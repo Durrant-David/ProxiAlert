@@ -92,17 +92,16 @@ public class TaskActivity extends AppCompatActivity {
         inputTaskDesc = findViewById(R.id.taskDescription);
 
 
-
-
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, items) {
             /**
              * isEnabled
              * disables the first item of the units drop down.
-              * @param position
+             *
+             * @param position
              * @return
              */
             @Override
-        public boolean isEnabled(int position) {
+            public boolean isEnabled(int position) {
                 if (position == 0) {
                     // Disable the first item from Spinner
                     // First item will be use for hint
@@ -116,41 +115,41 @@ public class TaskActivity extends AppCompatActivity {
              * getDropDownView creates the drop down and
              * sets the color of each item in the list based
              * on the Theme.
+             *
              * @param position
              * @param convertView
              * @param parent
              * @return
              */
-        @Override
-        public View getDropDownView(int position, View convertView,
-                ViewGroup parent) {
-            View view = super.getDropDownView(position, convertView, parent);
-            TextView tv = (TextView) view;
-            if(position == 0){
-                // Set the hint text color gray
-                tv.setTextColor(Color.GRAY);
-            }
-            else {
-                if (theme){
-                    tv.setTextColor(Color.WHITE);
-            } else {
-                    tv.setTextColor(Color.BLACK);
+            @Override
+            public View getDropDownView(int position, View convertView,
+                                        ViewGroup parent) {
+                View view = super.getDropDownView(position, convertView, parent);
+                TextView tv = (TextView) view;
+                if (position == 0) {
+                    // Set the hint text color gray
+                    tv.setTextColor(Color.GRAY);
+                } else {
+                    if (theme) {
+                        tv.setTextColor(Color.WHITE);
+                    } else {
+                        tv.setTextColor(Color.BLACK);
+                    }
                 }
+                return view;
             }
-            return view;
-        }
 
 
-
-    };
+        };
         radiusUnits.setAdapter(adapter);
-        if(theme) {
+        if (theme) {
             radiusUnits.setBackgroundColor(getResources().getColor(R.color.dropDownGray));
         }
         inputDueDate.setOnClickListener(new View.OnClickListener() {
             /**
              * onClick opens up a Calendar picker
              * for due date selection
+             *
              * @param v
              */
             @Override
@@ -164,19 +163,19 @@ public class TaskActivity extends AppCompatActivity {
                 DatePickerDialog mDatePicker = new DatePickerDialog(TaskActivity.this,
                         theme ? R.style.UserDialogDark : R.style.UserDialog,
                         new DatePickerDialog.OnDateSetListener() {
-                    public void onDateSet(DatePicker datepicker, int selectedyear, int selectedmonth, int selectedday) {
-                        Calendar myCalendar = Calendar.getInstance();
-                        myCalendar.set(Calendar.YEAR, selectedyear);
-                        myCalendar.set(Calendar.MONTH, selectedmonth);
-                        myCalendar.set(Calendar.DAY_OF_MONTH, selectedday);
-                        //Change as you need
-                        SimpleDateFormat sdf = new SimpleDateFormat(myDateFormat, Locale.ENGLISH);
-                        inputDueDate.setText(sdf.format(myCalendar.getTime()));
-                        mDay = selectedday;
-                        mMonth = selectedmonth;
-                        mYear = selectedyear;
-                    }
-                }, mYear, mMonth, mDay);
+                            public void onDateSet(DatePicker datepicker, int selectedyear, int selectedmonth, int selectedday) {
+                                Calendar myCalendar = Calendar.getInstance();
+                                myCalendar.set(Calendar.YEAR, selectedyear);
+                                myCalendar.set(Calendar.MONTH, selectedmonth);
+                                myCalendar.set(Calendar.DAY_OF_MONTH, selectedday);
+                                //Change as you need
+                                SimpleDateFormat sdf = new SimpleDateFormat(myDateFormat, Locale.ENGLISH);
+                                inputDueDate.setText(sdf.format(myCalendar.getTime()));
+                                mDay = selectedday;
+                                mMonth = selectedmonth;
+                                mYear = selectedyear;
+                            }
+                        }, mYear, mMonth, mDay);
                 mDatePicker.show();
             }
         });
@@ -192,7 +191,7 @@ public class TaskActivity extends AppCompatActivity {
             units = intent.getStringExtra("UNITS");
             isComplete = intent.getStringExtra("COMPLETE");
             int count = 0;
-            for(String s: items) {
+            for (String s : items) {
                 if (units.equals(s))
                     break;
                 count++;
@@ -205,14 +204,12 @@ public class TaskActivity extends AppCompatActivity {
             //radius.setSelection(intent.getStringExtra("RADIUS"));
             id = intent.getIntExtra("ID", -1);
 
-        }
-
-        else {
+        } else {
             SharedPreferences sp = PreferenceManager
                     .getDefaultSharedPreferences(this);
             String prefUnits = sp.getString("ProxiUnits", "Units...");
             int count = 0;
-            for(String s: items) {
+            for (String s : items) {
                 if (prefUnits.contains(s))
                     break;
                 count++;
