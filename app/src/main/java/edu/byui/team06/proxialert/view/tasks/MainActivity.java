@@ -226,6 +226,15 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /** onStop
+     * When app is stopped close the database
+     */
+    @Override
+    public void onStop() {
+        super.onStop();
+        db.close();
+    }
+
     /**@author
      * @version  1.0
      * @since
