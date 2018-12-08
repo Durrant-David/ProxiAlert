@@ -39,6 +39,8 @@ import edu.byui.team06.proxialert.utils.Permissions;
 import edu.byui.team06.proxialert.utils.ProgressBarAdapter;
 import edu.byui.team06.proxialert.view.maps.MapsActivity;
 
+import static android.media.AudioFormat.CHANNEL_CONFIGURATION_MONO;
+
 /**@author
  * @verion
  * TaskActivityClass handles
@@ -104,7 +106,7 @@ public class TaskActivity extends AppCompatActivity {
         inputRadius = findViewById(R.id.radius);
         inputTaskDesc = findViewById(R.id.taskDescription);
         isRecorderStarted = false;
-
+        _audioFilename = "";
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_dropdown_item_1line, items) {
             /**
@@ -129,7 +131,6 @@ public class TaskActivity extends AppCompatActivity {
              * getDropDownView creates the drop down and
              * sets the color of each item in the list based
              * on the Theme.
-             *
              * @param position
              * @param convertView
              * @param parent
@@ -217,6 +218,7 @@ public class TaskActivity extends AppCompatActivity {
             inputTaskDesc.setText(intent.getStringExtra("DESCRIPTION"));
             //radius.setSelection(intent.getStringExtra("RADIUS"));
             id = intent.getIntExtra("ID", -1);
+            _audioFilename = intent.getStringExtra("AUDIO");
 
         } else {
             SharedPreferences sp = PreferenceManager
@@ -246,47 +248,49 @@ public class TaskActivity extends AppCompatActivity {
             isRecorderStarted = false;
         } else {
             if (new Permissions().checkMicPermission(this)) {
-                if (inputTask.getText().toString().length() > 0) {
-                    //TODO Start a ten second timer which will stop the recorder AND fill up the status bar.
-                    File f = getFilesDir();
-                    _audioFilename = f.getAbsolutePath() + "/ProxiVoice" + inputTask.getText().toString() + ".3gp";
-                    ProgressBar bar = findViewById(R.id.progressBar);
-                    pba = new ProgressBarAdapter(bar);
-                    pba.execute("");
-                    mRecorder = new MediaRecorder();
-                    mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-                    mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-                    mRecorder.setOutputFile(_audioFilename);
-                    mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
 
-                    try {
-                        mRecorder.prepare();
-                    } catch (IOException e) {
-                        Log.e(TAG, "prepare() failed");
+                //TODO Start a ten second timer which will stop the recorder AND fill up the status bar.
+                File f = getFilesDir();
+                Integer nextId = db.getLastInsertId() + 1;
+                String nextIdString = nextId.toString();
+                _audioFilename = f.getAbsolutePath() + "/ProxiVoiceOver" + nextIdString + ".3gp";
+                ProgressBar bar = findViewById(R.id.progressBar);
+                pba = new ProgressBarAdapter(bar);
+                pba.execute("");
+                mRecorder = new MediaRecorder();
+                mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+                mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+                mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+                mRecorder.setAudioEncodingBitRate(133333);
+                mRecorder.setAudioSamplingRate(44100);
+                mRecorder.setOutputFile(_audioFilename);
+
+                try {
+                    mRecorder.prepare();
+                } catch (IOException e) {
+                    Log.e(TAG, "prepare() failed");
+                }
+
+                mRecorder.start();
+                isRecorderStarted = true;
+                new CountDownTimer(10000, 10) {
+
+                    public void onTick(long millis) {
+                        ; //do nothing.
                     }
 
-                    mRecorder.start();
-                    isRecorderStarted = true;
-                    new CountDownTimer(10000, 10) {
-
-                        public void onTick(long millis) {
-                            ; //do nothing.
+                    @Override
+                    public void onFinish() {
+                        if (isRecorderStarted) {
+                            mRecorder.stop();
+                            mRecorder.release();
+                            isRecorderStarted = false;
+                            Toast.makeText(TaskActivity.this, "Max Length is 10 seconds. Recorder Stopped", Toast.LENGTH_SHORT).show();
                         }
+                    }
+                }.start();
 
-                        @Override
-                        public void onFinish() {
-                            if(isRecorderStarted) {
-                                mRecorder.stop();
-                                mRecorder.release();
-                                isRecorderStarted = false;
-                                Toast.makeText(TaskActivity.this, "Max Recording Time is 10 seconds", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    }.start();
 
-                } else {
-                    Toast.makeText(TaskActivity.this, "Please enter a task name before recording.", Toast.LENGTH_SHORT).show();
-                }
             } else {
                 new Permissions().askMicPermission(this);
 
@@ -369,9 +373,11 @@ public class TaskActivity extends AppCompatActivity {
             element.setLat(latitudeString);
             element.setDescription(description);
             element.setComplete(isComplete);
+            element.setAudio(_audioFilename);
             db.updateTask(element);
         } else {
-            id = db.insertTask(task, address, dueDate, radiusString, unitsString, t.toString(), latitudeString, longitudeString, description, "false");
+            id = db.insertTask(task, address, dueDate, radiusString, unitsString, t.toString(),
+                    latitudeString, longitudeString, description, "false", _audioFilename);
         }
 
         intent.putExtra("id", id);
