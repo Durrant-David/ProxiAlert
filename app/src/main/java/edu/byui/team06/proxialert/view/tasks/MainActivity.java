@@ -407,8 +407,6 @@ public class MainActivity extends AppCompatActivity {
                 boolean isUpdate = data.getBooleanExtra("UPDATE", false);
                 long id = data.getLongExtra("id", 0);
                 ProxiDB element = db.getProxiDB(id);
-                MyNotification mn = new MyNotification(element, getApplicationContext());
-                mn.send();
                 //IF it's an update, change the element
                 //If it's NOT an update, add it to the end.
                 if (isUpdate) {
