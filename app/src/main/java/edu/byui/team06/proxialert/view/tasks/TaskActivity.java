@@ -409,8 +409,13 @@ public class TaskActivity extends AppCompatActivity {
     }
 
     public void selectContact(View view) {
-        Intent contactIntent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
-        startActivityForResult(contactIntent, CONTACT_ACTIVITY_CODE);
+        if(new Permissions().checkContactPermission(getApplicationContext())) {
+            Intent contactIntent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
+            startActivityForResult(contactIntent, CONTACT_ACTIVITY_CODE);
+        }
+        else {
+            new Permissions().askContactPermission(this);
+        }
     }
     /*******************************************************
      * onActivityResult
