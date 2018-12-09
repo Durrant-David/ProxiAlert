@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.AudioAttributes;
 import android.media.MediaPlayer;
+import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
@@ -40,7 +41,7 @@ public class MyNotification {
         file.setReadable(true, false);
         String s = task.getAudio();
         Uri notifUri = Uri.parse("file:/" + task.getAudio());
-
+        Uri alarmSound = Uri.parse("/storage/sdcard0/Recordings/test.m4a");
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             /* create a MyNotification channel */
@@ -79,7 +80,8 @@ public class MyNotification {
                 .setStyle(new NotificationCompat.BigTextStyle()
                    .bigText("Task Description: "+task.getDescription()))
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setSound(notifUri);
+                .setVibrate(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400})
+                .setSound(alarmSound);
 
 
 
