@@ -281,6 +281,7 @@ public class TaskActivity extends AppCompatActivity {
                 mRecorder.setAudioEncodingBitRate(133333);
                 mRecorder.setAudioSamplingRate(44100);
                 mRecorder.setOutputFile(_audioFilename);
+                mRecorder.setMaxDuration(10000);
 
                 try {
                     mRecorder.prepare();
@@ -300,8 +301,6 @@ public class TaskActivity extends AppCompatActivity {
                     @Override
                     public void onFinish() {
                         if (isRecorderStarted) {
-                            mRecorder.stop();
-                            mRecorder.release();
                             isRecorderStarted = false;
                             recordButton.setText("Start Recording");
                             Toast.makeText(TaskActivity.this, "Max Length is 10 seconds. Recorder Stopped", Toast.LENGTH_SHORT).show();

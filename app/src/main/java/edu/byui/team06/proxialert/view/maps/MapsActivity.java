@@ -151,32 +151,10 @@ public class MapsActivity extends FragmentActivity
      */
     public void onMapSearch(View view) {
 
-        EditText locationSearch = findViewById(R.id.editText);
-        location = locationSearch.getText().toString();
-        List<Address> addressList = null;
-
-        if (location != null || !location.equals("")) {
-            Geocoder geocoder = new Geocoder(this);
-            try {
-                addressList = geocoder.getFromLocationName(location, 1);
-
-            } catch (IOException e) {
-                e.printStackTrace();
-                Toast.makeText(MapsActivity.this, "Invalid Location/Address. Please Try Again.", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            if(addressList.size() == 0)
-            {
-                Toast.makeText(MapsActivity.this, "Invalid Location/Address. Please Try Again.", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-
-            Address address = addressList.get(0);
-            latlng = new LatLng(address.getLatitude(), address.getLongitude());
+        if (validateAddress()) {
 
             String title;
-            if(taskName.length() > 0) {
+            if (taskName.length() > 0) {
                 title = taskName;
             } else {
                 title = latlng.latitude + ", " + latlng.longitude;
@@ -189,6 +167,34 @@ public class MapsActivity extends FragmentActivity
         }
     }
 
+    private boolean validateAddress() {
+        List<Address> addressList = null;
+
+        EditText locationSearch = findViewById(R.id.editText);
+        location = locationSearch.getText().toString();
+        if (location != null || !location.equals("")) {
+            Geocoder geocoder = new Geocoder(this);
+            try {
+                addressList = geocoder.getFromLocationName(location, 1);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                Toast.makeText(MapsActivity.this, "Error searching for address. Please Try Again.", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+            if (addressList.size() == 0) {
+                Toast.makeText(MapsActivity.this, "Invalid Location/Address. Please Try Again.", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+
+            Address address = addressList.get(0);
+            latlng = new LatLng(address.getLatitude(), address.getLongitude());
+            return true;
+        }
+        Toast.makeText(MapsActivity.this, "No location entered. Please Try Again.", Toast.LENGTH_SHORT).show();
+        return false;
+    }
+
     /**
      * onMapSubmit
      * Submit button which saves the information from the
@@ -199,21 +205,14 @@ public class MapsActivity extends FragmentActivity
     public void onMapSubmit(View view) {
 
 
-        if(location == null || location.length() == 0) {
-            Toast.makeText(MapsActivity.this, "No location entered. Please Try Again.", Toast.LENGTH_SHORT).show();
-            return;
+        if (validateAddress()) {
+            Intent intent = new Intent();
+            intent.putExtra("ADDRESS", location);
+            intent.putExtra("COORDINATES", latlng.toString());
+            setResult(RESULT_OK, intent);
+            finish();
         }
-        if(latlng == null) {
-            Toast.makeText(MapsActivity.this, "ERROR: No Coordinates Available.", Toast.LENGTH_SHORT).show();
-        }
-
-        Intent intent = new Intent();
-        intent.putExtra("ADDRESS", location);
-        intent.putExtra("COORDINATES", latlng.toString());
-        setResult(RESULT_OK, intent);
-        finish();
     }
-
     /**
      * onMapCancel
      * It sets the result to cancelled and closes
