@@ -4,6 +4,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceManager;
+import android.view.MenuItem;
 
 import edu.byui.team06.proxialert.R;
 
@@ -22,6 +23,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             setTheme(R.style.AppTheme);
         }
         super.onCreate(savedInstanceState);
+
         addPreferencesFromResource(R.xml.preferences);
         findPreference("themes").setOnPreferenceChangeListener(new PreferenceChangeListener(RESULT_CODE_THEME_UPDATED));
         Preference p = findPreference("ProxiUnits");
@@ -44,5 +46,14 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
           return true;
       }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+        }
+        return true;
     }
 }
