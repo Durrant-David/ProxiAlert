@@ -3,10 +3,13 @@
 package edu.byui.team06.proxialert.view.tasks;
 
 import android.app.DatePickerDialog;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.location.Address;
+import android.location.Geocoder;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Bundle;
@@ -18,12 +21,17 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.File;
 import java.io.IOException;
@@ -70,6 +78,8 @@ public class TaskActivity extends AppCompatActivity {
     private String longitudeString;
     private String isComplete;
     private MediaRecorder mRecorder;
+    private EditText inputContact;
+    private Button recordButton;
     final private String myDateFormat = "MM/dd/yyyy";
     final private String [] items = {
             "Units...",
@@ -109,6 +119,8 @@ public class TaskActivity extends AppCompatActivity {
         radiusUnits = findViewById(R.id.radiusUnits);
         inputRadius = findViewById(R.id.radius);
         inputTaskDesc = findViewById(R.id.taskDescription);
+        inputContact = findViewById(R.id.contact);
+        recordButton = findViewById(R.id.record);
         isRecorderStarted = false;
         _audioFilename = "";
 
@@ -250,6 +262,7 @@ public class TaskActivity extends AppCompatActivity {
             mRecorder.stop();
             mRecorder.release();
             isRecorderStarted = false;
+            recordButton.setText("Start Recording");
         } else {
             if (new Permissions().checkMicPermission(this)) {
 
@@ -277,6 +290,7 @@ public class TaskActivity extends AppCompatActivity {
 
                 mRecorder.start();
                 isRecorderStarted = true;
+                recordButton.setText("Stop Recording");
                 new CountDownTimer(10000, 10) {
 
                     public void onTick(long millis) {
@@ -289,6 +303,7 @@ public class TaskActivity extends AppCompatActivity {
                             mRecorder.stop();
                             mRecorder.release();
                             isRecorderStarted = false;
+                            recordButton.setText("Start Recording");
                             Toast.makeText(TaskActivity.this, "Max Length is 10 seconds. Recorder Stopped", Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -425,6 +440,7 @@ public class TaskActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        String name;
 
         // TASK_ACTIVITY_CODE represents results with the Task Activity.
         if(resultCode == RESULT_OK) {
@@ -442,7 +458,26 @@ public class TaskActivity extends AppCompatActivity {
                 Uri contactData = data.getData();
                 Cursor c = getContentResolver().query(contactData, null, null, null, null);
                 if(c.moveToFirst()) {
-                    String name = c.getString(c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                    name = c.getString(c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                    String contactId = c.getString(c.getColumnIndex(ContactsContract.Contacts._ID));
+                    ContentResolver cr = getContentResolver();
+                    Cursor phones = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
+                            ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactId, null, null);
+
+                    if(phones.moveToFirst()) {
+                        String number = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                        inputContact.setText(name + " - " + number);
+                    }
+                    Uri postal_uri = ContactsContract.CommonDataKinds.StructuredPostal.CONTENT_URI;
+                    Cursor postal_cursor = getContentResolver().query(postal_uri, null, ContactsContract.Data.CONTACT_ID + "=" + contactId, null, null);
+                    if(postal_cursor.moveToFirst()) {
+                        String street = postal_cursor.getString(postal_cursor.getColumnIndex(ContactsContract.CommonDataKinds.StructuredPostal.STREET));
+                        if(validateAddress(street)) {
+                            inputAddress.setText(street);
+                        }
+                        postal_cursor.close();
+
+                    }
                     //TODO decide what info to keep here.
                 }
             }
@@ -450,4 +485,37 @@ public class TaskActivity extends AppCompatActivity {
 
 
     }
+
+
+    private boolean validateAddress(String location) {
+
+        List<Address> addressList = null;
+
+        if (location != null || !location.equals("")) {
+            Geocoder geocoder = new Geocoder(this);
+            try {
+                addressList = geocoder.getFromLocationName(location, 1);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+            if(addressList.size() == 0)
+            {
+                return false;
+            }
+
+
+            Address address = addressList.get(0);
+            LatLng latlng = new LatLng(address.getLatitude(), address.getLongitude());
+
+            String coordinates = latlng.toString();
+            latitudeString = coordinates.substring(coordinates.indexOf('(') + 1, coordinates.indexOf(','));
+            longitudeString = coordinates.substring(coordinates.indexOf(',') + 1, coordinates.indexOf(')'));
+             return true;
+        }
+
+        return false;
+    }
+
 }

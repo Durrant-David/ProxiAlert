@@ -49,7 +49,41 @@
             app:layout_constraintTop_toBottomOf="@+id/dialog_title" />
 
         <EditText
-            android:id="@+id/textView"
+            android:id="@+id/dueDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/task_update_sep"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:focusable="false"
+            android:gravity="top"
+            android:hint="@string/hint_enter_due_date"
+            android:inputType="none"
+            android:textColorHint="@color/hint_enter"
+            android:textSize="@dimen/input_new"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/radiusUnits" />
+
+        <EditText
+            android:id="@+id/taskDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/task_update_sep"
+            android:layout_marginRight="8dp"
+            android:ems="10"
+            android:gravity="bottom"
+            android:hint="Enter the Task Description Here."
+            android:inputType="textMultiLine"
+            android:lines="2"
+            android:textColorHint="@color/hint_enter"
+            android:textSize="20sp"
+            app:layout_constraintEnd_toEndOf="@+id/task"
+            app:layout_constraintStart_toStartOf="@+id/task"
+            app:layout_constraintTop_toBottomOf="@+id/task" />
+
+        <EditText
+            android:id="@+id/contact"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="8dp"
             android:layout_marginRight="8dp"
@@ -61,23 +95,6 @@
             android:textColorHint="@color/hint_enter"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
-
-        <EditText
-            android:id="@+id/taskDescription"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/task_update_sep"
-            android:layout_marginRight="8dp"
-            android:ems="10"
-            android:lines="2"
-            android:gravity="bottom"
-            android:hint="Enter the Task Description Here."
-            android:inputType="textMultiLine"
-            android:textColorHint="@color/hint_enter"
-            android:textSize="20sp"
-            app:layout_constraintEnd_toEndOf="@+id/task"
-            app:layout_constraintStart_toStartOf="@+id/task"
-            app:layout_constraintTop_toBottomOf="@+id/task" />
 
         <EditText
                 android:id="@+id/address"
@@ -98,24 +115,6 @@
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="@+id/task"
                 app:layout_constraintTop_toTopOf="@+id/setLocation" />
-
-
-        <EditText
-            android:id="@+id/dueDate"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/task_update_sep"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:focusable="false"
-            android:gravity="top"
-            android:hint="@string/hint_enter_due_date"
-            android:inputType="none"
-            android:textColorHint="@color/hint_enter"
-            android:textSize="@dimen/input_new"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/radiusUnits" />
 
 
         <LinearLayout
@@ -170,7 +169,7 @@
             android:orientation="horizontal">
 
         <Button
-            android:id="@+id/button2"
+            android:id="@+id/record"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Start Recording"
@@ -185,8 +184,8 @@
                 android:layout_centerVertical="true"
                 android:layout_gravity="center_vertical"
                 android:layout_marginRight="0dp"
-                android:layout_toEndOf="@+id/button2"
-                android:layout_toRightOf="@+id/button2" />
+                android:layout_toEndOf="@+id/record"
+                android:layout_toRightOf="@+id/record" />
 
         </RelativeLayout>
 
