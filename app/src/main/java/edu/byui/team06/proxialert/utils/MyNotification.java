@@ -16,6 +16,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
@@ -66,6 +67,7 @@ public class MyNotification {
             notificationChannel.setSound(notifUri, audioAtts);
             notifManager.createNotificationChannel(notificationChannel);
 
+
         }
         /*
         notifSound = new MediaPlayer();
@@ -87,12 +89,20 @@ public class MyNotification {
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setVibrate(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
 
+
+
+
         Uri audioUri = Uri.parse("file:/" + task.getAudio());
+
+
+        //Try this one first.
+        c.grantUriPermission("com.android.systemui", audioUri,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+        //Then this one
+       // StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().build());
+
         nb.setSound(audioUri);
-
-
-
-
 
 
         //Intent
