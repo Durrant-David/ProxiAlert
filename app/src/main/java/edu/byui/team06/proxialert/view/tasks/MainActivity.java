@@ -49,20 +49,22 @@ import edu.byui.team06.proxialert.view.settings.SettingsActivity;
 
 //database imports
 
-/**@author
+/**@author David Durrant, Chase Busacker, Kristina Hayes
  * @version  1.0
- * @since
+ * @since 1.0
  * <p>
- * The main activity handles views and interactions with buttons
- * in the main screen when the program starts up.
- * It also handles the perimeters around each task to determine when to notify user.
- * It also adds the task to the database (when the task is updated/created)
+ * The main activity class handles the Main view and interactions with buttons in the
+ * main screen when the program starts up. It also handles the perimeters
+ * around each task to determine when to notify user. It shows all the
+ * tasks both active and inactive. The user can add a task by clicking
+ * the green floating action button in the corner. They can update a
+ * task by clicking on the respective task. They can navigate to the task, delete
+ * the task, or mark the task as complete or uncomplete by long clicking
+ * on the respective task.
  * </p>
- *
- * @param
- * @return
  */
 public class MainActivity extends AppCompatActivity {
+
     private TaskAdapter mAdapter;
     private List<ProxiDB> taskList = new ArrayList<>();
     private CoordinatorLayout coordinatorLayout;
@@ -79,19 +81,19 @@ public class MainActivity extends AppCompatActivity {
     private Fence fence;
     private static final long DURATION = Geofence.NEVER_EXPIRE;
     private static final int DWELL = 1;
-
+    private FloatingActionButton fab;
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private DatabaseHelper db;
-    /** @author
-     * @version  1.0
-     * @since
+    GeofencingClient mGeofencingClient;
+    /**
+     * <p>
+     * OnOptionsItemSelected gets called when a menu item is selected.
+     * This menu appears when the dots in the corner of the screen are
+     * selected. The id depends on which button is pressed.
+     * </p>
      *
-     * This class is detecting what menu button is selected.
-     *
-     * @param
-     * @return
-     *
+     * @return the original result from the AppCompatActivity::onOptionsItemSelected()
      * */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -104,7 +106,13 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-
+    /**
+     * <p>
+     * onCreate gets called to initialize all the variables as well as to reset the theme
+     * The theme must be reset if the theme setting is changed within the app.
+     * </p>
+     * @param savedInstanceState the current state of the application used for recreation;
+     */
     protected void onCreate(Bundle savedInstanceState) {
         SharedPreferences pref = PreferenceManager
                 .getDefaultSharedPreferences(this);
@@ -119,118 +127,18 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        coordinatorLayout = findViewById(R.id.coordinator_layout);
-        recyclerView = findViewById(R.id.recycler_view);
-        noTaskView = findViewById(R.id.empty_tasks_view);
+        initDatabase();
+        initAllViews();
+        attachResponseToViews();
+        initGeofencing();
 
-        db = new DatabaseHelper(this);
-
-        taskList.addAll(db.getAllTasks());
-        taskCount = db.getTaskCount();
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View view) {
-                Intent taskIntent = new Intent(MainActivity.this, TaskActivity.class);
-                taskIntent.putExtra(UPDATE, false);
-                taskIntent.putExtra(POSITION, -1);
-                startActivityForResult(taskIntent, TASK_ACTIVITY_CODE);
-                //showTaskDialog(false, null, -1);
-            }
-        });
-
-        mAdapter = new TaskAdapter(taskList);
-
-        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
-        recyclerView.setLayoutManager(mLayoutManager);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.addItemDecoration(new MyDividerItemDecoration(this, LinearLayoutManager.VERTICAL, 16));
-        recyclerView.setAdapter(mAdapter);
-
-        toggleEmptyTasks();
-
-        // Geofence
-        GeofencingClient mGeofencingClient;
-        mGeofencingClient = new GeofencingClient(this);
-
-        // First remove all geofences, to get a fresh start
-        mGeofencingClient.removeGeofences(getGeofencePendingIntent())
-                .addOnSuccessListener(this, new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.i(TAG, "successfully removed all Geofences");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "failed to remove all Geofences - " + e);
-                    }
-                });
-        Geofence geofence;
-        mGeofenceList = new ArrayList<>();
-        // if there are tasks in the DB than add them to geofence
-        if (taskCount > 0) {
-            for (int i = 0; i < taskCount; i++) {
-                fence = new Fence(taskList.get(i));
-                fence.setDuration(DURATION);
-                fence.setDwell(DWELL);
-                geofence = buildGeofence(fence);
-                mGeofenceList.add(geofence);
-            }
-            // add geofences to geofence client list
-            addGeofences();
-
-
-
-        }
-
-
-
-        /**
-         * On long press on RecyclerView item, open alert dialog
-         * with options to choose
-         * Edit and Delete
-         * */
-        recyclerView.addOnItemTouchListener(new RecyclerTouchListener(this,
-                recyclerView, new RecyclerTouchListener.ClickListener() {
-            @Override
-            public void onClick(View view, final int position) {
-                ProxiDB element = taskList.get(position);
-                Intent taskIntent = new Intent(MainActivity.this, TaskActivity.class);
-                taskIntent.putExtra(UPDATE, true);
-                taskIntent.putExtra(POSITION, position);
-                taskIntent.putExtra("ADDRESS", element.getAddress());
-                taskIntent.putExtra("RADIUS", element.getRadius());
-                taskIntent.putExtra("UNITS", element.getUnits());
-                taskIntent.putExtra("ID", element.getId());
-                taskIntent.putExtra("TASK", element.getTask());
-                taskIntent.putExtra("DUE", element.getDueDate());
-                taskIntent.putExtra("TIMESTAMP", element.getTimeStamp());
-                taskIntent.putExtra("LAT", element.getLat());
-                taskIntent.putExtra("LONG", element.getLong());
-                taskIntent.putExtra("DESCRIPTION", element.getDescription());
-                taskIntent.putExtra("COMPLETE", element.getComplete());
-                taskIntent.putExtra("AUDIO", element.getAudio());
-                startActivityForResult(taskIntent, TASK_ACTIVITY_CODE);
-
-            }
-
-            @Override
-            public void onLongClick(View view, int position) {
-                showActionsDialog(position);
-            }
-        }));
     }
-    /**@author
-     * @version  1.0
-     * @since
+    /**
+     * <p>
      * onStart
-     * This method checks and loads the Theme sharedPreference onStart
-     * @param
-     * @return
+     * Gets called after OnCreate as well as any time the activity is returned to.
+     * It checks the theme, and calls recreate if necessary to "refresh" the theme.
+     * </p>
      */
     @Override
     public void onStart() {
@@ -245,94 +153,250 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    /** onStop
-     * When app is stopped close the database
+    /**
+     * <p>
+     * onStop
+     * When the app is destroyed we close the database since
+     * it will not be required anymore.
+     * </p>
      */
     @Override
-    public void onStop() {
-        super.onStop();
+    public void onDestroy() {
+        super.onDestroy();
         db.close();
     }
 
-    /**@author
-     * @version  1.0
-     * @since
-     * onCreateOptionsMenu
-     * This method displays the drop down list when dots
-     * in the corner are clicked on.
-     * @param
-     * @return
+    /**
+     * <p>
+     * initDatabase
+     * In charge of initializing the database, adding all the tasks to the taskList,
+     * getting the taskCount, and connecting the the taskList to the TaskAdapter.
+     * </p>
      */
+    private void initDatabase() {
+        db = new DatabaseHelper(this);
+        taskList.addAll(db.getAllTasks());
+        taskCount = db.getTaskCount();
+        mAdapter = new TaskAdapter(taskList);
+    }
 
+    /**
+     * <p>
+     * initAllViews
+     * Fetches all the views using findViewById, sets up the functions to run when the tasks
+     * are selected.
+     * </p>
+     */
+    private void initAllViews() {
+        coordinatorLayout = findViewById(R.id.coordinator_layout);
+        recyclerView = findViewById(R.id.recycler_view);
+        noTaskView = findViewById(R.id.empty_tasks_view);
+        fab = findViewById(R.id.fab);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
+        recyclerView.setLayoutManager(mLayoutManager);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.addItemDecoration(new MyDividerItemDecoration(this, LinearLayoutManager.VERTICAL, 16));
+        recyclerView.setAdapter(mAdapter);
+        toggleEmptyTasks();
+    }
+
+    /**
+     * start Update TaskActivity creates a intent for the TaskActivity
+     * and adds extras to it to fill in the data for the given Task.
+     * @param position - the position of the task that is selected.
+     */
+    private void startUpdateTaskActivity(int position) {
+        ProxiDB element = taskList.get(position);
+        Intent taskIntent = new Intent(MainActivity.this, TaskActivity.class);
+        taskIntent.putExtra(UPDATE, true);
+        taskIntent.putExtra(POSITION, position);
+        taskIntent.putExtra("ADDRESS", element.getAddress());
+        taskIntent.putExtra("RADIUS", element.getRadius());
+        taskIntent.putExtra("UNITS", element.getUnits());
+        taskIntent.putExtra("ID", element.getId());
+        taskIntent.putExtra("TASK", element.getTask());
+        taskIntent.putExtra("DUE", element.getDueDate());
+        taskIntent.putExtra("TIMESTAMP", element.getTimeStamp());
+        taskIntent.putExtra("LAT", element.getLat());
+        taskIntent.putExtra("LONG", element.getLong());
+        taskIntent.putExtra("DESCRIPTION", element.getDescription());
+        taskIntent.putExtra("COMPLETE", element.getComplete());
+        taskIntent.putExtra("AUDIO", element.getAudio());
+        startActivityForResult(taskIntent, TASK_ACTIVITY_CODE);
+    }
+
+    /**
+     * attachResponseToViews attaches the correct responses to the floating Action Button
+     * and the recycler view which includes all the tasks.
+     */
+    private void attachResponseToViews() {
+        fab.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                Intent taskIntent = new Intent(MainActivity.this, TaskActivity.class);
+                taskIntent.putExtra(UPDATE, false);
+                taskIntent.putExtra(POSITION, -1);
+                startActivityForResult(taskIntent, TASK_ACTIVITY_CODE);
+                //showTaskDialog(false, null, -1);
+            }
+        });
+
+        /**
+         * On a click, we start the TaskActivity to update the task.
+         * On a long click, open a dialogBox to give the user the option to choose.
+         * */
+        recyclerView.addOnItemTouchListener(new RecyclerTouchListener(this,
+                recyclerView, new RecyclerTouchListener.ClickListener() {
+            @Override
+            public void onClick(View view, final int position) {
+                startUpdateTaskActivity(position);
+            }
+
+            @Override
+            public void onLongClick(View view, int position) {
+                showActionsDialog(position);
+            }
+        }));
+    }
+
+    /**
+     * initGeofencing Removes all the Geofences then add them all back in to the Geofence list
+     * Then, add them to the Geofence Client so that checking can be done in the background.
+     */
+    private void initGeofencing() {
+        // Geofence
+        mGeofencingClient = new GeofencingClient(this);
+
+        // First remove all geofences, to get a fresh start
+        clearGeofenceClient();
+
+        Geofence geofence;
+        mGeofenceList = new ArrayList<>();
+        // if there are tasks in the DB than add them to geofence
+        if (taskCount > 0) {
+            for (int i = 0; i < taskCount; i++) {
+                ProxiDB task = taskList.get(i);
+                if (!Boolean.parseBoolean(task.getComplete())) {
+                    fence = new Fence(taskList.get(i));
+                    fence.setDuration(DURATION);
+                    fence.setDwell(DWELL);
+                    geofence = buildGeofence(fence);
+                    mGeofenceList.add(geofence);
+                }
+            }
+            // add geofences to geofence client list
+            if (!mGeofenceList.isEmpty()) {
+                addGeofences();
+            }
+        }
+    }
+
+
+    /**
+     * <p>
+     * resetGeofences removes all the Geofences that were being used and puts them all
+     * back in the the GeofenceClient.
+     * </p>
+     */
+    private void resetGeofences() {
+
+        // Remove all geofences, to get a fresh start
+        clearGeofenceClient();
+        mGeofenceList.clear();
+
+        Geofence geofence;
+        // if there are tasks in the DB than add them to geofence
+        if (taskCount > 0) {
+            for (int i = 0; i < taskCount; i++) {
+                ProxiDB task = taskList.get(i);
+                if(Boolean.parseBoolean(task.getComplete())) {
+                    fence = new Fence(task);
+                    fence.setDuration(DURATION);
+                    fence.setDwell(DWELL);
+                    geofence = buildGeofence(fence);
+                    mGeofenceList.add(geofence);
+                }
+            }
+            // add geofences to geofence client list
+            addGeofences();
+        }
+    }
+
+
+    /**
+     * clearGeoFence Client removes all the geofences to give us a fresh start.
+     */
+    private void clearGeofenceClient() {
+        mGeofencingClient.removeGeofences(getGeofencePendingIntent())
+                .addOnSuccessListener(this, new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.i(TAG, "successfully removed all Geofences");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "failed to remove all Geofences - " + e);
+                    }
+                });
+    }
+    /**
+     * <p>
+     * onCreateOptionsMenu
+     * This method displays the drop down list when the dots
+     * in the top left corner are clicked on.
+     * @param menu is the parameter for which menu was clicked on.
+     * @return true to allow the program to continue running other checks.
+     * </p>
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
-/**@author
- * @version  1.0
- * @since
- * StartSettings
- * This method starts the settings activity
- * @param
- * @return
- */
-
+    /**
+    * StartSettings
+    * This method starts the settings activity for the user to start changing settings.
+    * It is called when the "Settings" menu list item is selected.
+    * @param
+    */
     public void startSettings(MenuItem item) {
         Intent intent = new Intent(this, SettingsActivity.class);
         startActivity(intent);
     }
 
-    // TODO clear geofence linked to task
-    /****************************************************
+    /**
+     * <p>
      * deleteTasks
-     * Deletes note from SQLite and removing the
+     * Deletes note from SQLite and removes the item from the ListView based on the position
      * item from the ListView by its position
-     *****************************************************/
+     * @param position - the position of the task in the list
+     * </p>
+     */
     private void deleteTask(int position) {
-
-        // remove Geofence connected to task
-        List<String> geofenceList = new ArrayList<>();
-        GeofencingClient mGeofencingClient;
-        geofenceList.add(String.valueOf(position));
-
-        mGeofencingClient = new GeofencingClient(this);
-        mGeofencingClient.removeGeofences(geofenceList)
-                .addOnSuccessListener(this, new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.i(TAG, "successfully removed Geofence");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "failed to remove Geofence - " + e);
-                    }
-                });
 
         // deleting the note from db
         db.deleteTask(taskList.get(position));
-
-        // removing the note from the list
         taskList.remove(position);
         mAdapter.notifyItemRemoved(position);
-
         toggleEmptyTasks();
+        resetGeofences();
 
     }
-/**@author
- * @version  1.0
- * @since
- * showActionDialog
- * Opens dialog with Edit/Delete options
- * Edit option starts the TaskActivity
- * Delete option calls deleteTask
- * @param
- * @return
- */
 
+    /**
+ * <p>
+ * showActionDialog
+ * Opens dialog with the following options and responses:
+ * Navigate to... - opens navigation to the selected task.
+ * Edit - starts the TaskActivity
+ * Delete - calls deleteTask function
+ * @param position - the position of the task in the list
+ * </p>
+ */
     private void showActionsDialog(final int position) {
 
 
@@ -367,29 +431,30 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     if(element.getComplete().equals("true")) {
                         element.setComplete("false");
-                        //TODO put geofence back since the task has now been re-added
+                        clearGeofenceClient();
                     } else {
                         element.setComplete("true");
-                        //TODO remove geofence since the task is complete.
 
                     }
+
                     db.updateTask(element);
                     taskList.clear();
                     taskList.addAll(db.getAllTasks());
                     mAdapter.notifyDataSetChanged();
+                    resetGeofences();
                 }
                 
             }
         });
         builder.show();
     }
-/**@author
- * @version  1.0
- * @since
- * onActivityResult handles any intents
- * that are returned to main via StartActivityForResult
- * @param
- * @return
+/**<p>
+ * onActivityResult handles any intents that are returned to main when a StartActivityForResult
+ * Activity was called. This allows the MainActivity to retrieve data from other Activities.
+ * @param requestCode - specifies which task is returning a Result
+ * @param resultCode - specifies the result type (Could be OK or Canceled)
+ * @param data - the Intent that was created to return to the MainActivity
+ * </p>
  */
 
    @Override
@@ -417,16 +482,10 @@ public class MainActivity extends AppCompatActivity {
                     mAdapter.notifyDataSetChanged();
                 }
 
-                //TODO Update Old geofence if update occurred.
-                // Geofence
-                Geofence geofence;
-                fence = new Fence(element);
-                fence.setDuration(DURATION);
-                fence.setDwell(DWELL);
-                geofence = buildGeofence(fence);
-                mGeofenceList.add(geofence);
-
-                addGeofences();
+                taskList.clear();
+                taskList.addAll(db.getAllTasks());
+                mAdapter.notifyDataSetChanged();
+                resetGeofences();
 
                 //Update the view.
                 mAdapter.notifyDataSetChanged();
@@ -435,21 +494,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-/**@author
- * @version  1.0
- * @since
+/**
  * <p>
- *   The toggleEmptytasks performs the following:
- *   toggleEmptyTasks
- *   toggleEmptyTasks will toggle the Empty task
- *   visibility on or off depending on the amount
- *   of tasks saved in the database.
+ *   The toggleEmptytasks checks how many tasks are in the list of tasks. If there are zero
+ *   It sets the noTaskView to visible which says "No Tasks Found!" If there are tasks in
+ *   the ListView, the noTaskView is set to Visible.
  * </p>
- *
- * @param
- * @return
  */
-
     public void toggleEmptyTasks() {
         // you can check notesList.size() > 0
 
@@ -460,8 +511,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // Geofence
-
+    /** <p>
+     * getGeofencingRequest creates a GeofenceBuilder which triggers when the user enters the
+     * Geofence or is inside the Geofence. Then, adds a list of Geofences to the Builder.
+     * @return GeofenceingRequest
+     * </p>
+     */
     private GeofencingRequest getGeofencingRequest() {
         return new GeofencingRequest.Builder()
                 .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER | GeofencingRequest.INITIAL_TRIGGER_DWELL)
@@ -469,6 +524,12 @@ public class MainActivity extends AppCompatActivity {
                 .build();
     }
 
+    /**<p>
+     * getGeofencePendingIntent creates a pending intent for the Notification to receive when
+     * triggered.
+     * @return PendingIntent
+     * </p>
+     */
     private PendingIntent getGeofencePendingIntent() {
         // Reuse the PendingIntent if we already have it.
         if (mGeofencePendingIntent != null) {
@@ -482,6 +543,13 @@ public class MainActivity extends AppCompatActivity {
         return mGeofencePendingIntent;
     }
 
+    /**
+     * <p>
+     * buildGeofence builds perimeter around a given location given a Fence Object.
+     * </p>
+     * @param f -holds the data used to build the geofence
+     * @return Geofence
+     */
     private Geofence buildGeofence(Fence f) {
         return new Geofence.Builder()
                 .setRequestId(f.getStringId())
@@ -493,9 +561,13 @@ public class MainActivity extends AppCompatActivity {
                 .build();
     }
 
+    /**
+     * <p>
+     * addGeofences Checks if the app has permission to use the users current location,
+     * then, removes and re-adds all the Geofences to the GeofencingClient.
+     * </p>
+     */
     private void addGeofences() {
-        GeofencingClient mGeofencingClient;
-
         // Location permissions
         Permissions permissions = new Permissions();
         if ( permissions.checkMapsPermission(this)){
@@ -518,6 +590,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**<p>
+     * startDirectionsActivity takes a task position in the taskList and gives
+     * executes an Activity that will take the user to the task Location.
+     * @param position - the position of the task in the list.
+     * </p>
+     */
     void startDirectionsActivity(final int position) {
 
         ProxiDB task = taskList.get(position);
@@ -528,5 +606,35 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
+     /* THIS CODE IS NO LONGER USED. Instead, we reset the Geofence list everytime to ensure
+     * that all the geofences are in the correct positions due to some of the Geofences
+     * being disabled and re-enabled when "Set to UnComplete" gets clicked.
+     *
+     *
+     * removeGeofence removes a single Geofence from the Geofence Client
+     * @param position = the position of the task that is getting removed.
+     *
+    private void removeGeofence(int position) {
+        List<String> geofenceRemoveList = new ArrayList<>();
+
+        //TODO For David are you sure we want to remove the geofence based on the
+        //position in the list? Shouldn't this be the ID of the element?
+        geofenceRemoveList.add(String.valueOf(position));
+        mGeofencingClient.removeGeofences(geofenceRemoveList)
+                .addOnSuccessListener(this, new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.i(TAG, "successfully removed Geofence");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "failed to remove Geofence - " + e);
+                    }
+                });
+    }
+    */
 
 }
