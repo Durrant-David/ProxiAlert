@@ -155,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * <p>
-     * onStop
+     * onDestroy
      * When the app is destroyed we close the database since
      * it will not be required anymore.
      * </p>
@@ -222,6 +222,7 @@ public class MainActivity extends AppCompatActivity {
         taskIntent.putExtra("DESCRIPTION", element.getDescription());
         taskIntent.putExtra("COMPLETE", element.getComplete());
         taskIntent.putExtra("AUDIO", element.getAudio());
+        taskIntent.putExtra("CONTACT", element.getContact());
         startActivityForResult(taskIntent, TASK_ACTIVITY_CODE);
     }
 

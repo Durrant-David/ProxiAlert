@@ -57,9 +57,9 @@ public class GeofenceTransitionsIntentService extends IntentService {
             );
 
             // Send notification and log the transition details.
-          DatabaseHelper DB = new DatabaseHelper(getApplicationContext());
-            ProxiDB task =  DB.getProxiDB(Long.parseLong(triggerId));
-
+          DatabaseHelper db = new DatabaseHelper(getApplicationContext());
+            ProxiDB task =  db.getProxiDB(Long.parseLong(triggerId));
+            db.close();
             MyNotification n = new MyNotification(task, getApplicationContext());
             n.send();
             //MyNotification syntax has changed. Send ENTIRE ProxiDB as first parameter

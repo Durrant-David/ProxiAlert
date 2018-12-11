@@ -235,6 +235,7 @@ public class TaskActivity extends AppCompatActivity {
             //radius.setSelection(intent.getStringExtra("RADIUS"));
             id = intent.getIntExtra("ID", -1);
             _audioFilename = intent.getStringExtra("AUDIO");
+            inputContact.setText(intent.getStringExtra("CONTACT"));
 
         } else {
             SharedPreferences sp = PreferenceManager
@@ -384,7 +385,7 @@ public class TaskActivity extends AppCompatActivity {
         timeStamp = date.getTime();
         Long t = timeStamp;
 
-
+        String contact = inputContact.getText().toString();
         if (isUpdate) {
             ProxiDB element = db.getProxiDB(id);
             element.setAddress(address);
@@ -398,12 +399,13 @@ public class TaskActivity extends AppCompatActivity {
             element.setDescription(description);
             element.setComplete(isComplete);
             element.setAudio(_audioFilename);
+            element.setContactInfo(contact);
             db.updateTask(element);
         } else {
-            id = db.insertTask(task, address, dueDate, radiusString, unitsString, t.toString(),
-                    latitudeString, longitudeString, description, "false", _audioFilename);
+            id = db.insertTask(task, address, dueDate, radiusString, unitsString,
+                    t.toString(), latitudeString, longitudeString, description,
+                    "false", _audioFilename, contact);
         }
-
         intent.putExtra("id", id);
         setResult(RESULT_OK, intent);
         finish();
@@ -486,6 +488,7 @@ public class TaskActivity extends AppCompatActivity {
     }
 
 
+
     private boolean validateAddress(String location) {
 
         List<Address> addressList = null;
@@ -517,4 +520,9 @@ public class TaskActivity extends AppCompatActivity {
         return false;
     }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        db.close();
+    }
 }
