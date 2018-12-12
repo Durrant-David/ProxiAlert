@@ -311,7 +311,7 @@ public class MainActivity extends AppCompatActivity {
         if (taskCount > 0) {
             for (int i = 0; i < taskCount; i++) {
                 ProxiDB task = taskList.get(i);
-                if(Boolean.parseBoolean(task.getComplete())) {
+                if(!Boolean.parseBoolean(task.getComplete())) {
                     fence = new Fence(task);
                     fence.setDuration(DURATION);
                     fence.setDwell(DWELL);
@@ -320,7 +320,9 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
             // add geofences to geofence client list
-            addGeofences();
+            if(!mGeofenceList.isEmpty()) {
+                addGeofences();
+            }
         }
     }
 
