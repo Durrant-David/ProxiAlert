@@ -1,11 +1,8 @@
 package edu.byui.team06.proxialert.utils;
 
-import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
@@ -16,7 +13,6 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
-import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
@@ -25,11 +21,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 
-
-
 import edu.byui.team06.proxialert.R;
 import edu.byui.team06.proxialert.database.model.ProxiDB;
-import edu.byui.team06.proxialert.view.tasks.MainActivity;
 
 import static android.support.v4.content.ContextCompat.getSystemService;
 
@@ -69,40 +62,27 @@ public class MyNotification {
 
 
         }
-        /*
+
         notifSound = new MediaPlayer();
 
         try {
             notifSound.setDataSource(task.getAudio());
         } catch (IOException e) {
             e.printStackTrace();
-        }*/
+        }
         //build the notification
         nb = new NotificationCompat.Builder(c, "myNotification")
                 .setLargeIcon(BitmapFactory.decodeResource(c.getResources(),
                         R.mipmap.ic_launcher))
                 .setSmallIcon(R.mipmap.proxi_icon_round)
                 .setContentTitle("ProxiAlert: You are near "+task.getTask()+ " at " + task.getAddress())
-               .setContentText("Task Description: "+task.getDescription())
+                .setContentText("Task Description: "+task.getDescription())
                 .setStyle(new NotificationCompat.BigTextStyle()
-                   .bigText("Task Description: "+task.getDescription()))
+                        .bigText("Task Description: "+task.getDescription()))
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setVibrate(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
+                .setVibrate(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400})
+                .setSound(notifUri);
 
-
-
-
-        Uri audioUri = Uri.parse("file:/" + task.getAudio());
-
-
-        //Try this one first.
-        c.grantUriPermission("com.android.systemui", audioUri,
-                Intent.FLAG_GRANT_READ_URI_PERMISSION);
-
-        //Then this one
-       // StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().build());
-
-        nb.setSound(audioUri);
 
 
         //Intent
@@ -116,35 +96,17 @@ public class MyNotification {
         nb.setContentIntent(contentIntent);
 
 
-        /*
-        ContentValues values = new ContentValues(4);
-        long current = System.currentTimeMillis();
-        values.put(MediaStore.MediaColumns.DATA, task.getAudio());
-        values.put(MediaStore.MediaColumns.TITLE, task.getTask());
-        values.put(MediaStore.Audio.Media.DATE_ADDED, current / 1000);
-        values.put(MediaStore.Audio.Media.MIME_TYPE, "audio/3gpp");
-        values.put(MediaStore.Audio.Media.IS_RINGTONE, false);
-        values.put(MediaStore.Audio.Media.IS_NOTIFICATION, true);
-        values.put(MediaStore.Audio.Media.IS_ALARM, false);
-        values.put(MediaStore.Audio.Media.IS_MUSIC, false);
-        values.put(MediaStore.Audio.Media.ARTIST, "ProxiAlert Recording");
-        c.getContentResolver().insert(MediaStore.Audio.Media.getContentUriForPath(task.getAudio()), values);
-        */
-
-
     }
 
     public void send()
     {
         notifManager.notify(notificationId, nb.build());
-
-        /*
         try {
             notifSound.prepare();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        notifSound.start();*/
+        notifSound.start();
 
     }
 
