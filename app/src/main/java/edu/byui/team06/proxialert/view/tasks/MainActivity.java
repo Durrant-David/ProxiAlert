@@ -28,6 +28,7 @@ import android.widget.TextView;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingClient;
 import com.google.android.gms.location.GeofencingRequest;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -267,8 +268,13 @@ public class MainActivity extends AppCompatActivity {
      */
     private void initGeofencing() {
         // Geofence
+        SharedPreferences pref = PreferenceManager
+               .getDefaultSharedPreferences(this);
         mGeofencingClient = new GeofencingClient(this);
-
+        long minutes = pref.getLong("interval", 5);
+        LocationRequest lr = new LocationRequest();
+        lr.setInterval(1000 * 60 * minutes);
+        lr.setFastestInterval(1000 * 60 * minutes + 1000);
         // First remove all geofences, to get a fresh start
         clearGeofenceClient();
 
@@ -609,35 +615,5 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
-
-     /* THIS CODE IS NO LONGER USED. Instead, we reset the Geofence list everytime to ensure
-     * that all the geofences are in the correct positions due to some of the Geofences
-     * being disabled and re-enabled when "Set to UnComplete" gets clicked.
-     *
-     *
-     * removeGeofence removes a single Geofence from the Geofence Client
-     * @param position = the position of the task that is getting removed.
-     *
-    private void removeGeofence(int position) {
-        List<String> geofenceRemoveList = new ArrayList<>();
-
-        //TODO For David are you sure we want to remove the geofence based on the
-        //position in the list? Shouldn't this be the ID of the element?
-        geofenceRemoveList.add(String.valueOf(position));
-        mGeofencingClient.removeGeofences(geofenceRemoveList)
-                .addOnSuccessListener(this, new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.i(TAG, "successfully removed Geofence");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "failed to remove Geofence - " + e);
-                    }
-                });
-    }
-    */
 
 }

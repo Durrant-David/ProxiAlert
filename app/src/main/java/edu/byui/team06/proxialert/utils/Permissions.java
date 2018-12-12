@@ -117,8 +117,6 @@ public class Permissions implements  ActivityCompat.OnRequestPermissionsResultCa
     // App cannot work without the permissions
     private void permissionsDenied() {
         Log.w(TAG, "permissionsDenied()");
-        // TODO close app and warn user
-        // TODO send a parameter and if it's the Mic permission,
-        // send a toast that will notify the user.
+        //TODO Add a toast to tell app functionality won't work.
     }
 }

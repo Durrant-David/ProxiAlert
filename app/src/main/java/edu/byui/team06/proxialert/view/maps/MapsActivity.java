@@ -48,7 +48,7 @@ public class MapsActivity extends FragmentActivity
     private Permissions permissions;
     private String taskName;
 
-    // TODO zoom in on current location
+    // TODO zoom in on current location onStart
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.i(TAG, "onCreate");
