@@ -48,7 +48,6 @@ public class MapsActivity extends FragmentActivity
     private Permissions permissions;
     private String taskName;
 
-    // TODO search adds a new marker.
     // TODO zoom in on current location
     @Override
     protected void onCreate(Bundle savedInstanceState) {

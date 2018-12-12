@@ -266,8 +266,6 @@ public class TaskActivity extends AppCompatActivity {
             recordButton.setText("Start Recording");
         } else {
             if (new Permissions().checkMicPermission(this)) {
-
-                //TODO Start a ten second timer which will stop the recorder AND fill up the status bar.
                 File f = getFilesDir();
                 Integer nextId = db.getLastInsertId() + 1;
                 String nextIdString = nextId.toString();
@@ -479,7 +477,6 @@ public class TaskActivity extends AppCompatActivity {
                         postal_cursor.close();
 
                     }
-                    //TODO decide what info to keep here.
                 }
             }
         }

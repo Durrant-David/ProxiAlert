@@ -49,8 +49,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
             // multiple geofences.
             List<Geofence> triggeringGeofences = geofencingEvent.getTriggeringGeofences();
 
-            // TODO setup for multiple notifications
-            String triggerId = triggeringGeofences.get(0).getRequestId();
+
             // Get the transition details as a String.
             String geofenceTransitionDetails = getGeofenceTrasitionDetails(
                     geofenceTransition,
@@ -59,10 +58,14 @@ public class GeofenceTransitionsIntentService extends IntentService {
 
             // Send notification and log the transition details.
           DatabaseHelper db = new DatabaseHelper(getApplicationContext());
-            ProxiDB task =  db.getProxiDB(Long.parseLong(triggerId));
+
+          for(Geofence g : triggeringGeofences) {
+              String triggerId = g.getRequestId();
+              ProxiDB task = db.getProxiDB(Long.parseLong(triggerId));
+              MyNotification n = new MyNotification(task, getApplicationContext());
+              n.send();
+          }
             db.close();
-            MyNotification n = new MyNotification(task, getApplicationContext());
-            n.send();
             //MyNotification syntax has changed. Send ENTIRE ProxiDB as first parameter
             //send context as second parameter.
 
