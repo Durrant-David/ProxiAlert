@@ -1,4 +1,9 @@
 package edu.byui.team06.proxialert.view.tasks;
+//TODO Separate Geofencing into a class
+//TODO Connect V-tiger (if time permits)
+//TODO Mapview of Tasks
+//TODO Write up the Post-Mortem.
+//TODO Make a video of the application.
 
 //notification imports (many could probably be removed
 //since it was moved to its own class

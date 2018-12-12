@@ -30,6 +30,8 @@ import java.util.Locale;
 import edu.byui.team06.proxialert.R;
 import edu.byui.team06.proxialert.utils.Permissions;
 
+
+
 /**
  * MapsActivity it handles the activity
  * used for selecting location of the task
