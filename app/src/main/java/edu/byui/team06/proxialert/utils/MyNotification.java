@@ -38,11 +38,7 @@ public class MyNotification {
         notificationId = notificationCounter;
         notifManager = getSystemService(c, NotificationManager.class);
 
-        File file = new File(task.getAudio());
-        file.setReadable(true, false);
-        String s = task.getAudio();
         Uri notifUri = Uri.parse( c.getFilesDir() +  task.getAudio());
-
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             /* create a MyNotification channel */
             AudioAttributes audioAtts = new AudioAttributes.Builder()
@@ -80,8 +76,7 @@ public class MyNotification {
                 .setStyle(new NotificationCompat.BigTextStyle()
                         .bigText("Task Description: "+task.getDescription()))
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setVibrate(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400})
-                .setSound(notifUri);
+                .setVibrate(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
 
 
 
@@ -98,6 +93,66 @@ public class MyNotification {
 
     }
 
+    public MyNotification(ProxiDB task, Context c, boolean isScheduled ) {
+        notificationCounter++;
+        notificationId = notificationCounter;
+        notifManager = getSystemService(c, NotificationManager.class);
+
+        Uri notifUri = Uri.parse( c.getFilesDir() +  task.getAudio());
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            /* create a MyNotification channel */
+            AudioAttributes audioAtts = new AudioAttributes.Builder()
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                    .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                    .build();
+            String channelId = "myNotification";
+            CharSequence channelName = "Some Channel";
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel notificationChannel = new NotificationChannel(channelId, channelName, importance);
+            notificationChannel.enableLights(true);
+            notificationChannel.setLightColor(Color.BLUE);
+            notificationChannel.enableVibration(true);
+            notificationChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
+            notificationChannel.setSound(notifUri, audioAtts);
+            notifManager.createNotificationChannel(notificationChannel);
+
+
+        }
+
+        notifSound = new MediaPlayer();
+
+        try {
+            notifSound.setDataSource(task.getAudio());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        //build the notification
+        nb = new NotificationCompat.Builder(c, "myNotification")
+                .setLargeIcon(BitmapFactory.decodeResource(c.getResources(),
+                        R.mipmap.ic_launcher))
+                .setSmallIcon(R.mipmap.proxi_icon_round)
+                .setContentTitle("Today,  "+task.getTask()+ " is due at" + task.getAddress())
+                .setContentText("Task Description: "+task.getDescription())
+                .setStyle(new NotificationCompat.BigTextStyle()
+                        .bigText("Task Description: "+task.getDescription()))
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setVibrate(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
+
+
+
+        //Intent
+        Uri navUri = Uri.parse("google.navigation:q="+task.getLat()+","+task.getLong());
+        Intent navigationIntent =new Intent(Intent.ACTION_VIEW, navUri);
+        navigationIntent.setPackage("com.google.android.apps.maps");
+
+        PendingIntent contentIntent = PendingIntent.getActivity(c, 0,
+                new Intent(navigationIntent), PendingIntent.FLAG_UPDATE_CURRENT);
+
+        nb.setContentIntent(contentIntent);
+
+
+    }
     public void send()
     {
         notifManager.notify(notificationId, nb.build());

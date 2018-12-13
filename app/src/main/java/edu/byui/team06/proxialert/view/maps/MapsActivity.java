@@ -5,7 +5,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Address;
+import android.location.Criteria;
 import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
@@ -15,6 +18,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -88,6 +92,7 @@ public class MapsActivity extends FragmentActivity
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+
         if (ActivityCompat.checkSelfPermission
                 (this, Manifest.permission.ACCESS_FINE_LOCATION) !=
                 PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission
@@ -98,6 +103,13 @@ public class MapsActivity extends FragmentActivity
         }
         mMap.setMyLocationEnabled(true);
         mMap.setOnMapClickListener(this);
+
+        LocationManager lm = (LocationManager)getSystemService(LOCATION_SERVICE);
+        Location location = lm.getLastKnownLocation(lm.getBestProvider(new Criteria(), true));
+        LatLng myLoc = new LatLng(location.getLatitude(), location.getLongitude());
+        CameraUpdate camera = CameraUpdateFactory.newLatLngZoom(myLoc, 10);
+        mMap.animateCamera(camera);
+
     }
 
     /**

@@ -8,17 +8,24 @@ package edu.byui.team06.proxialert.view.tasks;
 //notification imports (many could probably be removed
 //since it was moved to its own class
 
+import android.app.AlarmManager;
+import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -38,7 +45,11 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import edu.byui.team06.proxialert.R;
@@ -50,6 +61,7 @@ import edu.byui.team06.proxialert.utils.MyDividerItemDecoration;
 import edu.byui.team06.proxialert.utils.MyNotification;
 import edu.byui.team06.proxialert.utils.Permissions;
 import edu.byui.team06.proxialert.utils.RecyclerTouchListener;
+import edu.byui.team06.proxialert.utils.ScheduledNotificationPublisher;
 import edu.byui.team06.proxialert.view.TaskAdapter;
 import edu.byui.team06.proxialert.view.settings.SettingsActivity;
 
@@ -276,7 +288,7 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences pref = PreferenceManager
                .getDefaultSharedPreferences(this);
         mGeofencingClient = new GeofencingClient(this);
-        long minutes = pref.getLong("interval", 5);
+        long minutes = Long.parseLong(pref.getString("interval", "5"));
         LocationRequest lr = new LocationRequest();
         lr.setInterval(1000 * 60 * minutes);
         lr.setFastestInterval(1000 * 60 * minutes + 1000);
@@ -394,6 +406,7 @@ public class MainActivity extends AppCompatActivity {
 
         // deleting the note from db
         db.deleteTask(taskList.get(position));
+        removeScheduledNotification(taskList.get(position));
         taskList.remove(position);
         mAdapter.notifyItemRemoved(position);
         toggleEmptyTasks();
@@ -446,9 +459,10 @@ public class MainActivity extends AppCompatActivity {
                     if(element.getComplete().equals("true")) {
                         element.setComplete("false");
                         clearGeofenceClient();
+                        scheduleNotification(element);
                     } else {
                         element.setComplete("true");
-
+                        removeScheduledNotification(element);
                     }
 
                     db.updateTask(element);
@@ -491,9 +505,12 @@ public class MainActivity extends AppCompatActivity {
                 if (isUpdate) {
                     taskList.set(data.getIntExtra("POSITION", 0), element);
                     mAdapter.notifyItemChanged(data.getIntExtra("POSITION", 0));
+                    removeScheduledNotification(element);
+                    scheduleNotification(element);
                 } else {
                     taskList.add(taskList.size(), element);
                     mAdapter.notifyDataSetChanged();
+                    scheduleNotification(element);
                 }
 
                 taskList.clear();
@@ -504,6 +521,16 @@ public class MainActivity extends AppCompatActivity {
                 //Update the view.
                 mAdapter.notifyDataSetChanged();
                 toggleEmptyTasks();
+            }
+            else if(requestCode == SETTINGS_ACTION)
+            {
+                //Remove
+                for(ProxiDB task : taskList)
+                {
+                    //rescheduling all the tasks overwrites ALL
+                    //the previously scheduled notifications.
+                    scheduleNotification(task);
+                }
             }
         }
     }
@@ -621,4 +648,48 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
+    public void scheduleNotification(ProxiDB task) {
+
+        if(Boolean.parseBoolean(task.getComplete()))
+            return;
+
+        //create the pending intent
+        Intent notificationIntent = new Intent(MainActivity.this, ScheduledNotificationPublisher.class);
+        notificationIntent.putExtra("TaskID", task.getId());
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), task.getId(), notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+
+        //set the time for the notification
+        SharedPreferences pref = PreferenceManager
+                .getDefaultSharedPreferences(this);
+        String time = pref.getString("notifyTime", "10:00 AM");
+        String myDateFormat = "MM/dd/yyyy HH:mm a";
+        SimpleDateFormat sdfDate = new SimpleDateFormat(myDateFormat);
+        Date date;
+        try {
+            date = sdfDate.parse(task.getDueDate() + time);
+        } catch (ParseException e) {
+            try {
+                date = sdfDate.parse(task.getDueDate() + " 10:00 AM");
+            } catch (ParseException e1) {
+                e1.printStackTrace();
+                return;
+            }
+        }
+
+        //setup the time to send.
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, cal.getTimeInMillis(), pendingIntent);
+    }
+
+    public void removeScheduledNotification(ProxiDB task) {
+        Intent notificationIntent = new Intent(MainActivity.this, ScheduledNotificationPublisher.class);
+        notificationIntent.putExtra("TaskID", task.getId());
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), task.getId(), notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        alarmManager.cancel(pendingIntent);
+
+    }
 }
