@@ -59,7 +59,7 @@ public class MapViewActivity extends FragmentActivity
     private Permissions permissions;
     private String taskName;
     private DatabaseHelper db;
-    private ArrayList <ProxiDB> TaskList;
+    private ArrayList <ProxiDB> TaskList = new ArrayList<>();
 
     // TODO zoom in on current location onStart
     @Override
@@ -114,11 +114,11 @@ public class MapViewActivity extends FragmentActivity
         LocationManager lm = (LocationManager)getSystemService(LOCATION_SERVICE);
         Location location = lm.getLastKnownLocation(lm.getBestProvider(new Criteria(), true));
         LatLng myLoc = new LatLng(location.getLatitude(), location.getLongitude());
-        CameraUpdate camera = CameraUpdateFactory.newLatLngZoom(myLoc, 10);
+        CameraUpdate camera = CameraUpdateFactory.newLatLngZoom(myLoc, 1);
         mMap.animateCamera(camera);
 
         for(ProxiDB task:TaskList){
-            setSearchMarker(new LatLng(Double.parseDouble(task.getLat()), Double.parseDouble(task.getLong())));
+            setSearchMarker(new LatLng(Double.parseDouble(task.getLat()), Double.parseDouble(task.getLong())), task.getTask());
 
         }
 
@@ -134,7 +134,7 @@ public class MapViewActivity extends FragmentActivity
      * @param latLng
      */
 
-    private void setSearchMarker(LatLng latLng) {
+    private void setSearchMarker(LatLng latLng, String taskName) {
         Log.i(TAG, "setSearchMarker("+latLng+")");
         String title;
         if(taskName.length() > 0) {
@@ -148,10 +148,6 @@ public class MapViewActivity extends FragmentActivity
                 .position(latLng)
                 .title(title);
         if ( mMap!=null ) {
-            // Remove last searchMarker
-            if (searchMarker != null)
-                searchMarker.remove();
-            mMap.clear();
             searchMarker = mMap.addMarker(markerOptions);
 
         }
