@@ -63,6 +63,7 @@ import edu.byui.team06.proxialert.utils.Permissions;
 import edu.byui.team06.proxialert.utils.RecyclerTouchListener;
 import edu.byui.team06.proxialert.utils.ScheduledNotificationPublisher;
 import edu.byui.team06.proxialert.view.TaskAdapter;
+import edu.byui.team06.proxialert.view.maps.MapViewActivity;
 import edu.byui.team06.proxialert.view.settings.SettingsActivity;
 
 //database imports
@@ -691,5 +692,10 @@ public class MainActivity extends AppCompatActivity {
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         alarmManager.cancel(pendingIntent);
 
+    }
+
+    public void startMapView(MenuItem item){
+        Intent intent = new Intent(this, MapViewActivity.class);
+        startActivity(intent);
     }
 }

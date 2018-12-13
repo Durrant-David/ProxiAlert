@@ -12,4 +12,11 @@
         android:title="@string/settings"
         android:onClick="startSettings"
         app:showAsAction="withText" />
+
+    <item
+        android:id="@+id/mapView"
+        android:icon="@android:drawable/btn_plus"
+        android:title="@string/MapView"
+        android:onClick="startMapView"
+        app:showAsAction="withText" />
 </menu>
