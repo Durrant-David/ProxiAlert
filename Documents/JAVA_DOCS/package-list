@@ -1,0 +1,8 @@
+edu.byui.team06.proxialert
+edu.byui.team06.proxialert.database
+edu.byui.team06.proxialert.database.model
+edu.byui.team06.proxialert.utils
+edu.byui.team06.proxialert.view
+edu.byui.team06.proxialert.view.maps
+edu.byui.team06.proxialert.view.settings
+edu.byui.team06.proxialert.view.tasks
