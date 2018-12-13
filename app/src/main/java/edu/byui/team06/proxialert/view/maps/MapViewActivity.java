@@ -29,11 +29,15 @@ package edu.byui.team06.proxialert.view.maps;
         import com.google.android.gms.maps.model.MarkerOptions;
 
         import java.io.IOException;
+        import java.lang.reflect.Array;
+        import java.util.ArrayList;
         import java.util.List;
         import java.util.Locale;
 
         import edu.byui.team06.proxialert.R;
+        import edu.byui.team06.proxialert.database.model.ProxiDB;
         import edu.byui.team06.proxialert.utils.Permissions;
+        import edu.byui.team06.proxialert.database.DatabaseHelper;
 
 
 
@@ -54,6 +58,8 @@ public class MapViewActivity extends FragmentActivity
     private String location;
     private Permissions permissions;
     private String taskName;
+    private DatabaseHelper db;
+    private ArrayList <ProxiDB> TaskList;
 
     // TODO zoom in on current location onStart
     @Override
@@ -79,6 +85,9 @@ public class MapViewActivity extends FragmentActivity
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        db = new DatabaseHelper(this);
+        TaskList.addAll(db.getAllTasks());
+
        }
 
     /**
@@ -107,6 +116,13 @@ public class MapViewActivity extends FragmentActivity
         LatLng myLoc = new LatLng(location.getLatitude(), location.getLongitude());
         CameraUpdate camera = CameraUpdateFactory.newLatLngZoom(myLoc, 10);
         mMap.animateCamera(camera);
+
+        for(ProxiDB task:TaskList){
+            setSearchMarker(new LatLng(Double.parseDouble(task.getLat()), Double.parseDouble(task.getLong())));
+
+        }
+
+
 
     }
 
