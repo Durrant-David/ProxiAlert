@@ -391,7 +391,7 @@ public class MainActivity extends AppCompatActivity {
     */
     public void startSettings(MenuItem item) {
         Intent intent = new Intent(this, SettingsActivity.class);
-        startActivity(intent);
+        startActivityForResult(intent, SETTINGS_ACTION);
     }
 
     /**
