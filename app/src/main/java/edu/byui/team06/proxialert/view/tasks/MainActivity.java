@@ -9,23 +9,16 @@ package edu.byui.team06.proxialert.view.tasks;
 //since it was moved to its own class
 
 import android.app.AlarmManager;
-import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -37,14 +30,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import com.google.android.gms.location.Geofence;
-import com.google.android.gms.location.GeofencingClient;
-import com.google.android.gms.location.GeofencingRequest;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -54,12 +39,9 @@ import java.util.List;
 
 import edu.byui.team06.proxialert.R;
 import edu.byui.team06.proxialert.database.DatabaseHelper;
-import edu.byui.team06.proxialert.database.model.Fence;
 import edu.byui.team06.proxialert.database.model.ProxiDB;
-import edu.byui.team06.proxialert.utils.GeofenceTransitionsIntentService;
+import edu.byui.team06.proxialert.utils.Geofences;
 import edu.byui.team06.proxialert.utils.MyDividerItemDecoration;
-import edu.byui.team06.proxialert.utils.MyNotification;
-import edu.byui.team06.proxialert.utils.Permissions;
 import edu.byui.team06.proxialert.utils.RecyclerTouchListener;
 import edu.byui.team06.proxialert.utils.ScheduledNotificationPublisher;
 import edu.byui.team06.proxialert.view.TaskAdapter;
@@ -94,16 +76,11 @@ public class MainActivity extends AppCompatActivity {
     private static final int TASK_ACTIVITY_CODE = 0;
     private int SETTINGS_ACTION = 1;
     private boolean theme;
-    private ArrayList<Geofence> mGeofenceList;
-    private PendingIntent mGeofencePendingIntent;
-    private Fence fence;
-    private static final long DURATION = Geofence.NEVER_EXPIRE;
-    private static final int DWELL = 1;
     private FloatingActionButton fab;
     private static final String TAG = MainActivity.class.getSimpleName();
+    private Geofences geofences = new Geofences(this, this);
 
     private DatabaseHelper db;
-    GeofencingClient mGeofencingClient;
     /**
      * <p>
      * OnOptionsItemSelected gets called when a menu item is selected.
@@ -148,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
         initDatabase();
         initAllViews();
         attachResponseToViews();
-        initGeofencing();
+        geofences.initGeofencing(taskCount, taskList);
 
     }
     /**
@@ -280,95 +257,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * initGeofencing Removes all the Geofences then add them all back in to the Geofence list
-     * Then, add them to the Geofence Client so that checking can be done in the background.
-     */
-    private void initGeofencing() {
-        // Geofence
-        SharedPreferences pref = PreferenceManager
-               .getDefaultSharedPreferences(this);
-        mGeofencingClient = new GeofencingClient(this);
-        long minutes = Long.parseLong(pref.getString("interval", "5"));
-        LocationRequest lr = new LocationRequest();
-        lr.setInterval(1000 * 60 * minutes);
-        lr.setFastestInterval(1000 * 60 * minutes + 1000);
-        // First remove all geofences, to get a fresh start
-        clearGeofenceClient();
-
-        Geofence geofence;
-        mGeofenceList = new ArrayList<>();
-        // if there are tasks in the DB than add them to geofence
-        if (taskCount > 0) {
-            for (int i = 0; i < taskCount; i++) {
-                ProxiDB task = taskList.get(i);
-                if (!Boolean.parseBoolean(task.getComplete())) {
-                    fence = new Fence(taskList.get(i));
-                    fence.setDuration(DURATION);
-                    fence.setDwell(DWELL);
-                    geofence = buildGeofence(fence);
-                    mGeofenceList.add(geofence);
-                }
-            }
-            // add geofences to geofence client list
-            if (!mGeofenceList.isEmpty()) {
-                addGeofences();
-            }
-        }
-    }
-
-
-    /**
-     * <p>
-     * resetGeofences removes all the Geofences that were being used and puts them all
-     * back in the the GeofenceClient.
-     * </p>
-     */
-    private void resetGeofences() {
-
-        // Remove all geofences, to get a fresh start
-        clearGeofenceClient();
-        mGeofenceList.clear();
-
-        Geofence geofence;
-        // if there are tasks in the DB than add them to geofence
-        if (taskCount > 0) {
-            for (int i = 0; i < taskCount; i++) {
-                ProxiDB task = taskList.get(i);
-                if(!Boolean.parseBoolean(task.getComplete())) {
-                    fence = new Fence(task);
-                    fence.setDuration(DURATION);
-                    fence.setDwell(DWELL);
-                    geofence = buildGeofence(fence);
-                    mGeofenceList.add(geofence);
-                }
-            }
-            // add geofences to geofence client list
-            if(!mGeofenceList.isEmpty()) {
-                addGeofences();
-            }
-        }
-    }
-
-
-    /**
-     * clearGeoFence Client removes all the geofences to give us a fresh start.
-     */
-    private void clearGeofenceClient() {
-        mGeofencingClient.removeGeofences(getGeofencePendingIntent())
-                .addOnSuccessListener(this, new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.i(TAG, "successfully removed all Geofences");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "failed to remove all Geofences - " + e);
-                    }
-                });
-    }
-    /**
      * <p>
      * onCreateOptionsMenu
      * This method displays the drop down list when the dots
@@ -410,7 +298,7 @@ public class MainActivity extends AppCompatActivity {
         taskList.remove(position);
         mAdapter.notifyItemRemoved(position);
         toggleEmptyTasks();
-        resetGeofences();
+        geofences.resetGeofences(taskCount, taskList);
 
     }
 
@@ -458,7 +346,7 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     if(element.getComplete().equals("true")) {
                         element.setComplete("false");
-                        clearGeofenceClient();
+                        geofences.clearGeofenceClient();
                         scheduleNotification(element);
                     } else {
                         element.setComplete("true");
@@ -469,7 +357,7 @@ public class MainActivity extends AppCompatActivity {
                     taskList.clear();
                     taskList.addAll(db.getAllTasks());
                     mAdapter.notifyDataSetChanged();
-                    resetGeofences();
+                    geofences.resetGeofences(taskCount, taskList);
                 }
                 
             }
@@ -516,7 +404,7 @@ public class MainActivity extends AppCompatActivity {
                 taskList.clear();
                 taskList.addAll(db.getAllTasks());
                 mAdapter.notifyDataSetChanged();
-                resetGeofences();
+                geofences.resetGeofences(taskCount, taskList);
 
                 //Update the view.
                 mAdapter.notifyDataSetChanged();
@@ -552,84 +440,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /** <p>
-     * getGeofencingRequest creates a GeofenceBuilder which triggers when the user enters the
-     * Geofence or is inside the Geofence. Then, adds a list of Geofences to the Builder.
-     * @return GeofenceingRequest
-     * </p>
-     */
-    private GeofencingRequest getGeofencingRequest() {
-        return new GeofencingRequest.Builder()
-                .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER | GeofencingRequest.INITIAL_TRIGGER_DWELL)
-                .addGeofences(mGeofenceList)
-                .build();
-    }
 
-    /**<p>
-     * getGeofencePendingIntent creates a pending intent for the Notification to receive when
-     * triggered.
-     * @return PendingIntent
-     * </p>
-     */
-    private PendingIntent getGeofencePendingIntent() {
-        // Reuse the PendingIntent if we already have it.
-        if (mGeofencePendingIntent != null) {
-            return mGeofencePendingIntent;
-        }
-        Intent intent = new Intent(this, GeofenceTransitionsIntentService.class);
-        // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when
-        // calling addGeofences() and removeGeofences().
-        mGeofencePendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.
-                FLAG_UPDATE_CURRENT);
-        return mGeofencePendingIntent;
-    }
-
-    /**
-     * <p>
-     * buildGeofence builds perimeter around a given location given a Fence Object.
-     * </p>
-     * @param f -holds the data used to build the geofence
-     * @return Geofence
-     */
-    private Geofence buildGeofence(Fence f) {
-        return new Geofence.Builder()
-                .setRequestId(f.getStringId())
-                .setCircularRegion(f.getLat(), f.getLng(), f.getRadius())
-                .setExpirationDuration(f.getDuration())
-                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
-                        Geofence.GEOFENCE_TRANSITION_DWELL)
-                .setLoiteringDelay(f.getDwell())
-                .build();
-    }
-
-    /**
-     * <p>
-     * addGeofences Checks if the app has permission to use the users current location,
-     * then, removes and re-adds all the Geofences to the GeofencingClient.
-     * </p>
-     */
-    private void addGeofences() {
-        // Location permissions
-        Permissions permissions = new Permissions();
-        if ( permissions.checkMapsPermission(this)){
-            mGeofencingClient = new GeofencingClient(this);
-            mGeofencingClient.addGeofences(getGeofencingRequest(), getGeofencePendingIntent())
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Log.i (TAG, "successfully added Geofences");
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.w(TAG, "failed to add Geofences - " + e);
-                        }
-                    });
-        } else {
-            permissions.askMapsPermission(this);
-        }
-    }
 
     /**<p>
      * startDirectionsActivity takes a task position in the taskList and gives
