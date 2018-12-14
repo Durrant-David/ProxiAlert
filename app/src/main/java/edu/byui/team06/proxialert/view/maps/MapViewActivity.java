@@ -5,6 +5,7 @@ package edu.byui.team06.proxialert.view.maps;
         import android.app.AlarmManager;
         import android.app.PendingIntent;
         import android.content.Context;
+        import android.content.DialogInterface;
         import android.content.Intent;
         import android.content.SharedPreferences;
         import android.content.pm.PackageManager;
@@ -17,6 +18,7 @@ package edu.byui.team06.proxialert.view.maps;
         import android.preference.PreferenceManager;
         import android.support.v4.app.ActivityCompat;
         import android.support.v4.app.FragmentActivity;
+        import android.support.v7.app.AlertDialog;
         import android.util.Log;
         import android.view.View;
         import android.widget.EditText;
@@ -60,10 +62,12 @@ public class MapViewActivity extends FragmentActivity
         implements
         GoogleMap.OnMapClickListener,
         OnMapReadyCallback,
-        GoogleMap.OnMarkerClickListener,
-        GoogleMap.OnMarkerDragListener
+        GoogleMap.OnMarkerClickListener
 {
     private static final String TAG = MapsActivity.class.getSimpleName();
+    private static final String UPDATE = "UPDATE";
+    private static final String POSITION = "POSITION";
+    private boolean theme;
     private GoogleMap mMap;
     private ArrayList<Marker> searchMarkers = new ArrayList<>();
     private Permissions permissions;
@@ -84,8 +88,8 @@ public class MapViewActivity extends FragmentActivity
         }
         SharedPreferences pref = PreferenceManager
                 .getDefaultSharedPreferences(this);
-        boolean themeName = pref.getBoolean("themes", false);
-        if (themeName) {
+        theme = pref.getBoolean("themes", false);
+        if (theme) {
             setTheme(R.style.ThemeOverlay_MaterialComponents_Dark);
         } else {
             setTheme(R.style.AppTheme);
@@ -123,14 +127,37 @@ public class MapViewActivity extends FragmentActivity
 
         LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
         Location location = lm.getLastKnownLocation(lm.getBestProvider(new Criteria(), true));
-        LatLng myLoc = new LatLng(location.getLatitude(), location.getLongitude());
-        CameraUpdate camera = CameraUpdateFactory.newLatLngZoom(myLoc, 1);
-        mMap.animateCamera(camera);
+        LatLng myLoc;
+        CameraUpdate camera;
+        if (location != null) {
+            myLoc = new LatLng(location.getLatitude(), location.getLongitude());
+            camera = CameraUpdateFactory.newLatLngZoom(myLoc, 1);
+            mMap.animateCamera(camera);
+        }
+
 
         for (ProxiDB task : TaskList) {
             setSearchMarker(task);
         }
 
+        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+            @Override
+            public void onMapLongClick(LatLng latLng) {
+                double shortestLat = 5;
+                double shortestLong = 5;
+                int index = -1;
+                int count = 0;
+                for (Marker marker : searchMarkers) {
+                    if (Math.abs(marker.getPosition().latitude - latLng.latitude) < shortestLat && Math.abs(marker.getPosition().longitude - latLng.longitude) < shortestLong) {
+                        index = count;
+                    }
+                    count++;
+                }
+                if(index != -1) {
+                    showActionsDialog(index);
+                }
+            }
+        });
     }
 
 
@@ -161,7 +188,6 @@ public class MapViewActivity extends FragmentActivity
         MarkerOptions markerOptions = new MarkerOptions()
                 .position(latLng)
                 .title(title)
-                .draggable(true)
                 .visible(!Boolean.parseBoolean(task.getComplete()));
         if ( mMap!=null ) {
             searchMarkers.add(mMap.addMarker(markerOptions));
@@ -191,26 +217,11 @@ public class MapViewActivity extends FragmentActivity
 
     @Override
     public boolean onMarkerClick(Marker marker) {
+
         return false;
     }
 
-    @Override
-    public void onMarkerDragStart(Marker marker) {
-        //TODO solve problem with marker moving!
-        int index = searchMarkers.indexOf(marker);
-        ProxiDB task = TaskList.get(index);
-        //this represents a long click.
-        //TODO start the update task activity.
-    }
-    @Override
-    public void onMarkerDrag(Marker marker) {
-        return;
-    }
 
-    @Override
-    public void onMarkerDragEnd(Marker marker) {
-        return;
-    }
     public String getMarkerAddress(LatLng latLng) {
         Geocoder geocoder;
         List<Address> addresses = null;
@@ -307,7 +318,56 @@ public class MapViewActivity extends FragmentActivity
 
     }
 
+    private void showActionsDialog(final int position) {
 
+
+        ProxiDB element = TaskList.get(position);
+        boolean isComplete = Boolean.parseBoolean(element.getComplete());
+        CharSequence colors[];
+        if(isComplete)
+        {
+            colors = new CharSequence[]{"Navigate to...", "Delete", "Unmark As Complete"};
+        }
+        else
+        {
+            colors = new CharSequence[]{"Navigate to...", "Delete", "Mark As Complete"};
+        }
+
+
+        AlertDialog.Builder builder;
+        if(theme) {
+            builder = new AlertDialog.Builder(this, R.style.Dark_Dialog_Alert);
+        } else {
+            builder = new AlertDialog.Builder(this);
+        }
+        builder.setTitle("Choose option");
+        builder.setItems(colors, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                ProxiDB element = TaskList.get(position);
+                if (which == 0) {
+                    //TODO startDirectionsActivity(position);
+                } else if (which == 1){
+                    //TODO deleteTask(position);
+                } else {
+                    if(element.getComplete().equals("true")) {
+                        element.setComplete("false");
+                        //TODO clearGeofenceClient();
+                        scheduleNotification(element);
+                    } else {
+                        element.setComplete("true");
+                        removeScheduledNotification(element);
+                    }
+
+                    db.updateTask(element);
+                    //TODO reset Geofences here.
+                    //resetGeofences();
+                }
+
+            }
+        });
+        builder.show();
+    }
 }
 
-//TODO add a function for on Result?
+

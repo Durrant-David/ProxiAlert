@@ -18,6 +18,7 @@ import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -258,6 +259,15 @@ public class TaskActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                setResult(RESULT_CANCELED);
+                finish();
+        }
+        return true;
+    }
     public void onStartRecording(View view) {
         if (isRecorderStarted) {
             pba.cancel(true);
@@ -372,7 +382,7 @@ public class TaskActivity extends AppCompatActivity {
             return;
         }
 
-        if(validateAddress(inputAddress.getText().toString()))
+        if(!validateAddress(inputAddress.getText().toString()))
         {
             Toast.makeText(TaskActivity.this, "Invalid address text. Please Try Again.", Toast.LENGTH_SHORT).show();
             return;
