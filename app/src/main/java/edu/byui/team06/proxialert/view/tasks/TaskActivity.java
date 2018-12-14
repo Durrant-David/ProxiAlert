@@ -211,11 +211,12 @@ public class TaskActivity extends AppCompatActivity {
             }
         });
 
+        inputAddress.setText(intent.getStringExtra("ADDRESS"));
+
         if (isUpdate) {
             TextView title = findViewById(R.id.dialog_title);
             title.setText("Update Task");
             inputTask.setText(intent.getStringExtra("TASK"));
-            inputAddress.setText(intent.getStringExtra("ADDRESS"));
             inputDueDate.setText(intent.getStringExtra("DUE"));
             latitudeString = intent.getStringExtra("LAT");
             longitudeString = intent.getStringExtra("LONG");
@@ -368,6 +369,12 @@ public class TaskActivity extends AppCompatActivity {
 
         if(description.length() == 0) {
             Toast.makeText(TaskActivity.this, "Please enter a description.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if(validateAddress(inputAddress.getText().toString()))
+        {
+            Toast.makeText(TaskActivity.this, "Invalid address text. Please Try Again.", Toast.LENGTH_SHORT).show();
             return;
         }
 

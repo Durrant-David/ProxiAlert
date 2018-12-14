@@ -98,8 +98,8 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<Geofence> mGeofenceList;
     private PendingIntent mGeofencePendingIntent;
     private Fence fence;
-    private static final long DURATION = Geofence.NEVER_EXPIRE;
-    private static final int DWELL = 1;
+    public static final long DURATION = Geofence.NEVER_EXPIRE;
+    public static final int DWELL = 1;
     private FloatingActionButton fab;
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -491,10 +491,10 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         // TASK_ACTIVITY_CODE represents results with the Task Activity.
-        if (requestCode == TASK_ACTIVITY_CODE) {
+        if (resultCode == RESULT_OK) {
 
             //If the result was set to Ok, then we will update the Views.
-            if (resultCode == RESULT_OK) {
+            if (requestCode == TASK_ACTIVITY_CODE) {
 
                 //get whether or not is(an)Update and the id of the task concerned.
                 //then select the correct element.
@@ -656,7 +656,7 @@ public class MainActivity extends AppCompatActivity {
             return;
 
         //create the pending intent
-        Intent notificationIntent = new Intent(MainActivity.this, ScheduledNotificationPublisher.class);
+        Intent notificationIntent = new Intent(getApplicationContext(), ScheduledNotificationPublisher.class);
         notificationIntent.putExtra("TaskID", task.getId());
         PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), task.getId(), notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
@@ -686,7 +686,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void removeScheduledNotification(ProxiDB task) {
-        Intent notificationIntent = new Intent(MainActivity.this, ScheduledNotificationPublisher.class);
+        Intent notificationIntent = new Intent(getApplicationContext(), ScheduledNotificationPublisher.class);
         notificationIntent.putExtra("TaskID", task.getId());
         PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), task.getId(), notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
