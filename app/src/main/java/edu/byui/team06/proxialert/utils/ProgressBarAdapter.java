@@ -4,7 +4,6 @@ import android.os.AsyncTask;
 import android.widget.ProgressBar;
 
 public class ProgressBarAdapter extends AsyncTask<String, Integer, String> {
-    int count;
     private final ProgressBar _bar;
     private final long startClockTime;
     private final long endClockTime;

@@ -55,9 +55,6 @@ public class MapsActivity extends FragmentActivity
     private LatLng latlng;
     private String location;
     private String taskName;
-    GoogleMap googleMap;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -159,23 +156,6 @@ public class MapsActivity extends FragmentActivity
 
         }
     }
-    private void handleNewLocation(Location location){
-        Log.d(TAG, location.toString());
-        double currentLatitude = location.getLatitude();
-        double currentLongitude = location.getLongitude();
-
-        LatLng latLng = new LatLng(currentLatitude, currentLongitude);
-
-        MarkerOptions options = new MarkerOptions()
-                .position(latLng)
-                .title("Hello!");
-        mMap.addMarker(options);
-
-        float zoomLevel = (float) 16.0;
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng, zoomLevel));
-    }
-
-
 
     /**
      * onMapSearch

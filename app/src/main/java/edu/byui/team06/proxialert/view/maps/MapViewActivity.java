@@ -305,9 +305,15 @@ public class MapViewActivity extends FragmentActivity
                     if(element.getComplete().equals("true")) {
                         element.setComplete("false");
                         scheduleNotification(element);
+
                     } else {
                         element.setComplete("true");
                         removeScheduledNotification(element);
+                        mMap.clear();
+                        searchMarkers.clear();
+                        for(ProxiDB task : TaskList) {
+                            setSearchMarker(task);
+                        }
                     }
 
                     db.updateTask(element);

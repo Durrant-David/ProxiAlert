@@ -76,7 +76,6 @@ public class MainActivity extends AppCompatActivity {
     private int SETTINGS_ACTION = 1;
     private boolean theme;
     private FloatingActionButton fab;
-    private static final String TAG = MainActivity.class.getSimpleName();
     private Geofences geofences = new Geofences(this, this);
 
     private DatabaseHelper db;
@@ -180,7 +179,6 @@ public class MainActivity extends AppCompatActivity {
      * </p>
      */
     private void initAllViews() {
-        CoordinatorLayout coordinatorLayout = findViewById(R.id.coordinator_layout);
         recyclerView = findViewById(R.id.recycler_view);
         noTaskView = findViewById(R.id.empty_tasks_view);
         fab = findViewById(R.id.fab);

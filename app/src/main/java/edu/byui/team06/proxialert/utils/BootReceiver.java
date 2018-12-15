@@ -21,11 +21,10 @@ import edu.byui.team06.proxialert.database.model.ProxiDB;
 
 public class BootReceiver extends BroadcastReceiver {
 
-    private static final String TAG = "BootReceiver";
     private Context contextBootReceiver;
     private List<ProxiDB> taskList = new ArrayList<>();
     private Activity activity = (Activity) contextBootReceiver;
-
+    
     @Override
     public void onReceive(final Context context, Intent intent) {
         contextBootReceiver = context;

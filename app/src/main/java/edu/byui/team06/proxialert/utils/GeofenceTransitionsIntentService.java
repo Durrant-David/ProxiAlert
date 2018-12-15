@@ -22,8 +22,6 @@ import edu.byui.team06.proxialert.database.DatabaseHelper;
 public class GeofenceTransitionsIntentService extends IntentService {
 
     private static final String TAG = GeofenceTransitionsIntentService.class.getSimpleName();
-    private MyNotification notification;
-    public static final int GEOFENCE_NOTIFICATION_ID = 0;
 
     public GeofenceTransitionsIntentService() {
         super(TAG);
@@ -92,28 +90,6 @@ public class GeofenceTransitionsIntentService extends IntentService {
             status = "Exiting ";
         return status + TextUtils.join( ", ", triggeringGeofencesList);
     }
-
-    private void sendNotification( String msg ) {
-        Log.i(TAG, "sendNotification: " + msg );
-
-
-
-    }
-
-    // Create notification
-    private Notification createNotification(String msg, PendingIntent notificationPendingIntent) {
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this);
-        notificationBuilder
-                //.setSmallIcon(R.drawable.ic_action_location)
-                .setColor(Color.RED)
-                .setContentTitle(msg)
-                .setContentText("Geofence MyNotification!")
-                .setContentIntent(notificationPendingIntent)
-                .setDefaults(Notification.DEFAULT_LIGHTS | Notification.DEFAULT_VIBRATE | Notification.DEFAULT_SOUND)
-                .setAutoCancel(true);
-        return notificationBuilder.build();
-    }
-
 
     private static String getErrorString(int errorCode) {
         switch (errorCode) {

@@ -38,7 +38,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder>{
         public TextView dot;
         public TextView address;
         public TextView dueDate;
-        final Button setLocation;
 
 
         //
@@ -47,7 +46,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder>{
             task = view.findViewById(R.id.task);
             dot = view.findViewById(R.id.dot);
             address = view.findViewById(R.id.address);
-            setLocation = view.findViewById(R.id.setLocation);
             dueDate = view.findViewById(R.id.dueDate);
 
         }

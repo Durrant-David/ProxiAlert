@@ -10,7 +10,6 @@ import edu.byui.team06.proxialert.database.model.ProxiDB;
 
 public class ScheduledNotificationPublisher extends BroadcastReceiver {
 
-    public final static String NOTIFICATION = "notification";
     @Override
     public void onReceive(Context context, Intent intent) {
 

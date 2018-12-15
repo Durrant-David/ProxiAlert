@@ -86,7 +86,6 @@ public class TaskActivity extends AppCompatActivity {
 
     private String _audioFilename;
     private boolean isRecorderStarted;
-    long recorderStartTime;
     private ProgressBarAdapter pba;
     final private int MAP_ACTIVITY_CODE = 1;
     final private int CONTACT_ACTIVITY_CODE = 2;
