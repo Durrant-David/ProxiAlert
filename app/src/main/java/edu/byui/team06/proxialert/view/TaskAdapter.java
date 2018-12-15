@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
@@ -69,8 +70,9 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder>{
         _taskList = taskList;
     }
 
+    @NonNull
     @Override
-    public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.task_list_row, parent, false);
 
@@ -88,7 +90,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder>{
      */
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
-    public void onBindViewHolder(MyViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         ProxiDB proxiDB = _taskList.get(position);
 
         holder.task.setText(proxiDB.getTask());

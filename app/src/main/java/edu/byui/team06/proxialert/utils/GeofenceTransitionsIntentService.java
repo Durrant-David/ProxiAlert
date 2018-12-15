@@ -73,9 +73,8 @@ public class GeofenceTransitionsIntentService extends IntentService {
 //                    this.getApplicationContext());
 //            n.send();
             Log.i(TAG, geofenceTransitionDetails);
-        } else {
-            // Log the error.
-        }
+        }  // Log the error.
+
     }
 
 

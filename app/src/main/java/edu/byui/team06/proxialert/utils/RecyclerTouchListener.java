@@ -1,6 +1,7 @@
 package edu.byui.team06.proxialert.utils;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -35,7 +36,7 @@ public class RecyclerTouchListener implements RecyclerView.OnItemTouchListener {
     }
 
     @Override
-    public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
+    public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
         View child = rv.findChildViewUnder(e.getX(), e.getY());
         if (child != null && clicklistener != null && gestureDetector.onTouchEvent(e)) {
             clicklistener.onClick(child, rv.getChildAdapterPosition(child));
@@ -45,7 +46,7 @@ public class RecyclerTouchListener implements RecyclerView.OnItemTouchListener {
     }
 
     @Override
-    public void onTouchEvent(RecyclerView rv, MotionEvent e) {
+    public void onTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
 
     }
 

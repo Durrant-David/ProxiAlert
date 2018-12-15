@@ -74,10 +74,9 @@ public class MapViewActivity extends FragmentActivity
     protected void onCreate(Bundle savedInstanceState) {
         Log.i(TAG, "onCreate");
         Permissions permissions = new Permissions(getApplicationContext());
-        if ( permissions.checkMapsPermission(this) ) {
-
-        } else {
+        if ( !permissions.checkMapsPermission(this) ) {
             permissions.askMapsPermission(this);
+
         }
         SharedPreferences pref = PreferenceManager
                 .getDefaultSharedPreferences(this);
@@ -95,7 +94,9 @@ public class MapViewActivity extends FragmentActivity
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+        if (mapFragment != null) {
+            mapFragment.getMapAsync(this);
+        }
         geofences = new Geofences(MapViewActivity.this, getApplicationContext());
         geofences.initGeofencing(TaskList.size(), TaskList);
        }
@@ -213,7 +214,7 @@ public class MapViewActivity extends FragmentActivity
 
     private String getMarkerAddress(LatLng latLng) {
         Geocoder geocoder;
-        List<Address> addresses = null;
+        List<Address> addresses;
         geocoder = new Geocoder(this, Locale.getDefault());
 
         try {
