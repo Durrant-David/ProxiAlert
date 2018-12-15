@@ -76,7 +76,9 @@ public class MapsActivity extends FragmentActivity
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+        if(mapFragment != null) {
+            mapFragment.getMapAsync(this);
+        }
         locationSearch = (EditText) findViewById(R.id.editText);
         Intent intent = getIntent();
         taskName = intent.getStringExtra("TaskName");
@@ -86,7 +88,7 @@ public class MapsActivity extends FragmentActivity
      * onMapReady asks user for permission
      * to access for Google maps.
      * It marks user's current location
-     * @param googleMap
+     * @param googleMap - the googleMap that is being created
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -117,7 +119,7 @@ public class MapsActivity extends FragmentActivity
      * the user clicked. Sets the text
      * of the location search bar
      * to the nearest address.
-     * @param latLng
+     * @param latLng - the location where the user clicked.
      */
     @Override
     public void onMapClick(LatLng latLng)
@@ -160,7 +162,7 @@ public class MapsActivity extends FragmentActivity
      * the search result and searches for the address using
      * Google database. It sets the marker at the location of that
      * address and moves the map camera to that spot.
-     * @param view
+     * @param view the button that the user clicked on.
      */
     public void onMapSearch(View view) {
 
@@ -185,7 +187,7 @@ public class MapsActivity extends FragmentActivity
 
         EditText locationSearch = findViewById(R.id.editText);
         location = locationSearch.getText().toString();
-        if (location != null || !location.equals("")) {
+        if (!location.equals("")) {
             Geocoder geocoder = new Geocoder(this);
             try {
                 addressList = geocoder.getFromLocationName(location, 1);
@@ -213,7 +215,7 @@ public class MapsActivity extends FragmentActivity
      * Submit button which saves the information from the
      * search bar and the coordinates to an intent that will be
      * used in the TaskActivity. It then closes the map activity.
-     * @param view
+     * @param view - the button that the user clicked on.
      */
     public void onMapSubmit(View view) {
 
@@ -230,7 +232,7 @@ public class MapsActivity extends FragmentActivity
      * onMapCancel
      * It sets the result to cancelled and closes
      * the activity.
-     * @param view
+     * @param view - the button that the user clicked on.
      */
     public void onMapCancel(View view) {
         setResult(RESULT_CANCELED);

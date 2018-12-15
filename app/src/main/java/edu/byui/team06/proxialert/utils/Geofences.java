@@ -46,10 +46,15 @@ public class Geofences {
         SharedPreferences pref = PreferenceManager
                 .getDefaultSharedPreferences(context);
         mGeofencingClient = new GeofencingClient(context);
-        long minutes = Long.parseLong(pref.getString("interval", "5"));
-        LocationRequest lr = new LocationRequest();
-        lr.setInterval(1000 * 60 * minutes);
-        lr.setFastestInterval(1000 * 60 * minutes + 1000);
+        String minutesString = pref.getString("interval", "5");
+        long minutes;
+        if(minutesString != null) {
+            minutes = Long.parseLong(minutesString);
+
+            LocationRequest lr = new LocationRequest();
+            lr.setInterval(1000 * 60 * minutes);
+            lr.setFastestInterval(1000 * 60 * minutes + 1000);
+        }
         // First remove all geofences, to get a fresh start
         clearGeofenceClient();
 

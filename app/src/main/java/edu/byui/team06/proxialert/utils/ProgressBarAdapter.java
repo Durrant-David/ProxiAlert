@@ -1,15 +1,7 @@
 package edu.byui.team06.proxialert.utils;
 
-import android.media.MediaRecorder;
 import android.os.AsyncTask;
-import android.os.CountDownTimer;
-import android.util.Log;
-import android.view.View;
 import android.widget.ProgressBar;
-
-import java.io.IOException;
-
-import edu.byui.team06.proxialert.R;
 
 public class ProgressBarAdapter extends AsyncTask<String, Integer, String> {
     int count;

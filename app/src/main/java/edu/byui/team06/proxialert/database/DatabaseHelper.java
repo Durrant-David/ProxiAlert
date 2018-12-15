@@ -95,28 +95,29 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 ProxiDB.COLUMN_ID + "=?",
                 new String[]{String.valueOf(id)}, null, null, null, null);
 
-        if (cursor != null)
+        ProxiDB proxiDB = null;
+        if (cursor != null) {
             cursor.moveToFirst();
 
-        Log.v("test", "-" + cursor.getInt(cursor.getColumnIndex(ProxiDB.COLUMN_ID)));
-        ProxiDB proxiDB = new ProxiDB(
-                cursor.getInt(cursor.getColumnIndex(ProxiDB.COLUMN_ID)),
-                cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_TASK)),
-                cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_ADDRESS)),
-                cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_DUEDATE)),
-                cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_RADIUS)),
-                cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_UNITS)),
-                cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_TS)),
-                cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_LAT)),
-                cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_LONG)),
-                cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_DESCRIPTION)),
-                cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_COMPLETE)),
-                cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_AUDIO)),
-                cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_CONTACT)));
+            Log.v("test", "-" + cursor.getInt(cursor.getColumnIndex(ProxiDB.COLUMN_ID)));
+            proxiDB = new ProxiDB(
+                    cursor.getInt(cursor.getColumnIndex(ProxiDB.COLUMN_ID)),
+                    cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_TASK)),
+                    cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_ADDRESS)),
+                    cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_DUEDATE)),
+                    cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_RADIUS)),
+                    cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_UNITS)),
+                    cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_TS)),
+                    cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_LAT)),
+                    cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_LONG)),
+                    cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_DESCRIPTION)),
+                    cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_COMPLETE)),
+                    cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_AUDIO)),
+                    cursor.getString(cursor.getColumnIndex(ProxiDB.COLUMN_CONTACT)));
 
-        // close the db connection
-        cursor.close();
-
+            // close the db connection
+            cursor.close();
+        }
         return proxiDB;
     }
 

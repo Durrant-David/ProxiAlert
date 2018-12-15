@@ -1,7 +1,5 @@
 package edu.byui.team06.proxialert.view;
 
-import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Build;
@@ -13,30 +11,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 import edu.byui.team06.proxialert.R;
 import edu.byui.team06.proxialert.database.model.ProxiDB;
-import edu.byui.team06.proxialert.view.maps.MapsActivity;
-/**@author
+
+/**@author David Durrant, Chase Busacker
  * @version  1.0
- * @since
+ * @since 1.0
  * <p>TaskAdapter holds the list of tasks that is located
  * in MainActivity</p>
  * <p>the embedded class MyViewHolder
  *  formats the view of each task in the list.
  *  </p>
- * @param
- * @return
  */
 
 public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder>{
@@ -78,9 +66,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder>{
     }
 
 
-    /**@author
-     * @version  1.0
-     * @since
+   /**
      * onBindViewHolder
      * This where each list item is created. Not sure where it is called
      * @param holder - The task item itself.

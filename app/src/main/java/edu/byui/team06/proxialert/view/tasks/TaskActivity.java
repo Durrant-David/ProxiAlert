@@ -30,15 +30,12 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -51,10 +48,8 @@ import edu.byui.team06.proxialert.utils.Permissions;
 import edu.byui.team06.proxialert.utils.ProgressBarAdapter;
 import edu.byui.team06.proxialert.view.maps.MapsActivity;
 
-import static android.media.AudioFormat.CHANNEL_CONFIGURATION_MONO;
-
-/**@author
- * @verion
+/**@author Chase Busacker
+ * @verion 1.0
  * TaskActivityClass handles
  * the task creation and update
  */
@@ -129,8 +124,8 @@ public class TaskActivity extends AppCompatActivity {
              * isEnabled
              * disables the first item of the units drop down.
              *
-             * @param position
-             * @return
+             * @param position - the position of the item in the dropdown list.
+             * @return - whether or not the item is enabled in the list (this will disable the first item)
              */
             @Override
             public boolean isEnabled(int position) {
@@ -141,10 +136,10 @@ public class TaskActivity extends AppCompatActivity {
              * getDropDownView creates the drop down and
              * sets the color of each item in the list based
              * on the Theme.
-             * @param position
-             * @param convertView
-             * @param parent
-             * @return
+             * @param position - the position of the item in the list
+             * @param convertView - not important here. Required for @Override
+             * @param parent - any parents of each item - not any here.
+             * @return - returns the view of each button in the drop down list.
              */
             @Override
             public View getDropDownView(int position, View convertView,
@@ -175,7 +170,8 @@ public class TaskActivity extends AppCompatActivity {
              * onClick opens up a Calendar picker
              * for due date selection
              *
-             * @param v
+             * @param v - represents the view of the item that was clicked on (required to Override)
+             *
              */
             @Override
             public void onClick(View v) {

@@ -1,7 +1,5 @@
 package edu.byui.team06.proxialert;
 
-import android.app.Notification;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -11,7 +9,6 @@ import static org.mockito.Mockito.mock;
 
 
 import edu.byui.team06.proxialert.database.DatabaseHelper;
-import edu.byui.team06.proxialert.view.tasks.MainActivity;
 
 /**
  * Example local unit test, which will execute on the development machine (host).

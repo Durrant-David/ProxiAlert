@@ -104,7 +104,7 @@ public class MapViewActivity extends FragmentActivity
      * onMapReady asks user for permission
      * to access for Google maps.
      * It marks user's current location
-     * @param googleMap
+     * @param googleMap - the googleMap that is being created.
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -154,7 +154,7 @@ public class MapViewActivity extends FragmentActivity
      * the user clicked. Sets the text
      * of the location search bar
      * to the nearest address.
-     * @param task
+     * @param task - the task that the search marker will be set for.
      */
 
     private void setSearchMarker(ProxiDB task) {

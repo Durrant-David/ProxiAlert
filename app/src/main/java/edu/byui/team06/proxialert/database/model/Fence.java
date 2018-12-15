@@ -31,25 +31,22 @@ public class Fence {
     private float convertToMeters(float value, String unit) {
 
         float returnVal;
-        if(unit.equals("Miles"))
-        {
-            returnVal = value * 5280;
-        }
-        else if(unit.equals("Meters"))
-        {
-            returnVal = value;
-        }
-        else if(unit.equals("Feet"))
-        {
-            returnVal = value * 0.3048f;
-        }
-        else if(unit.equals("Km"))
-        {
-            returnVal = value * 1000;
-        }
-        else
-        {
-            return 100;
+
+        switch (unit) {
+            case "Miles":
+                returnVal = value * 5280;
+                break;
+            case "Meters":
+                returnVal = value;
+                break;
+            case "Feet":
+                returnVal = value * 0.3048f;
+                break;
+            case "Km":
+                returnVal = value * 1000;
+                break;
+            default:
+                return 100;
         }
 
         if(returnVal < 100) {

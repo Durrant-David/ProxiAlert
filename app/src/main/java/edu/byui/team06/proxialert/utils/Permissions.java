@@ -2,7 +2,6 @@ package edu.byui.team06.proxialert.utils;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
@@ -11,13 +10,12 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.Toast;
 
-/**@author
+/**
+ * @author David Durrant, Chase Busacker
  * @version  1.0
  * @since
  * This class gets the maps permissions in the beginning
  * of the program
- * @param
- * @return
  */
 public class Permissions implements  ActivityCompat.OnRequestPermissionsResultCallback {
 

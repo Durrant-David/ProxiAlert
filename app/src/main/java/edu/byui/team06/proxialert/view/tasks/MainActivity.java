@@ -110,12 +110,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         SharedPreferences pref = PreferenceManager
                 .getDefaultSharedPreferences(this);
-        boolean themeName = pref.getBoolean("themes", false);
-        if (themeName) {
-            theme = themeName;
+        theme = pref.getBoolean("themes", false);
+        if (theme) {
             setTheme(R.style.ThemeOverlay_MaterialComponents_Dark);
         } else {
-            theme = themeName;
             setTheme(R.style.AppTheme);
         }
         super.onCreate(savedInstanceState);
@@ -274,7 +272,7 @@ public class MainActivity extends AppCompatActivity {
     * StartSettings
     * This method starts the settings activity for the user to start changing settings.
     * It is called when the "Settings" menu list item is selected.
-    * @param
+    * @param item - the item that is selected in the menu list.
     */
     public void startSettings(MenuItem item) {
         Intent intent = new Intent(this, SettingsActivity.class);
