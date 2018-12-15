@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
@@ -143,7 +144,7 @@ public class TaskActivity extends AppCompatActivity {
              */
             @Override
             public View getDropDownView(int position, View convertView,
-                                        ViewGroup parent) {
+                                        @NonNull ViewGroup parent) {
                 View view = super.getDropDownView(position, convertView, parent);
                 TextView tv = (TextView) view;
                 if (position == 0) {
@@ -462,7 +463,9 @@ public class TaskActivity extends AppCompatActivity {
             }
             else if(requestCode == CONTACT_ACTIVITY_CODE) {
                 Uri contactData = data.getData();
+                assert contactData != null;
                 Cursor c = getContentResolver().query(contactData, null, null, null, null);
+                assert c != null;
                 if(c.moveToFirst()) {
                     name = c.getString(c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
                     String contactId = c.getString(c.getColumnIndex(ContactsContract.Contacts._ID));
@@ -470,12 +473,14 @@ public class TaskActivity extends AppCompatActivity {
                     Cursor phones = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
                             ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactId, null, null);
 
+                    assert phones != null;
                     if(phones.moveToFirst()) {
                         String number = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                        inputContact.setText(name + " - " + number);
+                        inputContact.setText(String.format("%s - %s", name, number));
                     }
                     Uri postal_uri = ContactsContract.CommonDataKinds.StructuredPostal.CONTENT_URI;
                     Cursor postal_cursor = getContentResolver().query(postal_uri, null, ContactsContract.Data.CONTACT_ID + "=" + contactId, null, null);
+                    assert postal_cursor != null;
                     if(postal_cursor.moveToFirst()) {
                         String street = postal_cursor.getString(postal_cursor.getColumnIndex(ContactsContract.CommonDataKinds.StructuredPostal.STREET));
                         if(validateAddress(street)) {
@@ -495,9 +500,9 @@ public class TaskActivity extends AppCompatActivity {
 
     private boolean validateAddress(String location) {
 
-        List<Address> addressList = null;
+        List<Address> addressList;
 
-        if (location != null || !location.equals("")) {
+        if (location != null && !location.equals("")) {
             Geocoder geocoder = new Geocoder(this);
             try {
                 addressList = geocoder.getFromLocationName(location, 1);

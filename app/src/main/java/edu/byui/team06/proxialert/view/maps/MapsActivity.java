@@ -1,6 +1,7 @@
 package edu.byui.team06.proxialert.view.maps;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -21,8 +22,10 @@ import android.widget.Toast;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -52,16 +55,17 @@ public class MapsActivity extends FragmentActivity
     private LatLng latlng;
     private String location;
     private String taskName;
+    GoogleMap googleMap;
+
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.i(TAG, "onCreate");
         Permissions permissions = new Permissions(getApplicationContext());
-        if ( permissions.checkMapsPermission(this) ) {
-
-        } else {
+        if ( !permissions.checkMapsPermission(this) ) {
             permissions.askMapsPermission(this);
+
         }
         SharedPreferences pref = PreferenceManager
                 .getDefaultSharedPreferences(this);
@@ -82,7 +86,7 @@ public class MapsActivity extends FragmentActivity
         locationSearch = (EditText) findViewById(R.id.editText);
         Intent intent = getIntent();
         taskName = intent.getStringExtra("TaskName");
-    }
+     }
 
     /**
      * onMapReady asks user for permission
@@ -155,6 +159,23 @@ public class MapsActivity extends FragmentActivity
 
         }
     }
+    private void handleNewLocation(Location location){
+        Log.d(TAG, location.toString());
+        double currentLatitude = location.getLatitude();
+        double currentLongitude = location.getLongitude();
+
+        LatLng latLng = new LatLng(currentLatitude, currentLongitude);
+
+        MarkerOptions options = new MarkerOptions()
+                .position(latLng)
+                .title("Hello!");
+        mMap.addMarker(options);
+
+        float zoomLevel = (float) 16.0;
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latlng, zoomLevel));
+    }
+
+
 
     /**
      * onMapSearch
@@ -183,7 +204,7 @@ public class MapsActivity extends FragmentActivity
     }
 
     private boolean validateAddress() {
-        List<Address> addressList = null;
+        List<Address> addressList;
 
         EditText locationSearch = findViewById(R.id.editText);
         location = locationSearch.getText().toString();
@@ -241,7 +262,7 @@ public class MapsActivity extends FragmentActivity
 
     private String getMarkerAddress(LatLng latLng) {
         Geocoder geocoder;
-        List<Address> addresses = null;
+        List<Address> addresses;
         geocoder = new Geocoder(this, Locale.getDefault());
 
         try {
