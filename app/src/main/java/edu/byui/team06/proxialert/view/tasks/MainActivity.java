@@ -45,6 +45,7 @@ import edu.byui.team06.proxialert.utils.MyDividerItemDecoration;
 import edu.byui.team06.proxialert.utils.RecyclerTouchListener;
 import edu.byui.team06.proxialert.utils.ScheduledNotificationPublisher;
 import edu.byui.team06.proxialert.view.TaskAdapter;
+import edu.byui.team06.proxialert.view.maps.MapViewActivity;
 import edu.byui.team06.proxialert.view.settings.SettingsActivity;
 
 //database imports
@@ -279,7 +280,7 @@ public class MainActivity extends AppCompatActivity {
     */
     public void startSettings(MenuItem item) {
         Intent intent = new Intent(this, SettingsActivity.class);
-        startActivity(intent);
+        startActivityForResult(intent, SETTINGS_ACTION);
     }
 
     /**
@@ -378,10 +379,10 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         // TASK_ACTIVITY_CODE represents results with the Task Activity.
-        if (requestCode == TASK_ACTIVITY_CODE) {
+        if (resultCode == RESULT_OK) {
 
             //If the result was set to Ok, then we will update the Views.
-            if (resultCode == RESULT_OK) {
+            if (requestCode == TASK_ACTIVITY_CODE) {
 
                 //get whether or not is(an)Update and the id of the task concerned.
                 //then select the correct element.
@@ -466,7 +467,7 @@ public class MainActivity extends AppCompatActivity {
             return;
 
         //create the pending intent
-        Intent notificationIntent = new Intent(MainActivity.this, ScheduledNotificationPublisher.class);
+        Intent notificationIntent = new Intent(getApplicationContext(), ScheduledNotificationPublisher.class);
         notificationIntent.putExtra("TaskID", task.getId());
         PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), task.getId(), notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
@@ -496,11 +497,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void removeScheduledNotification(ProxiDB task) {
-        Intent notificationIntent = new Intent(MainActivity.this, ScheduledNotificationPublisher.class);
+        Intent notificationIntent = new Intent(getApplicationContext(), ScheduledNotificationPublisher.class);
         notificationIntent.putExtra("TaskID", task.getId());
         PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), task.getId(), notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         alarmManager.cancel(pendingIntent);
 
+    }
+
+    public void startMapView(MenuItem item){
+        Intent intent = new Intent(this, MapViewActivity.class);
+        startActivity(intent);
     }
 }

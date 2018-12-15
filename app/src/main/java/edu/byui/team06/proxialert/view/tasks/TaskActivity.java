@@ -18,6 +18,7 @@ import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -211,11 +212,12 @@ public class TaskActivity extends AppCompatActivity {
             }
         });
 
+        inputAddress.setText(intent.getStringExtra("ADDRESS"));
+
         if (isUpdate) {
             TextView title = findViewById(R.id.dialog_title);
             title.setText("Update Task");
             inputTask.setText(intent.getStringExtra("TASK"));
-            inputAddress.setText(intent.getStringExtra("ADDRESS"));
             inputDueDate.setText(intent.getStringExtra("DUE"));
             latitudeString = intent.getStringExtra("LAT");
             longitudeString = intent.getStringExtra("LONG");
@@ -257,6 +259,15 @@ public class TaskActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                setResult(RESULT_CANCELED);
+                finish();
+        }
+        return true;
+    }
     public void onStartRecording(View view) {
         if (isRecorderStarted) {
             pba.cancel(true);
@@ -368,6 +379,12 @@ public class TaskActivity extends AppCompatActivity {
 
         if(description.length() == 0) {
             Toast.makeText(TaskActivity.this, "Please enter a description.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if(!validateAddress(inputAddress.getText().toString()))
+        {
+            Toast.makeText(TaskActivity.this, "Invalid address text. Please Try Again.", Toast.LENGTH_SHORT).show();
             return;
         }
 

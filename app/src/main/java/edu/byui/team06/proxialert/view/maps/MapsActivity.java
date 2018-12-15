@@ -229,7 +229,7 @@ public class MapsActivity extends FragmentActivity
     /**
      * onMapCancel
      * It sets the result to cancelled and closes
-     * the activity. 
+     * the activity.
      * @param view
      */
     public void onMapCancel(View view) {
@@ -237,7 +237,7 @@ public class MapsActivity extends FragmentActivity
         finish();
     }
 
-    private String getMarkerAddress(LatLng latLng) {
+    public String getMarkerAddress(LatLng latLng) {
         Geocoder geocoder;
         List<Address> addresses = null;
         geocoder = new Geocoder(this, Locale.getDefault());
@@ -253,4 +253,6 @@ public class MapsActivity extends FragmentActivity
         Log.d(TAG, "Marker address = ("+address +")");
         return address;
     }
+
+
 }
