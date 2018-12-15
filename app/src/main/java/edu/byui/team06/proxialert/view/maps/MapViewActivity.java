@@ -100,6 +100,9 @@ public class MapViewActivity extends FragmentActivity
         }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_maps);
+
+        db = new DatabaseHelper(this);
+        TaskList.addAll(db.getAllTasks());
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
