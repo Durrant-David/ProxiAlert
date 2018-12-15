@@ -430,13 +430,17 @@ public class TaskActivity extends AppCompatActivity {
     // Geofence
     // button to open MapsActivity
     public void startMapActivity(View view) {
-        if(isRecorderStarted) {
-            mRecorder.stop();
-            mRecorder.release();
+        if (new Permissions().checkMapsPermission(this)) {
+            if (isRecorderStarted) {
+                mRecorder.stop();
+                mRecorder.release();
+            }
+            Intent mapIntent = new Intent(TaskActivity.this, MapsActivity.class);
+            mapIntent.putExtra("TaskName", inputTask.getText().toString());
+            startActivityForResult(mapIntent, MAP_ACTIVITY_CODE);
+        } else {
+            new Permissions().askMapsPermission(this);
         }
-        Intent mapIntent = new Intent(TaskActivity.this, MapsActivity.class);
-        mapIntent.putExtra("TaskName", inputTask.getText().toString());
-        startActivityForResult(mapIntent, MAP_ACTIVITY_CODE);
     }
 
     public void selectContact(View view) {
