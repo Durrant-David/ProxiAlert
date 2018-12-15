@@ -252,10 +252,6 @@ public class TaskActivity extends AppCompatActivity {
             radiusUnits.setSelection(count);
 
         }
-        Permissions mic = new Permissions();
-        if(!mic.checkMicPermission(this)) {
-            mic.askMicPermission(this);
-        }
     }
 
 
@@ -276,7 +272,7 @@ public class TaskActivity extends AppCompatActivity {
             isRecorderStarted = false;
             recordButton.setText("Start Recording");
         } else {
-            if (new Permissions().checkMicPermission(this)) {
+            if (new Permissions(getApplicationContext()).checkMicPermission(this)) {
                 File f = getFilesDir();
                 Integer nextId = db.getLastInsertId() + 1;
                 String nextIdString = nextId.toString();
@@ -320,7 +316,7 @@ public class TaskActivity extends AppCompatActivity {
 
 
             } else {
-                new Permissions().askMicPermission(this);
+                new Permissions(getApplicationContext()).askMicPermission(this);
 
             }
         }
@@ -440,12 +436,12 @@ public class TaskActivity extends AppCompatActivity {
     }
 
     public void selectContact(View view) {
-        if(new Permissions().checkContactPermission(getApplicationContext())) {
+        if(new Permissions(getApplicationContext()).checkContactPermission(getApplicationContext())) {
             Intent contactIntent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
             startActivityForResult(contactIntent, CONTACT_ACTIVITY_CODE);
         }
         else {
-            new Permissions().askContactPermission(this);
+            new Permissions(getApplicationContext()).askContactPermission(this);
         }
     }
     /*******************************************************

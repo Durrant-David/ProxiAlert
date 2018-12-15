@@ -1,7 +1,6 @@
 package edu.byui.team06.proxialert.view.tasks;
 //TODO Separate Geofencing into a class
-//TODO Connect V-tiger (if time permits)
-//TODO Mapview of Tasks
+//TODO Connect V-tiger (if time permits) - future version.
 //TODO Write up the Post-Mortem.
 //TODO Make a video of the application.
 
@@ -59,6 +58,7 @@ import edu.byui.team06.proxialert.database.model.ProxiDB;
 import edu.byui.team06.proxialert.utils.GeofenceTransitionsIntentService;
 import edu.byui.team06.proxialert.utils.MyDividerItemDecoration;
 import edu.byui.team06.proxialert.utils.MyNotification;
+import edu.byui.team06.proxialert.utils.PendingIntentHelper;
 import edu.byui.team06.proxialert.utils.Permissions;
 import edu.byui.team06.proxialert.utils.RecyclerTouchListener;
 import edu.byui.team06.proxialert.utils.ScheduledNotificationPublisher;
@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
     public static final int DWELL = 1;
     private FloatingActionButton fab;
     private static final String TAG = MainActivity.class.getSimpleName();
-
+    private PendingIntentHelper pih;
     private DatabaseHelper db;
     GeofencingClient mGeofencingClient;
     /**
@@ -145,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
         }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        pih = new PendingIntentHelper(getApplicationContext(), MainActivity.this);
         initDatabase();
         initAllViews();
         attachResponseToViews();
@@ -294,7 +294,7 @@ public class MainActivity extends AppCompatActivity {
         lr.setInterval(1000 * 60 * minutes);
         lr.setFastestInterval(1000 * 60 * minutes + 1000);
         // First remove all geofences, to get a fresh start
-        clearGeofenceClient();
+        pih.clearGeofenceClient();
 
         Geofence geofence;
         mGeofenceList = new ArrayList<>();
@@ -306,13 +306,13 @@ public class MainActivity extends AppCompatActivity {
                     fence = new Fence(taskList.get(i));
                     fence.setDuration(DURATION);
                     fence.setDwell(DWELL);
-                    geofence = buildGeofence(fence);
+                    geofence = pih.buildGeofence(fence);
                     mGeofenceList.add(geofence);
                 }
             }
             // add geofences to geofence client list
             if (!mGeofenceList.isEmpty()) {
-                addGeofences();
+                pih.addGeofences();
             }
         }
     }
@@ -327,7 +327,7 @@ public class MainActivity extends AppCompatActivity {
     private void resetGeofences() {
 
         // Remove all geofences, to get a fresh start
-        clearGeofenceClient();
+        pih.clearGeofenceClient();
         mGeofenceList.clear();
 
         Geofence geofence;
@@ -339,13 +339,13 @@ public class MainActivity extends AppCompatActivity {
                     fence = new Fence(task);
                     fence.setDuration(DURATION);
                     fence.setDwell(DWELL);
-                    geofence = buildGeofence(fence);
+                    geofence = pih.buildGeofence(fence);
                     mGeofenceList.add(geofence);
                 }
             }
             // add geofences to geofence client list
             if(!mGeofenceList.isEmpty()) {
-                addGeofences();
+                pih.addGeofences();
             }
         }
     }
@@ -354,21 +354,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * clearGeoFence Client removes all the geofences to give us a fresh start.
      */
-    private void clearGeofenceClient() {
-        mGeofencingClient.removeGeofences(getGeofencePendingIntent())
-                .addOnSuccessListener(this, new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.i(TAG, "successfully removed all Geofences");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "failed to remove all Geofences - " + e);
-                    }
-                });
-    }
+
     /**
      * <p>
      * onCreateOptionsMenu
@@ -407,7 +393,7 @@ public class MainActivity extends AppCompatActivity {
 
         // deleting the note from db
         db.deleteTask(taskList.get(position));
-        removeScheduledNotification(taskList.get(position));
+        pih.removeScheduledNotification(taskList.get(position));
         taskList.remove(position);
         mAdapter.notifyItemRemoved(position);
         toggleEmptyTasks();
@@ -433,7 +419,7 @@ public class MainActivity extends AppCompatActivity {
         CharSequence colors[];
         if(isComplete)
         {
-            colors = new CharSequence[]{"Navigate to...", "Delete", "Unmark As Complete"};
+            colors = new CharSequence[]{"Navigate to...", "Delete", "Mark As Incomplete"};
         }
         else
         {
@@ -459,11 +445,11 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     if(element.getComplete().equals("true")) {
                         element.setComplete("false");
-                        clearGeofenceClient();
-                        scheduleNotification(element);
+                        pih.clearGeofenceClient();
+                        pih.scheduleNotification(element);
                     } else {
                         element.setComplete("true");
-                        removeScheduledNotification(element);
+                        pih.removeScheduledNotification(element);
                     }
 
                     db.updateTask(element);
@@ -506,12 +492,12 @@ public class MainActivity extends AppCompatActivity {
                 if (isUpdate) {
                     taskList.set(data.getIntExtra("POSITION", 0), element);
                     mAdapter.notifyItemChanged(data.getIntExtra("POSITION", 0));
-                    removeScheduledNotification(element);
-                    scheduleNotification(element);
+                    pih.removeScheduledNotification(element);
+                    pih.scheduleNotification(element);
                 } else {
                     taskList.add(taskList.size(), element);
                     mAdapter.notifyDataSetChanged();
-                    scheduleNotification(element);
+                    pih.scheduleNotification(element);
                 }
 
                 taskList.clear();
@@ -530,7 +516,7 @@ public class MainActivity extends AppCompatActivity {
                 {
                     //rescheduling all the tasks overwrites ALL
                     //the previously scheduled notifications.
-                    scheduleNotification(task);
+                    pih.scheduleNotification(task);
                 }
             }
         }
@@ -559,12 +545,6 @@ public class MainActivity extends AppCompatActivity {
      * @return GeofenceingRequest
      * </p>
      */
-    private GeofencingRequest getGeofencingRequest() {
-        return new GeofencingRequest.Builder()
-                .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER | GeofencingRequest.INITIAL_TRIGGER_DWELL)
-                .addGeofences(mGeofenceList)
-                .build();
-    }
 
     /**<p>
      * getGeofencePendingIntent creates a pending intent for the Notification to receive when
@@ -572,65 +552,6 @@ public class MainActivity extends AppCompatActivity {
      * @return PendingIntent
      * </p>
      */
-    private PendingIntent getGeofencePendingIntent() {
-        // Reuse the PendingIntent if we already have it.
-        if (mGeofencePendingIntent != null) {
-            return mGeofencePendingIntent;
-        }
-        Intent intent = new Intent(this, GeofenceTransitionsIntentService.class);
-        // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when
-        // calling addGeofences() and removeGeofences().
-        mGeofencePendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.
-                FLAG_UPDATE_CURRENT);
-        return mGeofencePendingIntent;
-    }
-
-    /**
-     * <p>
-     * buildGeofence builds perimeter around a given location given a Fence Object.
-     * </p>
-     * @param f -holds the data used to build the geofence
-     * @return Geofence
-     */
-    private Geofence buildGeofence(Fence f) {
-        return new Geofence.Builder()
-                .setRequestId(f.getStringId())
-                .setCircularRegion(f.getLat(), f.getLng(), f.getRadius())
-                .setExpirationDuration(f.getDuration())
-                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
-                        Geofence.GEOFENCE_TRANSITION_DWELL)
-                .setLoiteringDelay(f.getDwell())
-                .build();
-    }
-
-    /**
-     * <p>
-     * addGeofences Checks if the app has permission to use the users current location,
-     * then, removes and re-adds all the Geofences to the GeofencingClient.
-     * </p>
-     */
-    private void addGeofences() {
-        // Location permissions
-        Permissions permissions = new Permissions();
-        if ( permissions.checkMapsPermission(this)){
-            mGeofencingClient = new GeofencingClient(this);
-            mGeofencingClient.addGeofences(getGeofencingRequest(), getGeofencePendingIntent())
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Log.i (TAG, "successfully added Geofences");
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.w(TAG, "failed to add Geofences - " + e);
-                        }
-                    });
-        } else {
-            permissions.askMapsPermission(this);
-        }
-    }
 
     /**<p>
      * startDirectionsActivity takes a task position in the taskList and gives
@@ -649,50 +570,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
-    public void scheduleNotification(ProxiDB task) {
-
-        if(Boolean.parseBoolean(task.getComplete()))
-            return;
-
-        //create the pending intent
-        Intent notificationIntent = new Intent(getApplicationContext(), ScheduledNotificationPublisher.class);
-        notificationIntent.putExtra("TaskID", task.getId());
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), task.getId(), notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-
-        //set the time for the notification
-        SharedPreferences pref = PreferenceManager
-                .getDefaultSharedPreferences(this);
-        String time = pref.getString("notifyTime", "10:00 AM");
-        String myDateFormat = "MM/dd/yyyy HH:mm a";
-        SimpleDateFormat sdfDate = new SimpleDateFormat(myDateFormat);
-        Date date;
-        try {
-            date = sdfDate.parse(task.getDueDate() + time);
-        } catch (ParseException e) {
-            try {
-                date = sdfDate.parse(task.getDueDate() + " 10:00 AM");
-            } catch (ParseException e1) {
-                e1.printStackTrace();
-                return;
-            }
-        }
-
-        //setup the time to send.
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, cal.getTimeInMillis(), pendingIntent);
-    }
-
-    public void removeScheduledNotification(ProxiDB task) {
-        Intent notificationIntent = new Intent(getApplicationContext(), ScheduledNotificationPublisher.class);
-        notificationIntent.putExtra("TaskID", task.getId());
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), task.getId(), notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        alarmManager.cancel(pendingIntent);
-
-    }
 
     public void startMapView(MenuItem item){
         Intent intent = new Intent(this, MapViewActivity.class);

@@ -54,11 +54,11 @@ public class MapsActivity extends FragmentActivity
     private Permissions permissions;
     private String taskName;
 
-    // TODO zoom in on current location onStart
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.i(TAG, "onCreate");
-        permissions = new Permissions();
+        permissions = new Permissions(getApplicationContext());
         if ( permissions.checkMapsPermission(this) ) {
 
         } else {
@@ -92,6 +92,7 @@ public class MapsActivity extends FragmentActivity
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        mMap.setOnMapClickListener(this);
 
         if (ActivityCompat.checkSelfPermission
                 (this, Manifest.permission.ACCESS_FINE_LOCATION) !=
@@ -102,14 +103,14 @@ public class MapsActivity extends FragmentActivity
             return;
         }
         mMap.setMyLocationEnabled(true);
-        mMap.setOnMapClickListener(this);
 
         LocationManager lm = (LocationManager)getSystemService(LOCATION_SERVICE);
         Location location = lm.getLastKnownLocation(lm.getBestProvider(new Criteria(), true));
-        LatLng myLoc = new LatLng(location.getLatitude(), location.getLongitude());
-        CameraUpdate camera = CameraUpdateFactory.newLatLngZoom(myLoc, 10);
-        mMap.animateCamera(camera);
-
+        if(location != null) {
+            LatLng myLoc = new LatLng(location.getLatitude(), location.getLongitude());
+            CameraUpdate camera = CameraUpdateFactory.newLatLngZoom(myLoc, 10);
+            mMap.animateCamera(camera);
+        }
     }
 
     /**
@@ -246,12 +247,15 @@ public class MapsActivity extends FragmentActivity
             addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
         } catch (IOException e) {
             e.printStackTrace();
+            return "";
         }
 
-        String address = addresses.get(0).getAddressLine(0);
-
-        Log.d(TAG, "Marker address = ("+address +")");
-        return address;
+        if (!addresses.isEmpty()) {
+            String address = addresses.get(0).getAddressLine(0);
+            Log.d(TAG, "Marker address = (" + address + ")");
+            return address;
+        }
+        return "";
     }
 
 
