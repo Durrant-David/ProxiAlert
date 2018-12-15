@@ -45,6 +45,7 @@ package edu.byui.team06.proxialert.view.maps;
         import java.util.Date;
         import java.util.List;
         import java.util.Locale;
+        import java.util.Map;
 
         import edu.byui.team06.proxialert.R;
         import edu.byui.team06.proxialert.database.model.Fence;
@@ -74,7 +75,6 @@ public class MapViewActivity extends FragmentActivity
     private GoogleMap mMap;
     private ArrayList<Marker> searchMarkers = new ArrayList<>();
     private Permissions permissions;
-    private String taskName;
     private DatabaseHelper db;
     private ArrayList <ProxiDB> TaskList = new ArrayList<>();
     private static final int TASK_ACTIVITY_CODE = 1;
@@ -107,7 +107,8 @@ public class MapViewActivity extends FragmentActivity
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
+        geofences = new Geofences(MapViewActivity.this, getApplicationContext());
+        geofences.initGeofencing(TaskList.size(), TaskList);
        }
 
     /**
@@ -271,6 +272,7 @@ public class MapViewActivity extends FragmentActivity
                 //somehow call remove Geofences class when it is built!
                geofences.resetGeofences(TaskList.size(), TaskList);
 
+
             }
         }
     }
@@ -312,7 +314,6 @@ public class MapViewActivity extends FragmentActivity
                 } else {
                     if(element.getComplete().equals("true")) {
                         element.setComplete("false");
-                        geofences.clearGeofenceClient();
                         scheduleNotification(element);
                     } else {
                         element.setComplete("true");
@@ -350,7 +351,12 @@ public class MapViewActivity extends FragmentActivity
         db.deleteTask(TaskList.get(position));
         removeScheduledNotification(TaskList.get(position));
         TaskList.remove(position);
+        searchMarkers.clear();
         geofences.resetGeofences(TaskList.size(), TaskList);
+        mMap.clear();
+        for(ProxiDB task : TaskList) {
+            setSearchMarker(task);
+        }
 
     }
 
