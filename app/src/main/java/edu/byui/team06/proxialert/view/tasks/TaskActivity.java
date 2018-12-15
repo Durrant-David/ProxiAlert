@@ -426,7 +426,7 @@ public class TaskActivity extends AppCompatActivity {
     // Geofence
     // button to open MapsActivity
     public void startMapActivity(View view) {
-        if (new Permissions().checkMapsPermission(this)) {
+        if (new Permissions(getApplicationContext()).checkMapsPermission(this)) {
             if (isRecorderStarted) {
                 mRecorder.stop();
                 mRecorder.release();
@@ -435,7 +435,7 @@ public class TaskActivity extends AppCompatActivity {
             mapIntent.putExtra("TaskName", inputTask.getText().toString());
             startActivityForResult(mapIntent, MAP_ACTIVITY_CODE);
         } else {
-            new Permissions().askMapsPermission(this);
+            new Permissions(getApplicationContext()).askMapsPermission(this);
         }
     }
 

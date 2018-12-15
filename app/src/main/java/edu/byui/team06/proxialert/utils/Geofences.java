@@ -138,7 +138,7 @@ public class Geofences {
      */
     private void addGeofences() {
         // Location permissions
-        Permissions permissions = new Permissions();
+        Permissions permissions = new Permissions(context);
         if (permissions.checkMapsPermission(context)) {
             mGeofencingClient = new GeofencingClient(context);
             mGeofencingClient.addGeofences(getGeofencingRequest(), getGeofencePendingIntent())

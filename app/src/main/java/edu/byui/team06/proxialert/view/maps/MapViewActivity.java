@@ -49,6 +49,7 @@ package edu.byui.team06.proxialert.view.maps;
         import edu.byui.team06.proxialert.R;
         import edu.byui.team06.proxialert.database.model.Fence;
         import edu.byui.team06.proxialert.database.model.ProxiDB;
+        import edu.byui.team06.proxialert.utils.Geofences;
         import edu.byui.team06.proxialert.utils.PendingIntentHelper;
         import edu.byui.team06.proxialert.utils.Permissions;
         import edu.byui.team06.proxialert.database.DatabaseHelper;
@@ -77,7 +78,7 @@ public class MapViewActivity extends FragmentActivity
     private DatabaseHelper db;
     private ArrayList <ProxiDB> TaskList = new ArrayList<>();
     private static final int TASK_ACTIVITY_CODE = 1;
-    private PendingIntentHelper pih;
+    private Geofences geofences;
 
     // TODO zoom in on current location onStart
     @Override
@@ -103,7 +104,6 @@ public class MapViewActivity extends FragmentActivity
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        pih = new PendingIntentHelper(getApplicationContext(), MapViewActivity.this);
 
        }
 
@@ -257,16 +257,16 @@ public class MapViewActivity extends FragmentActivity
                 //If it's NOT an update, add it to the end.
                 if (isUpdate) {
                     TaskList.set(data.getIntExtra("POSITION", 0), element);
-                    pih.removeScheduledNotification(element);
-                    pih.scheduleNotification(element);
+                    removeScheduledNotification(element);
+                    scheduleNotification(element);
                 } else {
                     TaskList.add(TaskList.size(), element);
                     setSearchMarker(element);
-                    pih.scheduleNotification(element);
+                    scheduleNotification(element);
                 }
                 //TODO reset Geofences here.
                 //somehow call remove Geofences class when it is built!
-               // resetGeofences();
+               geofences.resetGeofences(TaskList.size(), TaskList);
 
             }
         }
@@ -305,19 +305,19 @@ public class MapViewActivity extends FragmentActivity
                 } else if (which == 1) {
                     startDirectionsActivity(position);
                 } else if (which == 2){
-                    //TODO deleteTask(position);
+                    deleteTask(position);
                 } else {
                     if(element.getComplete().equals("true")) {
                         element.setComplete("false");
-                        pih.clearGeofenceClient();
-                        pih.scheduleNotification(element);
+                        geofences.clearGeofenceClient();
+                        scheduleNotification(element);
                     } else {
                         element.setComplete("true");
-                        pih.removeScheduledNotification(element);
+                        removeScheduledNotification(element);
                     }
 
                     db.updateTask(element);
-                    //TODO pih.resetGeofences();
+                   geofences.resetGeofences(TaskList.size(), TaskList);
                 }
 
             }
@@ -339,6 +339,59 @@ public class MapViewActivity extends FragmentActivity
         navigationIntent.setPackage("com.google.android.apps.maps");
         startActivity(navigationIntent);
 
+    }
+
+    private void deleteTask(int position) {
+
+        // deleting the note from db
+        db.deleteTask(TaskList.get(position));
+        removeScheduledNotification(TaskList.get(position));
+        TaskList.remove(position);
+        geofences.resetGeofences(TaskList.size(), TaskList);
+
+    }
+
+    public void scheduleNotification(ProxiDB task) {
+
+        if(Boolean.parseBoolean(task.getComplete()))
+            return;
+
+        //create the pending intent
+        Intent notificationIntent = new Intent(getApplicationContext(), ScheduledNotificationPublisher.class);
+        notificationIntent.putExtra("TaskID", task.getId());
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), task.getId(), notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+
+        //set the time for the notification
+        SharedPreferences pref = PreferenceManager
+                .getDefaultSharedPreferences(this);
+        String time = pref.getString("notifyTime", "10:00 AM");
+        String myDateFormat = "MM/dd/yyyy HH:mm a";
+        SimpleDateFormat sdfDate = new SimpleDateFormat(myDateFormat);
+        Date date;
+        try {
+            date = sdfDate.parse(task.getDueDate() + time);
+        } catch (ParseException e) {
+            try {
+                date = sdfDate.parse(task.getDueDate() + " 10:00 AM");
+            } catch (ParseException e1) {
+                e1.printStackTrace();
+                return;
+            }
+        }
+
+        //setup the time to send.
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, cal.getTimeInMillis(), pendingIntent);
+    }
+
+    public void removeScheduledNotification(ProxiDB task) {
+        Intent notificationIntent = new Intent(getApplicationContext(), ScheduledNotificationPublisher.class);
+        notificationIntent.putExtra("TaskID", task.getId());
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), task.getId(), notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        alarmManager.cancel(pendingIntent);
 
     }
 }
