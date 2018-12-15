@@ -51,14 +51,13 @@ public class MapsActivity extends FragmentActivity
     private EditText locationSearch;
     private LatLng latlng;
     private String location;
-    private Permissions permissions;
     private String taskName;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.i(TAG, "onCreate");
-        permissions = new Permissions(getApplicationContext());
+        Permissions permissions = new Permissions(getApplicationContext());
         if ( permissions.checkMapsPermission(this) ) {
 
         } else {
@@ -238,7 +237,7 @@ public class MapsActivity extends FragmentActivity
         finish();
     }
 
-    public String getMarkerAddress(LatLng latLng) {
+    private String getMarkerAddress(LatLng latLng) {
         Geocoder geocoder;
         List<Address> addresses = null;
         geocoder = new Geocoder(this, Locale.getDefault());

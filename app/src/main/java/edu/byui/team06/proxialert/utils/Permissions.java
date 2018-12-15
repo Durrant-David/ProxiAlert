@@ -25,7 +25,7 @@ public class Permissions implements  ActivityCompat.OnRequestPermissionsResultCa
     private final int MIC_PERMISSION = 1;
     private final int CONTACT_PERMISSION = 2;
     private static final String TAG = Permissions.class.getSimpleName();
-    Context c;
+    private final Context c;
 
     public Permissions(Context c) {
         this.c = c;

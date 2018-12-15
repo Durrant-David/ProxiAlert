@@ -22,17 +22,16 @@ import edu.byui.team06.proxialert.database.model.ProxiDB;
 public class BootReceiver extends BroadcastReceiver {
 
     private static final String TAG = "BootReceiver";
-    Context contextBootReceiver;
-    int taskCount;
+    private Context contextBootReceiver;
     private List<ProxiDB> taskList = new ArrayList<>();
-    Activity activity = (Activity) contextBootReceiver;
+    private Activity activity = (Activity) contextBootReceiver;
 
     @Override
     public void onReceive(final Context context, Intent intent) {
         contextBootReceiver = context;
         DatabaseHelper db = new DatabaseHelper(contextBootReceiver);
         taskList.addAll(db.getAllTasks());
-        taskCount = db.getTaskCount();
+        int taskCount = db.getTaskCount();
         Geofences geofences = new Geofences(activity, contextBootReceiver);
 
         geofences.initGeofencing(taskCount, taskList);
@@ -44,7 +43,7 @@ public class BootReceiver extends BroadcastReceiver {
         }
     }
 
-    public void scheduleNotification(ProxiDB task) {
+    private void scheduleNotification(ProxiDB task) {
 
         if(Boolean.parseBoolean(task.getComplete()))
             return;

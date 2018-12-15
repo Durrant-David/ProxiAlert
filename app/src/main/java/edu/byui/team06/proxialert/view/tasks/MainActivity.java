@@ -24,7 +24,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -68,12 +67,11 @@ public class MainActivity extends AppCompatActivity {
 
     private TaskAdapter mAdapter;
     private List<ProxiDB> taskList = new ArrayList<>();
-    private CoordinatorLayout coordinatorLayout;
     private RecyclerView recyclerView;
     private TextView noTaskView;
-    public static final String UPDATE = "UPDATE";
-    public static final String POSITION = "POSITION";
-    int taskCount;
+    private static final String UPDATE = "UPDATE";
+    private static final String POSITION = "POSITION";
+    private int taskCount;
     private static final int TASK_ACTIVITY_CODE = 0;
     private int SETTINGS_ACTION = 1;
     private boolean theme;
@@ -184,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
      * </p>
      */
     private void initAllViews() {
-        coordinatorLayout = findViewById(R.id.coordinator_layout);
+        CoordinatorLayout coordinatorLayout = findViewById(R.id.coordinator_layout);
         recyclerView = findViewById(R.id.recycler_view);
         noTaskView = findViewById(R.id.empty_tasks_view);
         fab = findViewById(R.id.fab);
@@ -431,7 +429,7 @@ public class MainActivity extends AppCompatActivity {
  *   the ListView, the noTaskView is set to Visible.
  * </p>
  */
-    public void toggleEmptyTasks() {
+    private void toggleEmptyTasks() {
         // you can check notesList.size() > 0
 
         if (db.getTaskCount() > 0) {
@@ -449,7 +447,7 @@ public class MainActivity extends AppCompatActivity {
      * @param position - the position of the task in the list.
      * </p>
      */
-    void startDirectionsActivity(final int position) {
+    private void startDirectionsActivity(final int position) {
 
         ProxiDB task = taskList.get(position);
         Uri navUri = Uri.parse("google.navigation:q="+task.getLat()+","+task.getLong());
@@ -461,7 +459,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    public void scheduleNotification(ProxiDB task) {
+    private void scheduleNotification(ProxiDB task) {
 
         if(Boolean.parseBoolean(task.getComplete()))
             return;
@@ -496,7 +494,7 @@ public class MainActivity extends AppCompatActivity {
         alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, cal.getTimeInMillis(), pendingIntent);
     }
 
-    public void removeScheduledNotification(ProxiDB task) {
+    private void removeScheduledNotification(ProxiDB task) {
         Intent notificationIntent = new Intent(getApplicationContext(), ScheduledNotificationPublisher.class);
         notificationIntent.putExtra("TaskID", task.getId());
         PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), task.getId(), notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);

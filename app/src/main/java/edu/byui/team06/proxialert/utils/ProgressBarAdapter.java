@@ -13,18 +13,14 @@ import edu.byui.team06.proxialert.R;
 
 public class ProgressBarAdapter extends AsyncTask<String, Integer, String> {
     int count;
-    ProgressBar _bar;
-    long startClockTime;
-    long endClockTime;
+    private final ProgressBar _bar;
+    private final long startClockTime;
+    private final long endClockTime;
     public ProgressBarAdapter(ProgressBar pb) {
         _bar = pb;
         _bar.setProgress(0);
         startClockTime = System.currentTimeMillis();
         endClockTime = System.currentTimeMillis() + 10000; //10 seconds
-    }
-    @Override
-    protected void onPreExecute() {
-        super.onPreExecute();
     }
 
     // This is run in a background thread

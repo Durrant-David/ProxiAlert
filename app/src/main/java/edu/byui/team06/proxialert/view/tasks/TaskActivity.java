@@ -68,13 +68,12 @@ public class TaskActivity extends AppCompatActivity {
     private TextView inputAddress;
     private EditText inputDueDate;
     private EditText inputTaskDesc;
-    Spinner radiusUnits;
+    private Spinner radiusUnits;
     private long id;
     private int mDay;
     private int mMonth;
     private int mYear;
     private boolean theme;
-    private String units;
     private String latitudeString;
     private String longitudeString;
     private String isComplete;
@@ -135,13 +134,7 @@ public class TaskActivity extends AppCompatActivity {
              */
             @Override
             public boolean isEnabled(int position) {
-                if (position == 0) {
-                    // Disable the first item from Spinner
-                    // First item will be use for hint
-                    return false;
-                } else {
-                    return true;
-                }
+                return position != 0;
             }
 
             /**
@@ -221,7 +214,7 @@ public class TaskActivity extends AppCompatActivity {
             inputDueDate.setText(intent.getStringExtra("DUE"));
             latitudeString = intent.getStringExtra("LAT");
             longitudeString = intent.getStringExtra("LONG");
-            units = intent.getStringExtra("UNITS");
+            String units = intent.getStringExtra("UNITS");
             isComplete = intent.getStringExtra("COMPLETE");
             int count = 0;
             for (String s : items) {
@@ -298,10 +291,11 @@ public class TaskActivity extends AppCompatActivity {
                 mRecorder.start();
                 isRecorderStarted = true;
                 recordButton.setText("Stop Recording");
-                new CountDownTimer(10000, 10) {
+                new CountDownTimer(10000, 10000) {
 
+                    @Override
                     public void onTick(long millis) {
-                        ; //do nothing.
+                       //nothing needed here.
                     }
 
                     @Override

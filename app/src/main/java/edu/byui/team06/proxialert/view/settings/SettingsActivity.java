@@ -9,8 +9,8 @@ import android.view.MenuItem;
 import edu.byui.team06.proxialert.R;
 
 public class SettingsActivity extends AppCompatPreferenceActivity {
-    public static final int RESULT_CODE_THEME_UPDATED = 1;
-    public static final int RESULT_UNITS_UPDATED = 2;
+    private static final int RESULT_CODE_THEME_UPDATED = 1;
+    private static final int RESULT_UNITS_UPDATED = 2;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 

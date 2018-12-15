@@ -21,7 +21,6 @@ import java.util.List;
 
 import edu.byui.team06.proxialert.database.model.Fence;
 import edu.byui.team06.proxialert.database.model.ProxiDB;
-import edu.byui.team06.proxialert.view.tasks.MainActivity;
 
 public class Geofences {
     private ArrayList<Geofence> mGeofenceList;
@@ -31,8 +30,8 @@ public class Geofences {
     private static final int DWELL = 1;
     private static final String TAG = "Geofences";
     private GeofencingClient mGeofencingClient;
-    private Activity activity;
-    private Context context;
+    private final Activity activity;
+    private final Context context;
 
     public Geofences(Activity activity, Context context) {
         this.activity = activity;

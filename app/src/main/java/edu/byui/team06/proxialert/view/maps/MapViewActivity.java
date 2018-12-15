@@ -21,23 +21,17 @@ package edu.byui.team06.proxialert.view.maps;
         import android.support.v4.app.FragmentActivity;
         import android.support.v7.app.AlertDialog;
         import android.util.Log;
-        import android.view.View;
-        import android.widget.EditText;
-        import android.widget.Toast;
 
-        import com.google.android.gms.location.Geofence;
         import com.google.android.gms.maps.CameraUpdate;
         import com.google.android.gms.maps.CameraUpdateFactory;
         import com.google.android.gms.maps.GoogleMap;
         import com.google.android.gms.maps.OnMapReadyCallback;
         import com.google.android.gms.maps.SupportMapFragment;
-        import com.google.android.gms.maps.model.CameraPosition;
         import com.google.android.gms.maps.model.LatLng;
         import com.google.android.gms.maps.model.Marker;
         import com.google.android.gms.maps.model.MarkerOptions;
 
         import java.io.IOException;
-        import java.lang.reflect.Array;
         import java.text.ParseException;
         import java.text.SimpleDateFormat;
         import java.util.ArrayList;
@@ -45,17 +39,13 @@ package edu.byui.team06.proxialert.view.maps;
         import java.util.Date;
         import java.util.List;
         import java.util.Locale;
-        import java.util.Map;
 
         import edu.byui.team06.proxialert.R;
-        import edu.byui.team06.proxialert.database.model.Fence;
         import edu.byui.team06.proxialert.database.model.ProxiDB;
         import edu.byui.team06.proxialert.utils.Geofences;
-        import edu.byui.team06.proxialert.utils.PendingIntentHelper;
         import edu.byui.team06.proxialert.utils.Permissions;
         import edu.byui.team06.proxialert.database.DatabaseHelper;
         import edu.byui.team06.proxialert.utils.ScheduledNotificationPublisher;
-        import edu.byui.team06.proxialert.view.tasks.MainActivity;
         import edu.byui.team06.proxialert.view.tasks.TaskActivity;
 
 
@@ -74,7 +64,6 @@ public class MapViewActivity extends FragmentActivity
     private boolean theme;
     private GoogleMap mMap;
     private ArrayList<Marker> searchMarkers = new ArrayList<>();
-    private Permissions permissions;
     private DatabaseHelper db;
     private ArrayList <ProxiDB> TaskList = new ArrayList<>();
     private static final int TASK_ACTIVITY_CODE = 1;
@@ -84,7 +73,7 @@ public class MapViewActivity extends FragmentActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.i(TAG, "onCreate");
-        permissions = new Permissions(getApplicationContext());
+        Permissions permissions = new Permissions(getApplicationContext());
         if ( permissions.checkMapsPermission(this) ) {
 
         } else {
@@ -222,7 +211,7 @@ public class MapViewActivity extends FragmentActivity
         startActivityForResult(taskIntent, TASK_ACTIVITY_CODE);
     }
 
-    public String getMarkerAddress(LatLng latLng) {
+    private String getMarkerAddress(LatLng latLng) {
         Geocoder geocoder;
         List<Address> addresses = null;
         geocoder = new Geocoder(this, Locale.getDefault());
@@ -335,7 +324,7 @@ public class MapViewActivity extends FragmentActivity
      * @param position - the position of the task in the list.
      * </p>
      */
-    void startDirectionsActivity(final int position) {
+    private void startDirectionsActivity(final int position) {
 
         ProxiDB task = TaskList.get(position);
         Uri navUri = Uri.parse("google.navigation:q="+task.getLat()+","+task.getLong());
@@ -360,7 +349,7 @@ public class MapViewActivity extends FragmentActivity
 
     }
 
-    public void scheduleNotification(ProxiDB task) {
+    private void scheduleNotification(ProxiDB task) {
 
         if(Boolean.parseBoolean(task.getComplete()))
             return;
@@ -395,7 +384,7 @@ public class MapViewActivity extends FragmentActivity
         alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, cal.getTimeInMillis(), pendingIntent);
     }
 
-    public void removeScheduledNotification(ProxiDB task) {
+    private void removeScheduledNotification(ProxiDB task) {
         Intent notificationIntent = new Intent(getApplicationContext(), ScheduledNotificationPublisher.class);
         notificationIntent.putExtra("TaskID", task.getId());
         PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), task.getId(), notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
