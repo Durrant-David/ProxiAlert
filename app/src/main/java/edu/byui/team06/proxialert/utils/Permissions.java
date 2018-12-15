@@ -2,12 +2,14 @@ package edu.byui.team06.proxialert.utils;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 /**@author
  * @version  1.0
@@ -25,6 +27,9 @@ public class Permissions implements  ActivityCompat.OnRequestPermissionsResultCa
     private static final String TAG = Permissions.class.getSimpleName();
     Context c;
 
+    public Permissions(Context c) {
+        this.c = c;
+    }
     // Check for permission to access Location
     public boolean checkMapsPermission(Context context) {
         Log.d(TAG, "checkPermission()");
@@ -42,6 +47,9 @@ public class Permissions implements  ActivityCompat.OnRequestPermissionsResultCa
                 new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                 MAP_PERMISSION
         );
+        if(!checkMapsPermission(c)) {
+            permissionsDenied(MAP_PERMISSION);
+        }
     }
 
 
@@ -57,6 +65,9 @@ public class Permissions implements  ActivityCompat.OnRequestPermissionsResultCa
                 activity,
                 new String[]{Manifest.permission.READ_CONTACTS},
                 CONTACT_PERMISSION);
+        if(!checkMicPermission(c)) {
+            permissionsDenied(CONTACT_PERMISSION);
+        }
     }
 
 
@@ -72,6 +83,9 @@ public class Permissions implements  ActivityCompat.OnRequestPermissionsResultCa
                 activity,
                 new String[]{Manifest.permission.RECORD_AUDIO},
                 MIC_PERMISSION);
+        if(!checkMicPermission(c)) {
+            permissionsDenied(MIC_PERMISSION);
+        }
 
     }
 
@@ -88,7 +102,7 @@ public class Permissions implements  ActivityCompat.OnRequestPermissionsResultCa
                     Log.i(TAG, "Location permission granted");
                 } else {
                     // Permission denied
-                    permissionsDenied();
+                    permissionsDenied(requestCode);
                 }
                 break;
             }
@@ -97,7 +111,7 @@ public class Permissions implements  ActivityCompat.OnRequestPermissionsResultCa
                         && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                     Log.i(TAG, "Mic permission granted");
                 } else {
-                    permissionsDenied();
+                    permissionsDenied(requestCode);
                 }
                 break;
             }
@@ -106,7 +120,7 @@ public class Permissions implements  ActivityCompat.OnRequestPermissionsResultCa
                         && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                     Log.i(TAG, "Mic permission granted");
                 } else {
-                    permissionsDenied();
+                    permissionsDenied(requestCode);
                 }
                 break;
             }
@@ -115,8 +129,28 @@ public class Permissions implements  ActivityCompat.OnRequestPermissionsResultCa
 
 
     // App cannot work without the permissions
-    private void permissionsDenied() {
+    private void permissionsDenied(int requestCode) {
         Log.w(TAG, "permissionsDenied()");
-        //TODO Add a toast to tell app functionality won't work.
+        switch (requestCode) {
+            case MAP_PERMISSION:
+                Toast.makeText(c.getApplicationContext(),
+                        "ERROR: App cannot function without User Location. " +
+                                "Please update in Settings.",
+                        Toast.LENGTH_LONG).show();
+                break;
+            case MIC_PERMISSION:
+                Toast.makeText(c.getApplicationContext(),
+                        "You will not be able to record your voice for notifications" +
+                                " without App Mic Accessibility. Please update in Settings.",
+                        Toast.LENGTH_LONG).show();
+                break;
+            case CONTACT_PERMISSION:
+                Toast.makeText(c.getApplicationContext(),
+                        "You will not be able to link contacts to each task without" +
+                                "App Contact Accessibility. Please update in Settings.",
+                        Toast.LENGTH_LONG).show();
+                break;
+        }
+
     }
 }

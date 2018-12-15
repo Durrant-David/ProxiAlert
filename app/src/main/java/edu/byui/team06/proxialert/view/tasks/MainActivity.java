@@ -321,7 +321,7 @@ public class MainActivity extends AppCompatActivity {
         CharSequence colors[];
         if(isComplete)
         {
-            colors = new CharSequence[]{"Navigate to...", "Delete", "Unmark As Complete"};
+            colors = new CharSequence[]{"Navigate to...", "Delete", "Mark As Incomplete"};
         }
         else
         {

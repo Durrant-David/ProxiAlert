@@ -16,6 +16,7 @@ public class ScheduledNotificationPublisher extends BroadcastReceiver {
     public final static String NOTIFICATION = "notification";
     @Override
     public void onReceive(Context context, Intent intent) {
+
         int taskId = intent.getIntExtra("TaskID", 0);
         DatabaseHelper db = new DatabaseHelper(context);
         ProxiDB task = db.getProxiDB(taskId);

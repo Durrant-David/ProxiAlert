@@ -14,6 +14,7 @@ package edu.byui.team06.proxialert.view.maps;
         import android.location.Geocoder;
         import android.location.Location;
         import android.location.LocationManager;
+        import android.net.Uri;
         import android.os.Bundle;
         import android.preference.PreferenceManager;
         import android.support.v4.app.ActivityCompat;
@@ -30,6 +31,7 @@ package edu.byui.team06.proxialert.view.maps;
         import com.google.android.gms.maps.GoogleMap;
         import com.google.android.gms.maps.OnMapReadyCallback;
         import com.google.android.gms.maps.SupportMapFragment;
+        import com.google.android.gms.maps.model.CameraPosition;
         import com.google.android.gms.maps.model.LatLng;
         import com.google.android.gms.maps.model.Marker;
         import com.google.android.gms.maps.model.MarkerOptions;
@@ -47,6 +49,7 @@ package edu.byui.team06.proxialert.view.maps;
         import edu.byui.team06.proxialert.R;
         import edu.byui.team06.proxialert.database.model.Fence;
         import edu.byui.team06.proxialert.database.model.ProxiDB;
+        import edu.byui.team06.proxialert.utils.PendingIntentHelper;
         import edu.byui.team06.proxialert.utils.Permissions;
         import edu.byui.team06.proxialert.database.DatabaseHelper;
         import edu.byui.team06.proxialert.utils.ScheduledNotificationPublisher;
@@ -61,8 +64,7 @@ package edu.byui.team06.proxialert.view.maps;
 public class MapViewActivity extends FragmentActivity
         implements
         GoogleMap.OnMapClickListener,
-        OnMapReadyCallback,
-        GoogleMap.OnMarkerClickListener
+        OnMapReadyCallback
 {
     private static final String TAG = MapsActivity.class.getSimpleName();
     private static final String UPDATE = "UPDATE";
@@ -75,12 +77,13 @@ public class MapViewActivity extends FragmentActivity
     private DatabaseHelper db;
     private ArrayList <ProxiDB> TaskList = new ArrayList<>();
     private static final int TASK_ACTIVITY_CODE = 1;
+    private PendingIntentHelper pih;
 
     // TODO zoom in on current location onStart
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.i(TAG, "onCreate");
-        permissions = new Permissions();
+        permissions = new Permissions(getApplicationContext());
         if ( permissions.checkMapsPermission(this) ) {
 
         } else {
@@ -100,8 +103,7 @@ public class MapViewActivity extends FragmentActivity
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        db = new DatabaseHelper(this);
-        TaskList.addAll(db.getAllTasks());
+        pih = new PendingIntentHelper(getApplicationContext(), MapViewActivity.this);
 
        }
 
@@ -114,6 +116,7 @@ public class MapViewActivity extends FragmentActivity
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        mMap.setOnMapClickListener(this);
 
         if (ActivityCompat.checkSelfPermission
                 (this, Manifest.permission.ACCESS_FINE_LOCATION) !=
@@ -123,7 +126,7 @@ public class MapViewActivity extends FragmentActivity
             return;
         }
         mMap.setMyLocationEnabled(true);
-        mMap.setOnMapClickListener(this);
+
 
         LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
         Location location = lm.getLastKnownLocation(lm.getBestProvider(new Criteria(), true));
@@ -140,22 +143,11 @@ public class MapViewActivity extends FragmentActivity
             setSearchMarker(task);
         }
 
-        mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
-            public void onMapLongClick(LatLng latLng) {
-                double shortestLat = 5;
-                double shortestLong = 5;
-                int index = -1;
-                int count = 0;
-                for (Marker marker : searchMarkers) {
-                    if (Math.abs(marker.getPosition().latitude - latLng.latitude) < shortestLat && Math.abs(marker.getPosition().longitude - latLng.longitude) < shortestLong) {
-                        index = count;
-                    }
-                    count++;
-                }
-                if(index != -1) {
-                    showActionsDialog(index);
-                }
+            public boolean onMarkerClick(Marker marker) {
+                showActionsDialog(searchMarkers.indexOf(marker));
+                return false;
             }
         });
     }
@@ -195,18 +187,6 @@ public class MapViewActivity extends FragmentActivity
         }
     }
 
-
-
-    /**
-     * onMapCancel
-     * It sets the result to cancelled and closes
-     * the activity.
-     * @param view
-     */
-    public void onMapCancel(View view) {
-        finish();
-    }
-
     @Override
     public void onMapClick(LatLng latLng) {
         String address = getMarkerAddress(latLng);
@@ -215,12 +195,28 @@ public class MapViewActivity extends FragmentActivity
         startActivityForResult(taskIntent, TASK_ACTIVITY_CODE);
     }
 
-    @Override
-    public boolean onMarkerClick(Marker marker) {
 
-        return false;
+
+    private void startUpdateTaskActivity(int position) {
+        ProxiDB element = TaskList.get(position);
+        Intent taskIntent = new Intent(MapViewActivity.this, TaskActivity.class);
+        taskIntent.putExtra(UPDATE, true);
+        taskIntent.putExtra(POSITION, position);
+        taskIntent.putExtra("ADDRESS", element.getAddress());
+        taskIntent.putExtra("RADIUS", element.getRadius());
+        taskIntent.putExtra("UNITS", element.getUnits());
+        taskIntent.putExtra("ID", element.getId());
+        taskIntent.putExtra("TASK", element.getTask());
+        taskIntent.putExtra("DUE", element.getDueDate());
+        taskIntent.putExtra("TIMESTAMP", element.getTimeStamp());
+        taskIntent.putExtra("LAT", element.getLat());
+        taskIntent.putExtra("LONG", element.getLong());
+        taskIntent.putExtra("DESCRIPTION", element.getDescription());
+        taskIntent.putExtra("COMPLETE", element.getComplete());
+        taskIntent.putExtra("AUDIO", element.getAudio());
+        taskIntent.putExtra("CONTACT", element.getContact());
+        startActivityForResult(taskIntent, TASK_ACTIVITY_CODE);
     }
-
 
     public String getMarkerAddress(LatLng latLng) {
         Geocoder geocoder;
@@ -234,10 +230,12 @@ public class MapViewActivity extends FragmentActivity
             return "";
         }
 
-        String address = addresses.get(0).getAddressLine(0);
-
-        Log.d(TAG, "Marker address = ("+address +")");
-        return address;
+        if (!addresses.isEmpty()) {
+            String address = addresses.get(0).getAddressLine(0);
+            Log.d(TAG, "Marker address = (" + address + ")");
+            return address;
+        }
+        return "";
     }
 
     @Override
@@ -259,12 +257,12 @@ public class MapViewActivity extends FragmentActivity
                 //If it's NOT an update, add it to the end.
                 if (isUpdate) {
                     TaskList.set(data.getIntExtra("POSITION", 0), element);
-                    removeScheduledNotification(element);
-                    scheduleNotification(element);
+                    pih.removeScheduledNotification(element);
+                    pih.scheduleNotification(element);
                 } else {
                     TaskList.add(TaskList.size(), element);
                     setSearchMarker(element);
-                    scheduleNotification(element);
+                    pih.scheduleNotification(element);
                 }
                 //TODO reset Geofences here.
                 //somehow call remove Geofences class when it is built!
@@ -274,49 +272,6 @@ public class MapViewActivity extends FragmentActivity
         }
     }
 
-    public void scheduleNotification(ProxiDB task) {
-
-        if(Boolean.parseBoolean(task.getComplete()))
-            return;
-
-        //create the pending intent
-        Intent notificationIntent = new Intent(getApplicationContext(), ScheduledNotificationPublisher.class);
-        notificationIntent.putExtra("TaskID", task.getId());
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), task.getId(), notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-
-        //set the time for the notification
-        SharedPreferences pref = PreferenceManager
-                .getDefaultSharedPreferences(this);
-        String time = pref.getString("notifyTime", "10:00 AM");
-        String myDateFormat = "MM/dd/yyyy HH:mm a";
-        SimpleDateFormat sdfDate = new SimpleDateFormat(myDateFormat);
-        Date date;
-        try {
-            date = sdfDate.parse(task.getDueDate() + time);
-        } catch (ParseException e) {
-            try {
-                date = sdfDate.parse(task.getDueDate() + " 10:00 AM");
-            } catch (ParseException e1) {
-                e1.printStackTrace();
-                return;
-            }
-        }
-
-        //setup the time to send.
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, cal.getTimeInMillis(), pendingIntent);
-    }
-
-    public void removeScheduledNotification(ProxiDB task) {
-        Intent notificationIntent = new Intent(getApplicationContext(), ScheduledNotificationPublisher.class);
-        notificationIntent.putExtra("TaskID", task.getId());
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), task.getId(), notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        alarmManager.cancel(pendingIntent);
-
-    }
 
     private void showActionsDialog(final int position) {
 
@@ -326,11 +281,11 @@ public class MapViewActivity extends FragmentActivity
         CharSequence colors[];
         if(isComplete)
         {
-            colors = new CharSequence[]{"Navigate to...", "Delete", "Unmark As Complete"};
+            colors = new CharSequence[]{"Edit Task...", "Navigate to...", "Delete", "Mark As Incomplete"};
         }
         else
         {
-            colors = new CharSequence[]{"Navigate to...", "Delete", "Mark As Complete"};
+            colors = new CharSequence[]{"Edit Task...", "Navigate to...", "Delete", "Mark As Complete"};
         }
 
 
@@ -346,27 +301,45 @@ public class MapViewActivity extends FragmentActivity
             public void onClick(DialogInterface dialog, int which) {
                 ProxiDB element = TaskList.get(position);
                 if (which == 0) {
-                    //TODO startDirectionsActivity(position);
-                } else if (which == 1){
+                    startUpdateTaskActivity(position);
+                } else if (which == 1) {
+                    startDirectionsActivity(position);
+                } else if (which == 2){
                     //TODO deleteTask(position);
                 } else {
                     if(element.getComplete().equals("true")) {
                         element.setComplete("false");
-                        //TODO clearGeofenceClient();
-                        scheduleNotification(element);
+                        pih.clearGeofenceClient();
+                        pih.scheduleNotification(element);
                     } else {
                         element.setComplete("true");
-                        removeScheduledNotification(element);
+                        pih.removeScheduledNotification(element);
                     }
 
                     db.updateTask(element);
-                    //TODO reset Geofences here.
-                    //resetGeofences();
+                    //TODO pih.resetGeofences();
                 }
 
             }
         });
         builder.show();
+    }
+
+    /**<p>
+     * startDirectionsActivity takes a task position in the taskList and gives
+     * executes an Activity that will take the user to the task Location.
+     * @param position - the position of the task in the list.
+     * </p>
+     */
+    void startDirectionsActivity(final int position) {
+
+        ProxiDB task = TaskList.get(position);
+        Uri navUri = Uri.parse("google.navigation:q="+task.getLat()+","+task.getLong());
+        Intent navigationIntent =new Intent(Intent.ACTION_VIEW, navUri);
+        navigationIntent.setPackage("com.google.android.apps.maps");
+        startActivity(navigationIntent);
+
+
     }
 }
 
