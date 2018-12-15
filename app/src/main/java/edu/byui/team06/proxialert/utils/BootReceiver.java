@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.byui.team06.proxialert.database.DatabaseHelper;
-import edu.byui.team06.proxialert.database.model.Fence;
 import edu.byui.team06.proxialert.database.model.ProxiDB;
 
 public class BootReceiver extends BroadcastReceiver {
@@ -23,8 +22,9 @@ public class BootReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(final Context context, Intent intent) {
         contextBootReceiver = context;
-        DatabaseHelper db;
-        Fence fence;
+        DatabaseHelper db = new DatabaseHelper(contextBootReceiver);
+        taskList.addAll(db.getAllTasks());
+        taskCount = db.getTaskCount();
         Geofences geofences = new Geofences(activity, contextBootReceiver);
 
         geofences.initGeofencing(taskCount, taskList);
