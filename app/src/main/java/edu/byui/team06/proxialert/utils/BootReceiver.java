@@ -33,7 +33,7 @@ public class BootReceiver extends BroadcastReceiver {
         int taskCount = db.getTaskCount();
         Geofences geofences = new Geofences(activity, contextBootReceiver);
 
-        geofences.initGeofencing(taskCount, taskList);
+        geofences.initGeofencing(taskList);
 
         for(ProxiDB task : taskList) {
             if(!Boolean.parseBoolean(task.getComplete())) {

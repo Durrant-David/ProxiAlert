@@ -98,7 +98,7 @@ public class MapViewActivity extends FragmentActivity
             mapFragment.getMapAsync(this);
         }
         geofences = new Geofences(MapViewActivity.this, getApplicationContext());
-        geofences.initGeofencing(TaskList.size(), TaskList);
+        geofences.initGeofencing(TaskList);
        }
 
     /**
@@ -260,7 +260,7 @@ public class MapViewActivity extends FragmentActivity
                 }
                 //TODO reset Geofences here.
                 //somehow call remove Geofences class when it is built!
-               geofences.resetGeofences(TaskList.size(), TaskList);
+               geofences.resetGeofences(TaskList);
 
 
             }
@@ -317,7 +317,7 @@ public class MapViewActivity extends FragmentActivity
                     }
 
                     db.updateTask(element);
-                   geofences.resetGeofences(TaskList.size(), TaskList);
+                   geofences.resetGeofences(TaskList);
                 }
 
             }
@@ -348,7 +348,7 @@ public class MapViewActivity extends FragmentActivity
         removeScheduledNotification(TaskList.get(position));
         TaskList.remove(position);
         searchMarkers.clear();
-        geofences.resetGeofences(TaskList.size(), TaskList);
+        geofences.resetGeofences(TaskList);
         mMap.clear();
         for(ProxiDB task : TaskList) {
             setSearchMarker(task);

@@ -42,7 +42,7 @@ public class Geofences {
      * initGeofencing Removes all the Geofences then add them all back in to the Geofence list
      * Then, add them to the Geofence Client so that checking can be done in the background.
      */
-    public void initGeofencing(int count, List<ProxiDB> list) {
+    public void initGeofencing(List<ProxiDB> list) {
         SharedPreferences pref = PreferenceManager
                 .getDefaultSharedPreferences(context);
         mGeofencingClient = new GeofencingClient(context);
@@ -61,8 +61,8 @@ public class Geofences {
         com.google.android.gms.location.Geofence geofence;
         mGeofenceList = new ArrayList<>();
         // if there are tasks in the DB than add them to geofence
-        if (count > 0) {
-            for (int i = 0; i < count; i++) {
+        if (list.size() > 0) {
+            for (int i = 0; i < list.size(); i++) {
                 ProxiDB task = list.get(i);
                 if (!Boolean.parseBoolean(task.getComplete())) {
                     fence = new Fence(list.get(i));
@@ -188,7 +188,7 @@ public class Geofences {
      * back in the the GeofenceClient.
      * </p>
      */
-    public void resetGeofences(int count, List<ProxiDB>list) {
+    public void resetGeofences(List<ProxiDB>list) {
 
         // Remove all geofences, to get a fresh start
         clearGeofenceClient();
@@ -196,8 +196,8 @@ public class Geofences {
 
         com.google.android.gms.location.Geofence geofence;
         // if there are tasks in the DB than add them to geofence
-        if (count > 0) {
-            for (int i = 0; i < count; i++) {
+        if (list.size() > 0) {
+            for (int i = 0; i < list.size(); i++) {
                 ProxiDB task = list.get(i);
                 if(!Boolean.parseBoolean(task.getComplete())) {
                     fence = new Fence(task);

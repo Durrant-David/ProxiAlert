@@ -73,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String POSITION = "POSITION";
     private int taskCount;
     private static final int TASK_ACTIVITY_CODE = 0;
+    private static final int MAP_VIEW_CODE = 2;
     private int SETTINGS_ACTION = 1;
     private boolean theme;
     private FloatingActionButton fab;
@@ -121,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
         initDatabase();
         initAllViews();
         attachResponseToViews();
-        geofences.initGeofencing(taskCount, taskList);
+        geofences.initGeofencing(taskList);
 
     }
     /**
@@ -152,8 +153,8 @@ public class MainActivity extends AppCompatActivity {
      * </p>
      */
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void onPause() {
+        super.onPause();
         db.close();
     }
 
@@ -293,7 +294,7 @@ public class MainActivity extends AppCompatActivity {
         taskList.remove(position);
         mAdapter.notifyItemRemoved(position);
         toggleEmptyTasks();
-        geofences.resetGeofences(taskCount, taskList);
+        geofences.resetGeofences(taskList);
 
     }
 
@@ -352,7 +353,7 @@ public class MainActivity extends AppCompatActivity {
                     taskList.clear();
                     taskList.addAll(db.getAllTasks());
                     mAdapter.notifyDataSetChanged();
-                    geofences.resetGeofences(taskCount, taskList);
+                    geofences.resetGeofences(taskList);
                 }
                 
             }
@@ -374,6 +375,7 @@ public class MainActivity extends AppCompatActivity {
 
         // TASK_ACTIVITY_CODE represents results with the Task Activity.
         if (resultCode == RESULT_OK) {
+            db = new DatabaseHelper(this);
 
             //If the result was set to Ok, then we will update the Views.
             if (requestCode == TASK_ACTIVITY_CODE) {
@@ -399,7 +401,7 @@ public class MainActivity extends AppCompatActivity {
                 taskList.clear();
                 taskList.addAll(db.getAllTasks());
                 mAdapter.notifyDataSetChanged();
-                geofences.resetGeofences(taskCount, taskList);
+
 
                 //Update the view.
                 mAdapter.notifyDataSetChanged();
@@ -415,6 +417,14 @@ public class MainActivity extends AppCompatActivity {
                     scheduleNotification(task);
                 }
             }
+        }
+        else if (requestCode == MAP_VIEW_CODE) {
+            db = new DatabaseHelper(this);
+            taskList.clear();
+            taskList.addAll(db.getAllTasks());
+            mAdapter.notifyDataSetChanged();
+            geofences.resetGeofences(taskList);
+            toggleEmptyTasks();
         }
     }
 
@@ -501,6 +511,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void startMapView(MenuItem item){
         Intent intent = new Intent(this, MapViewActivity.class);
-        startActivity(intent);
+        startActivityForResult(intent, MAP_VIEW_CODE);
+        db.close();
     }
 }

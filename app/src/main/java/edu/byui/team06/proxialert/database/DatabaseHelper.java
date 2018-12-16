@@ -199,8 +199,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(ProxiDB.COLUMN_LAT, proxiDB.getLat());
         values.put(ProxiDB.COLUMN_LONG, proxiDB.getLong());
         values.put(ProxiDB.COLUMN_DESCRIPTION, proxiDB.getDescription());
+        values.put(ProxiDB.COLUMN_CONTACT, proxiDB.getContact());
         values.put(ProxiDB.COLUMN_COMPLETE, proxiDB.getComplete());
-        values.put(ProxiDB.COLUMN_COMPLETE, proxiDB.getContact());
         values.put(ProxiDB.COLUMN_AUDIO, proxiDB.getAudio());
         // updating row
         return db.update(ProxiDB.TABLE_NAME, values, ProxiDB.COLUMN_ID + " = ?",
