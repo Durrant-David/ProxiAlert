@@ -34,7 +34,7 @@ public class Fence {
 
         switch (unit) {
             case "Miles":
-                returnVal = value * 5280;
+                returnVal = value * 1609.34f;
                 break;
             case "Meters":
                 returnVal = value;
