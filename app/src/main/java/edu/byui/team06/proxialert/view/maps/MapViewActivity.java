@@ -167,12 +167,13 @@ public class MapViewActivity extends FragmentActivity
 
         }
     }
+
     /**
      * onMapClick sets a marker to where the user clicked and opens a task activity creation page
      * for the user to start updating a new task.
-     *  @param task - the task that the search marker will be set for.
+     *  @param latLng - the location of the task that the search marker will be set for.
      */
-    @Override
+        @Override
     public void onMapClick(LatLng latLng) {
         String address = getMarkerAddress(latLng);
         Intent taskIntent = new Intent(MapViewActivity.this, TaskActivity.class);
