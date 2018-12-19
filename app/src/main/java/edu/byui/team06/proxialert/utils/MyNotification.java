@@ -20,6 +20,9 @@ import edu.byui.team06.proxialert.database.model.ProxiDB;
 
 import static android.support.v4.content.ContextCompat.getSystemService;
 
+/**
+ * MyNotifiation class handles the app's notifications.
+ */
 public class MyNotification {
 
     private NotificationManager notifManager;
@@ -27,6 +30,13 @@ public class MyNotification {
     private int notificationId;
     private NotificationCompat.Builder nb;
     private MediaPlayer notifSound;
+
+    /**
+     * MyNotification method handles app's notifications including the sound, vibration, etc. It also
+     * sends notification based on the location of the user.
+     * @param task
+     * @param c
+     */
     public MyNotification(ProxiDB task, Context c ) {
         notificationCounter++;
         notificationId = notificationCounter;
@@ -86,7 +96,12 @@ public class MyNotification {
 
 
     }
-
+    /**
+     * MyNotification method handles app's notifications including the sound, vibration, etc. It also
+     * sends notification based on the location of the user.
+     * @param task
+     * @param c
+     */
     public MyNotification(ProxiDB task, Context c, boolean isScheduled ) {
         notificationCounter++;
         notificationId = notificationCounter;
@@ -147,6 +162,10 @@ public class MyNotification {
 
 
     }
+
+    /**
+     * send method starts the sound of the notification
+     */
     public void send()
     {
         notifManager.notify(notificationId, nb.build());

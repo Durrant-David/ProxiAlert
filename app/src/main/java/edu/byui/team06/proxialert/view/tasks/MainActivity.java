@@ -82,11 +82,9 @@ public class MainActivity extends AppCompatActivity {
     private DatabaseHelper db;
     /**
      * <p>
-     * OnOptionsItemSelected gets called when a menu item is selected.
-     * This menu appears when the dots in the corner of the screen are
-     * selected. The id depends on which button is pressed.
+     * OnOptionsItemSelected gets called when a menu item is selected. This menu appears when the
+     * dots in the corner of the screen are selected. The id depends on which button is pressed.
      * </p>
-     *
      * @return the original result from the AppCompatActivity::onOptionsItemSelected()
      * */
     @Override
@@ -128,8 +126,8 @@ public class MainActivity extends AppCompatActivity {
     /**
      * <p>
      * onStart
-     * Gets called after OnCreate as well as any time the activity is returned to.
-     * It checks the theme, and calls recreate if necessary to "refresh" the theme.
+     * Gets called after OnCreate as well as any time the activity is returned to. It checks the
+     * theme, and calls recreate if necessary to "refresh" the theme.
      * </p>
      */
     @Override
@@ -147,9 +145,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * <p>
-     * onDestroy
-     * When the app is destroyed we close the database since
-     * it will not be required anymore.
+     * onPause. When the app is paused we close the database since it will not be required anymore.
      * </p>
      */
     @Override
@@ -234,10 +230,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        /**
-         * On a click, we start the TaskActivity to update the task.
-         * On a long click, open a dialogBox to give the user the option to choose.
-         * */
+        /*
+          On a click, we start the TaskActivity to update the task.
+          On a long click, open a dialogBox to give the user the option to choose.
+          */
         recyclerView.addOnItemTouchListener(new RecyclerTouchListener(this,
                 recyclerView, new RecyclerTouchListener.ClickListener() {
             @Override
@@ -255,8 +251,7 @@ public class MainActivity extends AppCompatActivity {
     /**
      * <p>
      * onCreateOptionsMenu
-     * This method displays the drop down list when the dots
-     * in the top left corner are clicked on.
+     * This method displays the drop down list when the dots in the top left corner are clicked on.
      * @param menu is the parameter for which menu was clicked on.
      * @return true to allow the program to continue running other checks.
      * </p>
@@ -269,8 +264,8 @@ public class MainActivity extends AppCompatActivity {
     }
     /**
     * StartSettings
-    * This method starts the settings activity for the user to start changing settings.
-    * It is called when the "Settings" menu list item is selected.
+    * This method starts the settings activity for the user to change settings. It is called when
+     * the "Settings" menu list item is selected.
     * @param item - the item that is selected in the menu list.
     */
     public void startSettings(MenuItem item) {
@@ -509,6 +504,10 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * startMapView starts the Map View Tasks.
+     * @param item
+     */
     public void startMapView(MenuItem item){
         Intent intent = new Intent(this, MapViewActivity.class);
         startActivityForResult(intent, MAP_VIEW_CODE);

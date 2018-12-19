@@ -37,6 +37,10 @@ public class Permissions implements  ActivityCompat.OnRequestPermissionsResultCa
 
     }
 
+    /**
+     * askMapsPermission method asks user for permission to use location
+     * @param activity
+     */
     // Asks for permission
     public void askMapsPermission(Activity activity) {
         Log.d(TAG, "askMapsPermission()");
@@ -50,13 +54,21 @@ public class Permissions implements  ActivityCompat.OnRequestPermissionsResultCa
         }
     }
 
-
+    /**
+     * checkContactPermission method checks for permissions to use phone contacts
+     * @param context
+     * @return
+     */
     public boolean checkContactPermission(Context context) {
         Log.d(TAG, "checkContactPermission()");
         return (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CONTACTS)
                 == PackageManager.PERMISSION_GRANTED);
     }
 
+    /**
+     * askContactPermission method asks user for permissions to use phone contacts
+     * @param activity
+     */
     public void askContactPermission(Activity activity) {
         Log.d(TAG, "askContactsPermission()");
         ActivityCompat.requestPermissions(
@@ -68,13 +80,21 @@ public class Permissions implements  ActivityCompat.OnRequestPermissionsResultCa
         }
     }
 
-
+    /**
+     * checkMicPermission method checks the permissions to use phone microphone
+     * @param context
+     * @return
+     */
     public boolean checkMicPermission(Context context) {
         Log.d(TAG, "checkMicPermissions()");
         return (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO)
                 == PackageManager.PERMISSION_GRANTED);
     }
 
+    /**
+     * askMicPermissions asks the user for permissions to use the phone microphone.
+     * @param activity
+     */
     public void askMicPermission(Activity activity) {
         Log.d(TAG, "askMicPermission");
         ActivityCompat.requestPermissions(
@@ -87,6 +107,12 @@ public class Permissions implements  ActivityCompat.OnRequestPermissionsResultCa
 
     }
 
+    /**
+     * onRequestPermissionsResult method handles all the permissions
+     * @param requestCode
+     * @param permissions
+     * @param grantResults
+     */
     // Verify user's response of the permission requested
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {

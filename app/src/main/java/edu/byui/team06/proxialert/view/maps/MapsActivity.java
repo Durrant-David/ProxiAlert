@@ -36,13 +36,13 @@ import java.util.Locale;
 
 import edu.byui.team06.proxialert.R;
 import edu.byui.team06.proxialert.utils.Permissions;
-
-
-
 /**
- * MapsActivity it handles the activity
- * used for selecting location of the task
+ * @author David Durrant, Chase Busacker, Kristina Hayes
+ * @version  1.0
+ * @since 1.0
+ * <p> MapsActivity handles the activity used for selecting the location of the  task</p>
  */
+
 public class MapsActivity extends FragmentActivity
         implements
         GoogleMap.OnMapClickListener,
@@ -86,9 +86,7 @@ public class MapsActivity extends FragmentActivity
      }
 
     /**
-     * onMapReady asks user for permission
-     * to access for Google maps.
-     * It marks user's current location
+     * onMapReady asks user for permission to access Google maps and marks user's current location
      * @param googleMap - the googleMap that is being created
      */
     @Override
@@ -116,9 +114,7 @@ public class MapsActivity extends FragmentActivity
     }
 
     /**
-     * MapClick sets a marker to where
-     * the user clicked. Sets the text
-     * of the location search bar
+     * MapClick sets a marker to where the user clicked. Sets the text of the location search bar
      * to the nearest address.
      * @param latLng - the location where the user clicked.
      */
@@ -159,10 +155,9 @@ public class MapsActivity extends FragmentActivity
 
     /**
      * onMapSearch
-     * When the user clicks the Search button, it gets
-     * the search result and searches for the address using
-     * Google database. It sets the marker at the location of that
-     * address and moves the map camera to that spot.
+     * When the user clicks the Search button, it gets the search result and searches for the
+     * address using Google database. It sets the marker at the location of that address and moves
+     * the map camera to that spot.
      * @param view the button that the user clicked on.
      */
     public void onMapSearch(View view) {
@@ -213,9 +208,8 @@ public class MapsActivity extends FragmentActivity
 
     /**
      * onMapSubmit
-     * Submit button which saves the information from the
-     * search bar and the coordinates to an intent that will be
-     * used in the TaskActivity. It then closes the map activity.
+     * Submit button which saves the information from the search bar and the coordinates to an
+     * intent that will be used in the TaskActivity. It then closes the map activity.
      * @param view - the button that the user clicked on.
      */
     public void onMapSubmit(View view) {
@@ -231,8 +225,7 @@ public class MapsActivity extends FragmentActivity
     }
     /**
      * onMapCancel
-     * It sets the result to cancelled and closes
-     * the activity.
+     * It sets the result to cancelled and closes the activity.
      * @param view - the button that the user clicked on.
      */
     public void onMapCancel(View view) {

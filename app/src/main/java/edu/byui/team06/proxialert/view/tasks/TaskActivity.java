@@ -50,7 +50,7 @@ import edu.byui.team06.proxialert.utils.ProgressBarAdapter;
 import edu.byui.team06.proxialert.view.maps.MapsActivity;
 
 /**@author Chase Busacker
- * @verion 1.0
+ * @version 1.0
  * TaskActivityClass handles
  * the task creation and update
  */
@@ -133,9 +133,8 @@ public class TaskActivity extends AppCompatActivity {
             }
 
             /**
-             * getDropDownView creates the drop down and
-             * sets the color of each item in the list based
-             * on the Theme.
+             * getDropDownView creates the drop down and sets the color of each item in the list
+             * based on the Theme selected.
              * @param position - the position of the item in the list
              * @param convertView - not important here. Required for @Override
              * @param parent - any parents of each item - not any here.
@@ -234,6 +233,7 @@ public class TaskActivity extends AppCompatActivity {
             String prefUnits = sp.getString("ProxiUnits", "Units...");
             int count = 0;
             for (String s : items) {
+                assert prefUnits != null;
                 if (prefUnits.contains(s))
                     break;
                 count++;
@@ -242,7 +242,6 @@ public class TaskActivity extends AppCompatActivity {
 
         }
     }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -313,7 +312,10 @@ public class TaskActivity extends AppCompatActivity {
     }
 
 
-
+    /**
+     * onCancelButton cancels the recording.
+     * @param view
+     */
 
     public void onCancelButton(View view) {
         mRecorder.stop();
@@ -413,6 +415,11 @@ public class TaskActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * startMapActivity starts the map activity and checks for permissions, if the permissions were
+     * not granted asks for permissions, otherwise, it adds the name of the tasks to the map activity.
+     * @param view
+     */
     // Geofence
     // button to open MapsActivity
     public void startMapActivity(View view) {
@@ -429,6 +436,11 @@ public class TaskActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * selectContact method checks for permissions to access contact lists and then adds a contact
+     * to the task.
+     * @param view
+     */
     public void selectContact(View view) {
         if(new Permissions(getApplicationContext()).checkContactPermission(getApplicationContext())) {
             Intent contactIntent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);

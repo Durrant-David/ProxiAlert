@@ -68,7 +68,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.MyViewHolder>{
 
    /**
      * onBindViewHolder
-     * This where each list item is created. Not sure where it is called
+     * This where each list item is created.
      * @param holder - The task item itself.
      * @param position - location on the screen
      */

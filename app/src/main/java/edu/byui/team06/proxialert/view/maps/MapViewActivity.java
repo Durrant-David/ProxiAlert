@@ -49,9 +49,10 @@ package edu.byui.team06.proxialert.view.maps;
         import edu.byui.team06.proxialert.view.tasks.TaskActivity;
 
 
-/**
- * MapsActivity it handles the activity
- * used for selecting location of the task
+/**@author Chase Busacker. Kristina Hayes
+ * @version  1.0
+ * @since 1.0
+ * MapViewActivity handles Task Map View
  */
 public class MapViewActivity extends FragmentActivity
         implements
@@ -69,7 +70,6 @@ public class MapViewActivity extends FragmentActivity
     private static final int TASK_ACTIVITY_CODE = 1;
     private Geofences geofences;
 
-    // TODO zoom in on current location onStart
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.i(TAG, "onCreate");
@@ -102,9 +102,8 @@ public class MapViewActivity extends FragmentActivity
        }
 
     /**
-     * onMapReady asks user for permission
-     * to access for Google maps.
-     * It marks user's current location
+     * onMapReady asks user for permission to access for Google maps. It marks user's current
+     * location and displays tasks on the map.
      * @param googleMap - the googleMap that is being created.
      */
     @Override
@@ -146,18 +145,6 @@ public class MapViewActivity extends FragmentActivity
         });
     }
 
-
-
-
-
-    /**
-     * MapClick sets a marker to where
-     * the user clicked. Sets the text
-     * of the location search bar
-     * to the nearest address.
-     * @param task - the task that the search marker will be set for.
-     */
-
     private void setSearchMarker(ProxiDB task) {
 
         LatLng latLng = new LatLng(Double.parseDouble(task.getLat()), Double.parseDouble(task.getLong()));
@@ -180,7 +167,11 @@ public class MapViewActivity extends FragmentActivity
 
         }
     }
-
+    /**
+     * onMapClick sets a marker to where the user clicked and opens a task activity creation page
+     * for the user to start updating a new task.
+     *  @param task - the task that the search marker will be set for.
+     */
     @Override
     public void onMapClick(LatLng latLng) {
         String address = getMarkerAddress(latLng);
@@ -188,8 +179,6 @@ public class MapViewActivity extends FragmentActivity
         taskIntent.putExtra("ADDRESS", address);
         startActivityForResult(taskIntent, TASK_ACTIVITY_CODE);
     }
-
-
 
     private void startUpdateTaskActivity(int position) {
         ProxiDB element = TaskList.get(position);
@@ -326,8 +315,8 @@ public class MapViewActivity extends FragmentActivity
     }
 
     /**<p>
-     * startDirectionsActivity takes a task position in the taskList and gives
-     * executes an Activity that will take the user to the task Location.
+     * startDirectionsActivity takes a task position in the taskList and gives executes an Activity
+     * that will take the user to the task Location.
      * @param position - the position of the task in the list.
      * </p>
      */
@@ -355,7 +344,6 @@ public class MapViewActivity extends FragmentActivity
         }
 
     }
-
     private void scheduleNotification(ProxiDB task) {
 
         if(Boolean.parseBoolean(task.getComplete()))
